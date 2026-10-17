@@ -1,0 +1,59 @@
+{
+  "name": "Core to Cosmos — Stack Tower",
+  "short_name": "CoreToCosmos",
+  "description": "Construye una torre isométrica vertical desde el núcleo ardiente de la Tierra hasta las estrellas del cosmos. Misiones, Modo Infinito, físicas especiales y tienda de aspectos.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait-primary",
+  "background_color": "#06070c",
+  "theme_color": "#06070c",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": [
+    "games",
+    "arcade"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Odisea Infinita",
+      "short_name": "Infinito",
+      "description": "Juega sin límite en el modo infinito de apilamiento.",
+      "url": "./index.html?mode=infinite",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Misiones por Nivel",
+      "short_name": "Misiones",
+      "description": "Asciende nivel por nivel cumpliendo metas.",
+      "url": "./index.html?mode=missions",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

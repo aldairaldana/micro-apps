@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>TiendaZap Studio — Administrador de Catálogo & WhatsApp</title>
+  <meta name="description" content="Panel de administración profesional para crear y gestionar tu catálogo digital y pedidos por WhatsApp en segundos.">
+  <meta name="theme-color" content="#0b0f19">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
+  <!-- Limpiador activo de cachés y Service Workers antiguos -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (let reg of registrations) {
+          reg.unregister();
+        }
+      });
+    }
+    if ('caches' in window) {
+      caches.keys().then(function(names) {
+        for (let name of names) {
+          caches.delete(name);
+        }
+      });
+    }
+  </script>
+
+  <!-- Fuentes Tipográficas Profesionales -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css?v=20261016-apple-v25">
+</head>
+<body>
+
+  <!-- Contenedor Maestro de la Aplicación -->
+  <div id="app-shell">
+
+    <!-- ===============================================================
+         VISTA 0: ASISTENTE DESDE CERO ESTILO WHATSAPP BUSINESS
+         (Para EL CLIENTE: Dueño del negocio que crea su catálogo)
+         =============================================================== -->
+    <div id="onboarding-screen" class="view-screen onboarding-fullscreen active">
+      <!-- Fondo Atmosférico Estilo Apple (Mesh Ambient Lighting) -->
+      <div class="apple-ambient-glow" aria-hidden="true">
+        <div class="apple-glow-orb-1"></div>
+        <div class="apple-glow-orb-2"></div>
+      </div>
+
+      <div class="apple-onboarding-wrapper">
+        
+        <!-- Header Minimalista Estilo Apple -->
+        <header class="apple-header">
+          <div class="apple-brand-box">
+            <svg class="apple-brand-symbol" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            <span class="apple-brand-text">TiendaZap <span class="apple-brand-subtext">Studio</span></span>
+          </div>
+        </header>
+
+        <!-- Indicador Segmentado de Pasos Estilo iOS Sheet -->
+        <div class="apple-progress-container" aria-label="Progreso del asistente">
+          <div class="apple-dots-row">
+            <span class="apple-dot active" data-step="0"></span>
+            <span class="apple-dot" data-step="1"></span>
+            <span class="apple-dot" data-step="2"></span>
+            <span class="apple-dot" data-step="3"></span>
+            <span class="apple-dot" data-step="4"></span>
+            <span class="apple-dot" data-step="5"></span>
+          </div>
+          <span class="apple-step-counter" id="apple-step-counter">Invitación Especial</span>
+        </div>
+
+        <!-- ===============================================================
+             PASO 0: LA INVITACIÓN OFICIAL (APPLE SPECIAL EVENT PASS)
+             =============================================================== -->
+        <section class="apple-step-card active" id="apple-step-0">
+          <div class="apple-card-glow-border"></div>
+          <div class="apple-invite-badge">INVITACIÓN ESPECIAL · COMERCIANTE</div>
+          
+          <div class="apple-hero-text-block">
+            <h1 class="apple-title-greeting">Hola.<br><span class="apple-title-sub">Te damos la bienvenida.</span></h1>
+            <p class="apple-subtext">Has sido invitado a crear tu catálogo digital con estándar de diseño Apple. Una vitrina concebida para vender por WhatsApp con la máxima elegancia, rapidez y cobros directos por Yape.</p>
+          </div>
+
+          <!-- Pase Digital de Invitación -->
+          <div class="apple-invite-pass">
+            <div class="apple-pass-header">
+              <div class="apple-chip-icon">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="2" y="5" width="20" height="14" rx="3"/>
+                  <line x1="2" y1="10" x2="22" y2="10"/>
+                </svg>
+              </div>
+              <span class="apple-pass-serial">ACCESO PRIVADO · 2026</span>
+            </div>
+            <div class="apple-pass-body">
+              <div class="apple-pass-meta-row">
+                <span class="apple-meta-label">TITULAR</span>
+                <span class="apple-meta-val">Nuevo Comerciante</span>
+              </div>
+              <div class="apple-pass-meta-row">
+                <span class="apple-meta-label">CANAL</span>
+                <span class="apple-meta-val">WhatsApp Direct & Yape QR</span>
+              </div>
+              <div class="apple-pass-meta-row">
+                <span class="apple-meta-label">COMISIÓN</span>
+                <span class="apple-meta-val highlight-green">0% — Venta 100% Directa</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="apple-card-actions">
+            <button type="button" id="apple-accept-invite-btn" class="apple-btn-primary">
+              <span>Aceptar Invitación y Registrarme</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ===============================================================
+             PASO 1: REGISTRO DEL COMERCIANTE (TU CUENTA PRIVADA)
+             =============================================================== -->
+        <section class="apple-step-card hidden" id="apple-step-1">
+          <div class="apple-step-header">
+            <span class="apple-step-eyebrow">PASO 1 DE 5 · REGISTRO</span>
+            <h2 class="apple-step-title">Tu cuenta de comerciante.</h2>
+            <p class="apple-step-desc">Establece tus datos de propietario para gestionar tu vitrina y proteger tu acceso administrativo.</p>
+          </div>
+
+          <div class="apple-form-stack">
+            <div class="apple-input-group">
+              <input type="text" id="apple-reg-name" required placeholder=" " class="apple-floating-input" autocomplete="name">
+              <label for="apple-reg-name" class="apple-floating-label">Nombre y Apellido del Propietario *</label>
+            </div>
+
+            <div class="apple-input-group">
+              <input type="text" id="apple-reg-contact" required placeholder=" " class="apple-floating-input" autocomplete="email">
+              <label for="apple-reg-contact" class="apple-floating-label">Correo Electrónico o Celular Personal *</label>
+            </div>
+
+            <div class="apple-input-group">
+              <input type="password" id="apple-reg-pin" maxlength="6" placeholder=" " class="apple-floating-input" inputmode="numeric">
+              <label for="apple-reg-pin" class="apple-floating-label">PIN de Seguridad (4 a 6 dígitos)</label>
+              <span class="apple-field-hint">Protege la edición de precios y productos en tu teléfono.</span>
+            </div>
+          </div>
+
+          <div class="apple-card-actions row-split">
+            <button type="button" id="apple-prev-1-btn" class="apple-btn-secondary">
+              <span>Atrás</span>
+            </button>
+            <button type="button" id="apple-next-1-btn" class="apple-btn-primary">
+              <span>Continuar a Identidad de Marca</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ===============================================================
+             PASO 2: IDENTIDAD VISUAL & LOGO (ESTILO APPLE ID)
+             =============================================================== -->
+        <section class="apple-step-card hidden" id="apple-step-2">
+          <div class="apple-step-header">
+            <span class="apple-step-eyebrow">PASO 2 DE 5 · MARCA</span>
+            <h2 class="apple-step-title">El rostro de tu negocio.</h2>
+            <p class="apple-step-desc">Sube el logo de tu empresa y define el rubro al que te dedicas.</p>
+          </div>
+
+          <!-- Uploader Circular Apple ID -->
+          <div class="apple-avatar-section">
+            <div class="apple-circle-avatar" id="apple-logo-circle" title="Toca para subir tu logo">
+              <img id="apple-logo-img" class="apple-avatar-preview hidden" src="" alt="Logo">
+              <div id="apple-logo-placeholder" class="apple-avatar-placeholder">
+                <svg class="apple-camera-svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+                <span class="apple-avatar-upload-text">DAME TU LOGO</span>
+              </div>
+              <div class="apple-badge-camera">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M12 5v14M5 12h14"/>
+                </svg>
+              </div>
+            </div>
+            <input type="file" id="apple-logo-file-input" accept="image/*" class="hidden">
+            <span class="apple-avatar-hint">Toca el círculo para subir tu logo o fotografía de marca</span>
+          </div>
+
+          <div class="apple-form-stack">
+            <div class="apple-input-group">
+              <input type="text" id="apple-store-name" required placeholder=" " class="apple-floating-input">
+              <label for="apple-store-name" class="apple-floating-label">Nombre Comercial de la Empresa *</label>
+            </div>
+
+            <div class="apple-field-block">
+              <label class="apple-static-label">Rubro o Giro Comercial</label>
+              <div class="apple-segmented-grid" id="apple-niche-grid">
+                <button type="button" class="apple-segment-pill active" data-niche="food">Gastronomía</button>
+                <button type="button" class="apple-segment-pill" data-niche="fashion">Moda & Calzado</button>
+                <button type="button" class="apple-segment-pill" data-niche="beauty">Belleza & Cosmética</button>
+                <button type="button" class="apple-segment-pill" data-niche="tech">Tecnología & Gadgets</button>
+                <button type="button" class="apple-segment-pill" data-niche="general">Tienda General</button>
+              </div>
+            </div>
+
+            <div class="apple-input-group">
+              <input type="text" id="apple-store-tagline" placeholder=" " class="apple-floating-input">
+              <label for="apple-store-tagline" class="apple-floating-label">Eslogan o promesa corta de la tienda</label>
+            </div>
+          </div>
+
+          <div class="apple-card-actions row-split">
+            <button type="button" id="apple-prev-2-btn" class="apple-btn-secondary">
+              <span>Atrás</span>
+            </button>
+            <button type="button" id="apple-next-2-btn" class="apple-btn-primary">
+              <span>Continuar a WhatsApp</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ===============================================================
+             PASO 3: CANALES DE PAGO & WHATSAPP (CONEXIÓN YAPE)
+             =============================================================== -->
+        <section class="apple-step-card hidden" id="apple-step-3">
+          <div class="apple-step-header">
+            <span class="apple-step-eyebrow">PASO 3 DE 5 · PAGOS Y PEDIDOS</span>
+            <h2 class="apple-step-title">WhatsApp y Cobros Yape.</h2>
+            <p class="apple-step-desc">Configura dónde recibirás las órdenes de compra y el código QR de Yape para pagos directos.</p>
+          </div>
+
+          <div class="apple-form-stack">
+            <div class="apple-phone-card">
+              <span class="apple-phone-prefix">🇵🇪 +51</span>
+              <div class="apple-input-group flush">
+                <input type="tel" id="apple-store-phone" required placeholder=" " class="apple-floating-input phone-inner">
+                <label for="apple-store-phone" class="apple-floating-label">Número Oficial de WhatsApp *</label>
+              </div>
+            </div>
+
+            <div class="apple-input-group">
+              <select id="apple-currency-select" class="apple-floating-select">
+                <option value="S/">S/ Soles Peruanos (PEN)</option>
+                <option value="$">$ Dólares Americanos (USD)</option>
+                <option value="MXN$">MXN$ Pesos Mexicanos</option>
+                <option value="COP$">COP$ Pesos Colombianos</option>
+                <option value="€">€ Euros</option>
+              </select>
+              <label class="apple-select-label">Símbolo de Moneda Comercial</label>
+            </div>
+
+            <!-- Módulo Frosted Yape / Plin -->
+            <div class="apple-frosted-payment-box">
+              <div class="apple-box-title-row">
+                <div class="apple-box-title">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="5" y="2" width="14" height="20" rx="3"/>
+                    <line x1="12" y1="18" x2="12.01" y2="18"/>
+                  </svg>
+                  <span>Módulo Yape / Plin</span>
+                </div>
+                <span class="apple-pill-tag">Cobro Inmediato</span>
+              </div>
+
+              <div class="apple-input-group">
+                <input type="tel" id="apple-yape-phone" placeholder=" " class="apple-floating-input">
+                <label for="apple-yape-phone" class="apple-floating-label">Número de Celular para Yape/Plin</label>
+              </div>
+
+              <div class="apple-input-group">
+                <input type="text" id="apple-yape-titular" placeholder=" " class="apple-floating-input">
+                <label for="apple-yape-titular" class="apple-floating-label">Nombre del Titular de la Cuenta</label>
+              </div>
+
+              <!-- Dropzone QR Apple -->
+              <div class="apple-qr-dropzone" id="apple-qr-dropzone" title="Toca para subir tu QR de Yape">
+                <img id="apple-qr-img" class="apple-qr-preview-img hidden" src="" alt="QR Yape">
+                <div id="apple-qr-placeholder" class="apple-qr-placeholder-content">
+                  <svg class="apple-qr-svg" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.6">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                  </svg>
+                  <span class="apple-qr-text-primary">Adjuntar Captura de tu Código QR de Yape</span>
+                  <span class="apple-qr-text-sub">Tus compradores escanearán y enviarán su comprobante</span>
+                </div>
+                <input type="file" id="apple-qr-file-input" accept="image/*" class="hidden">
+              </div>
+            </div>
+          </div>
+
+          <div class="apple-card-actions row-split">
+            <button type="button" id="apple-prev-3-btn" class="apple-btn-secondary">
+              <span>Atrás</span>
+            </button>
+            <button type="button" id="apple-next-3-btn" class="apple-btn-primary">
+              <span>Continuar a Primer Producto</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ===============================================================
+             PASO 4: CREA TU CATÁLOGO (TU PRIMER PRODUCTO)
+             =============================================================== -->
+        <section class="apple-step-card hidden" id="apple-step-4">
+          <div class="apple-step-header">
+            <span class="apple-step-eyebrow">PASO 4 DE 5 · CATÁLOGO</span>
+            <h2 class="apple-step-title">Inaugura tu vitrina.</h2>
+            <p class="apple-step-desc">Publica tu primer artículo para que tus clientes puedan empezar a comprar.</p>
+          </div>
+
+          <div class="apple-form-stack">
+            <!-- Dropzone Foto de Producto -->
+            <div class="apple-product-dropzone" id="apple-prod-dropzone" title="Toca para subir la foto del producto">
+              <img id="apple-prod-img" class="apple-prod-preview-img hidden" src="" alt="Producto">
+              <div id="apple-prod-placeholder" class="apple-prod-placeholder-content">
+                <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <rect x="3" y="3" width="18" height="18" rx="3"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+                <span class="apple-prod-upload-title">Fotografía del Producto</span>
+                <span class="apple-prod-upload-sub">Toma una foto o elígela de tu galería</span>
+              </div>
+              <input type="file" id="apple-prod-file-input" accept="image/*" class="hidden">
+            </div>
+
+            <div class="apple-input-group">
+              <input type="text" id="apple-prod-name" required placeholder=" " class="apple-floating-input">
+              <label for="apple-prod-name" class="apple-floating-label">Nombre del Producto *</label>
+            </div>
+
+            <div class="apple-grid-2">
+              <div class="apple-input-group">
+                <input type="number" id="apple-prod-price" step="0.50" required placeholder=" " class="apple-floating-input apple-price-font">
+                <label for="apple-prod-price" class="apple-floating-label">Precio (<span id="apple-currency-sym">S/</span>) *</label>
+              </div>
+
+              <div class="apple-input-group">
+                <input type="text" id="apple-prod-cat" placeholder=" " class="apple-floating-input">
+                <label for="apple-prod-cat" class="apple-floating-label">Categoría *</label>
+              </div>
+            </div>
+
+            <!-- Sugerencias de Categorías según Rubro -->
+            <div class="apple-suggestions-box">
+              <span class="apple-suggestions-label">Sugerencias rápidas para tu rubro:</span>
+              <div class="apple-suggestions-pills" id="apple-cat-suggestions"></div>
+            </div>
+          </div>
+
+          <div class="apple-card-actions row-split">
+            <button type="button" id="apple-prev-4-btn" class="apple-btn-secondary">
+              <span>Atrás</span>
+            </button>
+            <button type="button" id="apple-finish-btn" class="apple-btn-primary highlight-white">
+              <span>Publicar Catálogo Digital</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ===============================================================
+             PASO 5: TU CATÁLOGO ESTÁ EN LÍNEA (APPLE CARD PASS)
+             =============================================================== -->
+        <section class="apple-step-card hidden" id="apple-step-5">
+          <div class="apple-step-header text-center">
+            <div class="apple-success-badge">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <span class="apple-step-eyebrow">CONFIGURACIÓN COMPLETADA</span>
+            <h2 class="apple-step-title">Tu catálogo está en línea.</h2>
+            <p class="apple-step-desc">Tus compradores ya pueden ver tus productos, ordenar y enviarte el comprobante de pago directo a WhatsApp.</p>
+          </div>
+
+          <!-- Apple Card Digital Presentation -->
+          <div class="apple-digital-card">
+            <div class="apple-card-top-row">
+              <div class="apple-card-brand">
+                <span class="apple-card-logo-dot"></span>
+                <span id="apple-card-store-name" class="apple-card-store-name">Mi Tienda</span>
+              </div>
+              <span class="apple-card-status">EN VIVO</span>
+            </div>
+            <div class="apple-card-middle">
+              <span class="apple-card-merchant-label">PROPIETARIO</span>
+              <span id="apple-card-merchant-name" class="apple-card-merchant-name">Comerciante Registrado</span>
+            </div>
+            <div class="apple-card-bottom-row">
+              <span class="apple-card-powered">POWERED BY TIENDAZAP</span>
+              <span class="apple-card-year">2026</span>
+            </div>
+          </div>
+
+          <!-- Caja de Enlace Exclusivo -->
+          <div class="apple-link-box">
+            <span class="apple-link-label">ENLACE EXCLUSIVO PARA TUS COMPRADORES</span>
+            <div class="apple-link-row">
+              <input type="text" id="apple-catalog-link" readonly class="apple-link-input" value="">
+              <button type="button" id="apple-copy-link-btn" class="apple-btn-copy" title="Copiar enlace">
+                <span>Copiar</span>
+              </button>
+            </div>
+            <span class="apple-link-hint">Comparte este enlace en tus estados de WhatsApp, biografía de TikTok o chats.</span>
+          </div>
+
+          <div class="apple-card-actions">
+            <button type="button" id="apple-open-customer-btn" class="apple-btn-primary">
+              <span>Abrir Catálogo como Comprador Final</span>
+            </button>
+            <button type="button" id="apple-open-studio-btn" class="apple-btn-secondary">
+              <span>Ir al Panel de Control de mi Tienda</span>
+            </button>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- ===============================================================
+         VISTA 1: TIENDAZAP STUDIO (MODO ADMINISTRADOR - PRO)
+         =============================================================== -->
+    <div id="admin-studio-view" class="view-screen hidden">
+
+      <!-- Header Superior del Administrador (Estilo Apple Studio) -->
+      <header class="apple-studio-topbar">
+        <div class="apple-studio-brand">
+          <svg class="apple-brand-symbol" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+          <div class="apple-brand-col">
+            <span class="apple-brand-title">TiendaZap <span class="apple-pro-tag">STUDIO</span></span>
+            <span class="apple-brand-sub" id="studio-merchant-tag">Panel Propietario</span>
+          </div>
+        </div>
+
+        <div class="apple-topbar-actions">
+          <!-- Switch Tienda Abierta / Cerrada -->
+          <button type="button" id="toggle-store-status-btn" class="apple-status-pill open" title="Estado de la vitrina">
+            <span class="apple-status-dot"></span>
+            <span id="quick-status-label">Abierto</span>
+          </button>
+
+          <!-- Botón Ver Catálogo como Comprador -->
+          <button type="button" id="open-preview-btn" class="apple-btn-preview" title="Ver catálogo de tus clientes">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <span>Ver Catálogo</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Portada & Perfil Visual de la Tienda (Interactiva para cambiar fotos con 1 clic) -->
+      <section class="store-visual-editor-card">
+        <!-- Portada / Banner -->
+        <div class="banner-edit-container" id="banner-edit-container">
+          <img id="admin-banner-preview" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80" alt="Portada de tu tienda" class="admin-banner-img">
+          <div class="banner-overlay-gradient"></div>
+          
+          <button type="button" id="change-banner-btn" class="photo-change-badge banner-badge" title="Cambiar Foto de Portada">
+            <span class="camera-icon">📷</span>
+            <span>Cambiar Portada</span>
+          </button>
+          <input type="file" id="banner-file-input" accept="image/*" class="hidden">
+        </div>
+
+        <!-- Avatar & Datos Rápidos -->
+        <div class="store-identity-row">
+          <div class="avatar-edit-container" id="avatar-edit-container">
+            <img id="admin-logo-preview" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80" alt="Logo de tu tienda" class="admin-logo-img">
+            <button type="button" id="change-logo-btn" class="photo-change-badge avatar-badge" title="Cambiar Logo">
+              <span>📷</span>
+            </button>
+            <input type="file" id="logo-file-input" accept="image/*" class="hidden">
+          </div>
+
+          <div class="identity-info-box">
+            <div class="title-edit-wrapper">
+              <input type="text" id="live-store-name" class="inline-edit-name" value="" placeholder="Nombre comercial de tu tienda" placeholder="Nombre de tu negocio">
+              <span class="edit-hint-icon">✏️</span>
+            </div>
+            <input type="text" id="live-store-tagline" class="inline-edit-tagline" value="" placeholder="Eslogan o descripción de tu catálogo" placeholder="Eslogan o descripción corta">
+          </div>
+        </div>
+
+        <!-- Barra de Acciones Rápidas (Compartir Link / Ver QR / Asistente / Iniciar de 0) -->
+        <div class="studio-quick-links-bar">
+          <button type="button" id="studio-open-wizard-btn" class="quick-link-btn highlight" style="background: rgba(37, 211, 102, 0.15); border-color: #25D366; color: #25D366;">
+            <span>🪄 Asistente Paso a Paso</span>
+          </button>
+          <button type="button" id="studio-copy-link-btn" class="quick-link-btn">
+            <span>🔗 Enlace de Clientes</span>
+          </button>
+          <button type="button" id="studio-open-qr-btn" class="quick-link-btn">
+            <span>🔲 Código QR</span>
+          </button>
+          <button type="button" id="studio-reset-btn" class="quick-link-btn" style="color: var(--accent-red); border-color: rgba(239, 68, 68, 0.3);" title="Reiniciar de cero como nueva">
+            <span>🔄 Iniciar de 0</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Selector de Pestañas Principales del Studio -->
+      <nav class="studio-tabs-nav" aria-label="Secciones del Administrador">
+        <button type="button" class="studio-tab-btn active" data-tab="products" id="tab-nav-products">
+          <span class="tab-icon">📦</span>
+          <span>Productos & Precios</span>
+          <span class="tab-badge" id="studio-products-badge">0</span>
+        </button>
+        <button type="button" class="studio-tab-btn" data-tab="settings" id="tab-nav-settings">
+          <span class="tab-icon">⚙️</span>
+          <span>Ajustes & Delivery</span>
+        </button>
+        <button type="button" class="studio-tab-btn" data-tab="cloud" id="tab-nav-cloud">
+          <span class="tab-icon">💾</span>
+          <span>Nube & Respaldo</span>
+        </button>
+      </nav>
+
+      <!-- CONTENIDO DE LAS PESTAÑAS DEL STUDIO -->
+      <main class="studio-main-body">
+
+        <!-- =============================================================
+             PESTAÑA 1: GESTOR DE PRODUCTOS & PRECIOS
+             ============================================================= -->
+        <div id="view-products" class="studio-tab-view">
+          <!-- Toolbar de Acciones (Buscador + Botón Crear) -->
+          <div class="products-action-toolbar">
+            <div class="search-box-wrap">
+              <span class="search-lens">🔍</span>
+              <input type="text" id="studio-search-input" class="search-input-field" placeholder="Buscar por nombre, código o categoría...">
+              <button type="button" id="studio-clear-search-btn" class="search-clear hidden">✕</button>
+            </div>
+            <button type="button" id="studio-add-product-btn" class="btn-create-product">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>+ Añadir Producto</span>
+            </button>
+          </div>
+
+          <!-- Filtros de Categorías Horizontales -->
+          <div class="category-filters-track" id="studio-categories-track"></div>
+
+          <!-- Formulario Flotante de Crear / Editar Producto -->
+          <div id="studio-product-editor" class="product-editor-card hidden">
+            <div class="editor-card-header">
+              <h3 id="editor-form-title">Añadir Nuevo Producto</h3>
+              <button type="button" id="close-editor-btn" class="close-card-btn" title="Cerrar">✕</button>
+            </div>
+            <form id="studio-product-form" class="editor-card-form">
+              <input type="hidden" id="editor-product-id">
+
+              <!-- Foto del Producto -->
+              <div class="product-photo-upload-box" id="product-photo-upload-box">
+                <img id="editor-photo-preview" src="" alt="Vista previa del producto" class="hidden">
+                <div class="photo-placeholder-content" id="editor-photo-placeholder">
+                  <span class="camera-big-icon">📷</span>
+                  <span class="photo-prompt-title">Toca para subir foto del producto</span>
+                  <span class="photo-prompt-sub">JPG, PNG o WebP desde tu galería o cámara</span>
+                </div>
+              </div>
+              <input type="file" id="editor-file-input" accept="image/*" class="hidden">
+
+              <div class="photo-url-fallback-row">
+                <button type="button" id="editor-trigger-file-btn" class="btn-alt-sm">Subir Foto</button>
+                <button type="button" id="editor-toggle-url-btn" class="btn-text-link">O usar enlace web (URL)</button>
+              </div>
+              <input type="url" id="editor-url-input" class="input-modern hidden" placeholder="https://ejemplo.com/foto.jpg">
+
+              <!-- Nombre y Precio -->
+              <div class="editor-field-group">
+                <label for="editor-name-input">Nombre del Producto / Servicio *</label>
+                <input type="text" id="editor-name-input" class="input-modern" placeholder="Ej: Licencia Windows 11 Pro / Adobe Cloud" required>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="editor-field-group">
+                  <label for="editor-price-input">Precio (<span id="editor-currency-symbol">S/</span>) *</label>
+                  <input type="number" id="editor-price-input" step="0.01" min="0" class="input-modern price-highlight" placeholder="0.00" required>
+                </div>
+                <div class="editor-field-group">
+                  <label for="editor-category-input">Categoría *</label>
+                  <input type="text" id="editor-category-input" class="input-modern" placeholder="Ej: Software / Licencias / Accesorios" required>
+                </div>
+              </div>
+
+              <!-- SKU y Descripción -->
+              <div class="editor-field-group">
+                <label for="editor-sku-input">Código SKU o Referencia (Opcional)</label>
+                <input type="text" id="editor-sku-input" class="input-modern" placeholder="Ej: WIN-11-PRO">
+              </div>
+
+              <div class="editor-field-group">
+                <label for="editor-desc-input">Descripción Detallada / Beneficios</label>
+                <textarea id="editor-desc-input" class="textarea-modern" rows="2" placeholder="Características, garantía, instrucciones de activación o entrega..."></textarea>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="editor-field-group">
+                  <label for="editor-sizes-input">Variantes / Opciones (separadas por coma)</label>
+                  <input type="text" id="editor-sizes-input" class="input-modern" placeholder="Ej: 1 PC, 3 PCs, 5 PCs">
+                </div>
+                <div class="editor-field-group">
+                  <label for="editor-colors-input">Edición / Tipo (opcional)</label>
+                  <input type="text" id="editor-colors-input" class="input-modern" placeholder="Ej: Global, Retail, Anual">
+                </div>
+              </div>
+
+              <!-- Switches de Estado -->
+              <div class="switches-row">
+                <label class="modern-switch-label">
+                  <input type="checkbox" id="editor-available-check" checked>
+                  <span>Producto activo en catálogo (Disponible para pedidos)</span>
+                </label>
+                <label class="modern-switch-label">
+                  <input type="checkbox" id="editor-promo-check">
+                  <span>Destacar como Promoción Especial (Badge PROMO)</span>
+                </label>
+              </div>
+
+              <div class="editor-actions-footer">
+                <button type="button" id="editor-cancel-btn" class="btn-cancel-edit">Cancelar</button>
+                <button type="submit" id="save-product-btn" class="btn-save-product">Guardar Producto</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Lista de Productos en Tarjetas Apple -->
+          <div class="studio-products-list" id="studio-products-list"></div>
+
+          <!-- Estado Vacío -->
+          <div class="studio-empty-state hidden" id="studio-empty-state">
+            <span class="empty-icon">📦</span>
+            <h4>No hay productos en esta vista</h4>
+            <p>Agrega tu primer artículo o ajusta los filtros de búsqueda.</p>
+          </div>
+        </div>
+
+        <!-- =============================================================
+             PESTAÑA 2: AJUSTES & DELIVERY
+             ============================================================= -->
+        <div id="view-settings" class="studio-tab-view hidden">
+          <form id="studio-settings-form">
+            <!-- Card de Rubro Comercial WhatsApp Business -->
+            <section class="settings-section-card">
+              <h3 class="section-card-title">Rubro Comercial WhatsApp Business</h3>
+              <p class="section-card-desc">Elige el rubro de tu tienda. TiendaZap adaptará automáticamente las modalidades de entrega y sugerencias.</p>
+              
+              <div class="niche-selector-grid">
+                <button type="button" class="niche-card-btn active" data-niche="tech">
+                  <span class="niche-emoji">💻</span>
+                  <div class="niche-meta">
+                    <strong>Tecnología & Licencias</strong>
+                    <span>Software, Digital, Gadgets</span>
+                  </div>
+                </button>
+                <button type="button" class="niche-card-btn" data-niche="food">
+                  <span class="niche-emoji">🍔</span>
+                  <div class="niche-meta">
+                    <strong>Gastronomía</strong>
+                    <span>Restaurante, Comida rápida</span>
+                  </div>
+                </button>
+                <button type="button" class="niche-card-btn" data-niche="fashion">
+                  <span class="niche-emoji">👗</span>
+                  <div class="niche-meta">
+                    <strong>Moda & Ropa</strong>
+                    <span>Prendas, Calzado, Estilo</span>
+                  </div>
+                </button>
+                <button type="button" class="niche-card-btn" data-niche="beauty">
+                  <span class="niche-emoji">💄</span>
+                  <div class="niche-meta">
+                    <strong>Belleza & Skincare</strong>
+                    <span>Cosméticos, Cuidado personal</span>
+                  </div>
+                </button>
+              </div>
+            </section>
+
+            <!-- Datos de WhatsApp & Moneda -->
+            <section class="settings-section-card">
+              <h3 class="section-card-title">Canal Oficial de WhatsApp</h3>
+              <p class="section-card-desc">Número al que tus clientes enviarán los pedidos generados desde el catálogo.</p>
+              
+              <div class="editor-field-group">
+                <label for="settings-phone">Número de WhatsApp (con código de país, ej: 51987654321) *</label>
+                <div class="phone-input-wrap">
+                  <span class="phone-icon">📲</span>
+                  <input type="tel" id="settings-phone" class="input-modern" placeholder="51987654321" required>
+                </div>
+                <span class="field-hint">En Perú antepón 51 (ej: 51 + 9 dígitos de celular).</span>
+              </div>
+
+              <div class="editor-field-group">
+                <label for="settings-currency">Moneda Comercial</label>
+                <select id="settings-currency" class="input-modern">
+                  <option value="S/">S/ Soles Peruanos (PEN)</option>
+                  <option value="$">$ Dólares Americanos (USD)</option>
+                  <option value="€">€ Euros (EUR)</option>
+                  <option value="MXN$">MXN$ Pesos Mexicanos</option>
+                  <option value="COP$">COP$ Pesos Colombianos</option>
+                </select>
+              </div>
+            </section>
+
+            <!-- Modalidades de Entrega Adaptativas -->
+            <section class="settings-section-card">
+              <h3 class="section-card-title">Modalidades de Entrega & Despacho</h3>
+              <p class="section-card-desc">Configura los costos y tiempos según el tipo de producto que comercializas.</p>
+
+              <div class="form-grid-2">
+                <div class="editor-field-group">
+                  <label for="settings-delivery-cost">Costo de Envío Físico (0 si es gratis o digital)</label>
+                  <input type="number" id="settings-delivery-cost" step="0.5" min="0" class="input-modern" value="0.00">
+                </div>
+                <div class="editor-field-group">
+                  <label for="settings-delivery-time">Tiempo Estimado de Entrega</label>
+                  <input type="text" id="settings-delivery-time" class="input-modern" placeholder="Ej: Entrega Inmediata / 24-48h">
+                </div>
+              </div>
+            </section>
+
+            <!-- Módulo de Cobros Yape / Plin -->
+            <section class="settings-section-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <h3 class="section-card-title">Módulo de Cobros Yape & Plin</h3>
+                  <p class="section-card-desc">Permite a tus clientes escanear tu QR y adjuntar su comprobante de pago directo en la orden.</p>
+                </div>
+                <label class="modern-switch-label">
+                  <input type="checkbox" id="settings-yape-enabled" checked>
+                  <span style="color: var(--primary);">Habilitado</span>
+                </label>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="editor-field-group">
+                  <label for="settings-yape-phone">Número de Celular Yape / Plin</label>
+                  <input type="tel" id="settings-yape-phone" class="input-modern" placeholder="987654321">
+                </div>
+                <div class="editor-field-group">
+                  <label for="settings-yape-name">Titular de la Cuenta (Nombre completo)</label>
+                  <input type="text" id="settings-yape-name" class="input-modern" placeholder="Ej: Don Licencia / Juan Pérez">
+                </div>
+              </div>
+
+              <!-- Upload QR Yape -->
+              <div class="editor-field-group">
+                <label>Código QR de tu Yape / Plin (Captura)</label>
+                <div class="product-photo-upload-box" id="settings-yape-upload-box" style="height: 180px;">
+                  <img id="settings-yape-qr-preview" src="" alt="QR Yape" class="hidden" style="max-height: 100%; object-fit: contain;">
+                  <div class="photo-placeholder-content" id="settings-yape-qr-placeholder">
+                    <span class="camera-big-icon">📱</span>
+                    <span class="photo-prompt-title">Toca para adjuntar tu código QR de Yape</span>
+                    <span class="photo-prompt-sub">Sube una captura de tu app Yape o Plin</span>
+                  </div>
+                </div>
+                <input type="file" id="settings-yape-file-input" accept="image/*" class="hidden">
+                
+                <div style="display: flex; gap: 8px; margin-top: 6px;">
+                  <button type="button" id="trigger-yape-qr-btn" class="btn-alt-sm">Subir o Cambiar QR</button>
+                  <button type="button" id="remove-yape-qr-btn" class="btn-alt-sm hidden" style="color: var(--accent-red);">Eliminar QR</button>
+                </div>
+              </div>
+
+              <button type="submit" id="save-settings-btn" class="btn-save-settings">Guardar Todos los Ajustes</button>
+            </section>
+          </form>
+        </div>
+
+        <!-- =============================================================
+             PESTAÑA 3: NUBE & RESPALDO
+             ============================================================= -->
+        <div id="view-cloud" class="studio-tab-view hidden">
+          <!-- Google Sheet Sync -->
+          <section class="cloud-card">
+            <span class="cloud-badge-free">SIN BASE DE DATOS ($0 DE COSTO)</span>
+            <h3 class="cloud-title">Sincronización con Google Sheets</h3>
+            <p class="cloud-desc">Conecta una hoja de cálculo de Google Sheet para actualizar tus productos, stock y precios masivamente desde tu PC o celular sin tocar código.</p>
+
+            <div class="editor-field-group">
+              <label for="cloud-sheet-url">URL del Google Sheet (Publicado en la web como CSV)</label>
+              <input type="url" id="cloud-sheet-url" class="input-modern" placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv">
+            </div>
+
+            <div class="cloud-buttons-row">
+              <button type="button" id="cloud-sync-btn" class="btn-save-product" style="flex: 1;">
+                <span>🔄 Sincronizar Ahora</span>
+              </button>
+              <button type="button" id="cloud-copy-template-btn" class="btn-alt-sm">
+                <span>📋 Copiar Formato</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- Backup & JSON -->
+          <section class="cloud-card">
+            <h3 class="cloud-title">Copia de Seguridad & Respaldos</h3>
+            <p class="cloud-desc">Exporta tu catálogo completo a un archivo para guardarlo o importarlo en otro dispositivo.</p>
+            
+            <div class="cloud-buttons-column">
+              <button type="button" id="cloud-export-json-btn" class="btn-action-outline">
+                <span>💾 Descargar Copia de Seguridad (JSON)</span>
+              </button>
+              
+              <label class="btn-action-outline" style="cursor: pointer;">
+                <span>📂 Restaurar Catálogo desde Archivo</span>
+                <input type="file" id="cloud-import-json-input" accept=".json" class="hidden">
+              </label>
+
+              <button type="button" id="cloud-reset-btn" class="btn-action-danger">
+                <span>⚠️ Restaurar Valores Iniciales de Plantilla</span>
+              </button>
+            </div>
+          </section>
+        </div>
+
+      </main>
+
+    </div>
+
+
+    <!-- ===============================================================
+         VISTA 2: VISTA PREVIA DEL CLIENTE (EXPERIENCIA DEL COMPRADOR)
+         =============================================================== -->
+    <div id="customer-preview-view" class="view-screen hidden">
+      
+      <!-- Barra Superior de Retorno a Modo Admin -->
+      <div class="preview-mode-bar">
+        <div class="preview-mode-info">
+          <span class="live-pulse-dot"></span>
+          <span>Modo Vista Previa: <strong>Así ven tu tienda tus clientes</strong></span>
+        </div>
+        <button type="button" id="close-preview-btn" class="btn-return-admin">
+          <span>✕ Salir de Vista Previa</span>
+        </button>
+      </div>
+
+      <!-- El Catálogo Completo del Comprador -->
+      <div class="customer-catalog-wrapper" id="customer-catalog-wrapper">
+        
+        <!-- Header Comercial del Negocio -->
+        <header class="store-header" id="store-header">
+          <div class="store-banner-wrapper">
+            <img id="store-banner-img" src="" alt="Banner de la tienda" class="store-banner-img">
+            <div class="store-banner-overlay"></div>
+            
+            <div class="header-top-actions">
+              <button id="preview-qr-btn" class="header-icon-btn" type="button" title="Código QR">
+                <span class="btn-icon">🔲</span>
+              </button>
+              <button id="preview-share-btn" class="header-icon-btn" type="button" title="Compartir catálogo">
+                <span class="btn-icon">🔗</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="store-info-card">
+            <div class="store-avatar-wrap">
+              <img id="store-logo-img" src="" alt="Logo de la tienda" class="store-logo-img">
+              <span class="status-indicator-dot online" id="store-status-dot"></span>
+            </div>
+
+            <div class="store-details">
+              <div class="store-title-row">
+                <h2 class="store-name" id="store-name">Mi Tienda</h2>
+                <span class="verified-badge" title="Comercio Verificado">✓</span>
+              </div>
+
+              <p class="store-tagline" id="store-tagline">Eslogan del negocio</p>
+
+              <div class="store-badges-row">
+                <span class="store-pill status-pill open" id="store-status-pill">
+                  <span class="pill-dot"></span> Abierto ahora
+                </span>
+                <span class="store-pill" id="delivery-time-pill">
+                  <span class="pill-icon">⏱️</span> 25-35 min
+                </span>
+                <span class="store-pill" id="delivery-cost-pill">
+                  <span class="pill-icon">🛵</span> Delivery S/ 5.00
+                </span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Barra Sticky de Búsqueda y Categorías del Cliente -->
+        <section class="sticky-nav-section" id="sticky-nav">
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="customer-search-input" class="product-search-input" placeholder="Buscar productos...">
+            <button id="customer-clear-search-btn" class="clear-search-btn hidden" type="button">✕</button>
+          </div>
+
+          <nav class="categories-scroll-track" id="customer-categories-track" aria-label="Categorías">
+            <!-- Renderizado dinámico -->
+          </nav>
+        </section>
+
+        <!-- Listado de Productos para el Cliente -->
+        <main class="catalog-main-content" id="catalog-content">
+          <div class="categories-product-list" id="customer-product-list">
+            <!-- Renderizado dinámico -->
+          </div>
+
+          <div class="empty-state-card hidden" id="customer-empty-state">
+            <div class="empty-icon">🔍</div>
+            <h3 class="empty-title">No encontramos productos</h3>
+            <p class="empty-desc">Prueba buscando con otra palabra o revisa otra categoría.</p>
+          </div>
+        </main>
+
+        <!-- Barra Flotante Inferior del Carrito (Sticky Bottom Bar) -->
+        <aside class="floating-cart-bar hidden" id="floating-cart-bar">
+          <div class="cart-bar-clickable" id="open-cart-btn">
+            <div class="cart-bar-left">
+              <div class="cart-icon-badge-wrap">
+                <span class="cart-bar-icon">🛍️</span>
+                <span class="cart-items-count" id="cart-items-count">0</span>
+              </div>
+              <div class="cart-bar-text-group">
+                <span class="cart-bar-label">Ver Pedido</span>
+                <span class="cart-bar-items-sub" id="cart-bar-subtext">0 productos</span>
+              </div>
+            </div>
+            <div class="cart-bar-right">
+              <span class="cart-bar-total" id="cart-bar-total">S/ 0.00</span>
+              <span class="cart-bar-arrow">▶</span>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===============================================================
+         MODALES COMPARTIDOS
+         =============================================================== -->
+
+    <!-- 1. MODAL DETALLE DE PRODUCTO & VARIANTES (TALLAS/COLORES) -->
+    <div class="overlay product-modal-overlay hidden" id="product-detail-modal">
+      <div class="product-modal-card">
+        <button id="close-product-modal-btn" class="close-sheet-btn product-close" type="button">✕</button>
+        <div class="product-modal-img-wrap">
+          <img id="detail-product-img" src="" alt="Producto" class="detail-product-img">
+        </div>
+        <div class="product-modal-body">
+          <div class="detail-badge-row">
+            <span class="detail-category-chip" id="detail-category">Categoría</span>
+            <span class="detail-badge-promo hidden" id="detail-promo-badge">PROMO</span>
+          </div>
+          <h2 class="detail-title" id="detail-title">Nombre del Producto</h2>
+          <p class="detail-description" id="detail-desc">Descripción del producto.</p>
+          <div class="detail-price" id="detail-price">S/ 0.00</div>
+
+          <!-- Selector de Tallas si aplica -->
+          <div class="detail-variants-group hidden" id="detail-sizes-group">
+            <span class="detail-variant-label">Elige tu Talla / Medida:</span>
+            <div class="variant-chips-row" id="detail-sizes-row"></div>
+          </div>
+
+          <!-- Selector de Colores si aplica -->
+          <div class="detail-variants-group hidden" id="detail-colors-group">
+            <span class="detail-variant-label">Elige tu Color / Tono:</span>
+            <div class="variant-chips-row" id="detail-colors-row"></div>
+          </div>
+
+          <!-- Stepper de Cantidad -->
+          <div class="detail-quantity-row">
+            <span class="detail-qty-label">Cantidad:</span>
+            <div class="quantity-stepper">
+              <button class="step-btn" id="modal-qty-minus" type="button">-</button>
+              <span class="step-val" id="modal-qty-val">1</span>
+              <button class="step-btn" id="modal-qty-plus" type="button">+</button>
+            </div>
+          </div>
+
+          <!-- Nota Adicional del Producto -->
+          <div class="editor-field-group" style="margin-top: 10px;">
+            <label for="modal-product-note" style="font-size: 0.74rem; color: var(--text-muted); font-weight: 600;">
+              Notas adicionales (ej: dedicatoria, salsa aparte, etc.)
+            </label>
+            <input type="text" id="modal-product-note" class="input-modern" placeholder="Opcional: Detalles para tu pedido...">
+          </div>
+        </div>
+
+        <div class="product-modal-footer">
+          <button id="modal-add-to-cart-btn" class="btn-save-product" type="button">
+            <span>Agregar al Pedido • <span id="modal-button-total">S/ 0.00</span></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. MODAL CARRITO & CHECKOUT EXPRESS A WHATSAPP -->
+    <div class="overlay bottom-sheet-overlay hidden" id="cart-modal-overlay">
+      <div class="bottom-sheet-card" id="cart-modal-card">
+        <div class="sheet-header">
+          <div class="sheet-title-group">
+            <span class="sheet-icon">🛒</span>
+            <div>
+              <h3 class="sheet-title">Tu Pedido</h3>
+              <span class="sheet-subtitle" id="cart-modal-store-name">Tienda</span>
+            </div>
+          </div>
+          <button id="close-cart-btn" class="close-sheet-btn" type="button">✕</button>
+        </div>
+
+        <div class="sheet-scroll-body">
+          <div class="cart-items-container" id="cart-items-list"></div>
+
+          <!-- Modo de Entrega -->
+          <div class="checkout-block">
+            <span class="block-label">1. ¿Cómo deseas recibir tu pedido?</span>
+            <div class="delivery-toggle-group">
+              <!-- Opción Digital (Para Tecnología, Software, Cursos, Licencias) -->
+              <label class="toggle-card hidden" id="option-digital-label">
+                <input type="radio" name="delivery-mode" value="digital" id="mode-digital">
+                <span class="toggle-card-icon">⚡</span>
+                <div class="toggle-card-text">
+                  <span class="toggle-card-title">Envío Digital</span>
+                  <span class="toggle-card-sub" id="digital-sub-label">Por WhatsApp</span>
+                </div>
+              </label>
+
+              <!-- Opción a Domicilio -->
+              <label class="toggle-card active" id="option-delivery-label">
+                <input type="radio" name="delivery-mode" value="delivery" id="mode-delivery" checked>
+                <span class="toggle-card-icon" id="delivery-icon">🛵</span>
+                <div class="toggle-card-text">
+                  <span class="toggle-card-title" id="delivery-title">Envío a Domicilio</span>
+                  <span class="toggle-card-sub" id="delivery-price-label">+ S/ 5.00</span>
+                </div>
+              </label>
+
+              <!-- Opción Retiro -->
+              <label class="toggle-card" id="option-pickup-label">
+                <input type="radio" name="delivery-mode" value="pickup" id="mode-pickup">
+                <span class="toggle-card-icon">🛍️</span>
+                <div class="toggle-card-text">
+                  <span class="toggle-card-title" id="pickup-title">Retiro en Local</span>
+                  <span class="toggle-card-sub">Sin costo</span>
+                </div>
+              </label>
+
+              <!-- Opción En Mesa (EXCLUSIVA de Gastronomía) -->
+              <label class="toggle-card hidden" id="option-dinein-label">
+                <input type="radio" name="delivery-mode" value="dinein" id="mode-dinein">
+                <span class="toggle-card-icon">🍽️</span>
+                <div class="toggle-card-text">
+                  <span class="toggle-card-title">En Mesa</span>
+                  <span class="toggle-card-sub" id="dinein-table-sub">Comer en local</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Datos de Contacto -->
+          <div class="checkout-block">
+            <span class="block-label">2. Datos para la entrega</span>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="client-name">Tu Nombre y Apellido *</label>
+                <input type="text" id="client-name" class="form-input" placeholder="Ej: Carlos Mendoza" required>
+              </div>
+
+              <div class="form-group hidden" id="table-field-group">
+                <label for="client-table">Número o Nombre de Mesa *</label>
+                <input type="text" id="client-table" class="form-input" placeholder="Ej: Mesa 4">
+              </div>
+
+              <div class="form-group" id="address-field-group">
+                <div class="label-with-action">
+                  <label for="client-address">Dirección y Referencia *</label>
+                  <button type="button" id="get-gps-location-btn" class="gps-btn">
+                    <span>📍 Usar mi GPS</span>
+                  </button>
+                </div>
+                <input type="text" id="client-address" class="form-input" placeholder="Ej: Av. Las Palmeras 450, Dpto 302">
+                <input type="hidden" id="client-gps-coords">
+                <span id="gps-status-badge" class="gps-status-badge hidden">✓ Ubicación satelital adjunta</span>
+              </div>
+
+              <div class="form-group">
+                <label for="client-phone">Número de Teléfono (WhatsApp) *</label>
+                <input type="tel" id="client-phone" class="form-input" placeholder="Ej: 987654321">
+              </div>
+
+              <div class="form-group">
+                <label for="client-notes">Instrucciones o notas adicionales (Opcional)</label>
+                <textarea id="client-notes" class="form-textarea" rows="2" placeholder="Ej: Tocar timbre blanco, traer cambio..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Métodos de Pago -->
+          <div class="checkout-block">
+            <span class="block-label">3. Método de Pago</span>
+            <div class="payment-pills-grid" id="payment-methods-grid">
+              <label class="payment-pill-card active">
+                <input type="radio" name="payment-method" value="Yape / Plin" checked>
+                <span class="pay-icon">📱</span>
+                <span class="pay-name">Yape / Plin</span>
+              </label>
+              <label class="payment-pill-card">
+                <input type="radio" name="payment-method" value="Efectivo">
+                <span class="pay-icon">💵</span>
+                <span class="pay-name">Efectivo</span>
+              </label>
+              <label class="payment-pill-card">
+                <input type="radio" name="payment-method" value="Tarjeta">
+                <span class="pay-icon">💳</span>
+                <span class="pay-name">Tarjeta (POS)</span>
+              </label>
+            </div>
+
+            <div class="cash-change-group hidden" id="cash-change-group">
+              <label for="cash-amount-input">¿Con cuánto pagarás? (Para llevarte vuelto)</label>
+              <input type="number" id="cash-amount-input" class="form-input" placeholder="Ej: 50 o 100">
+            </div>
+
+            <!-- Caja Interactiva de Pago Yape / Plin con Datos del Comercio y Subida de Comprobante -->
+            <div class="yape-checkout-box" id="yape-checkout-box">
+              <div class="yape-checkout-header">
+                <span class="yape-badge-pill">📱 PAGO CON YAPE / PLIN</span>
+                <span class="yape-amount-highlight" id="yape-checkout-amount">Total: S/ 0.00</span>
+              </div>
+
+              <div class="yape-merchant-info-card">
+                <div class="yape-info-row">
+                  <span class="yape-label">Número de Yape / Plin:</span>
+                  <div class="yape-number-copy-wrap">
+                    <strong class="yape-number-val" id="yape-checkout-phone">987 654 321</strong>
+                    <button type="button" id="copy-yape-phone-btn" class="btn-copy-yape" title="Copiar número de teléfono">
+                      <span>📋 Copiar</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="yape-info-row">
+                  <span class="yape-label">Titular de Cuenta:</span>
+                  <span class="yape-name-val" id="yape-checkout-titular">BurgerZap Administrador</span>
+                </div>
+
+                <!-- QR del Comercio si fue configurado -->
+                <div class="yape-qr-merchant-preview-wrap" id="yape-merchant-qr-wrap">
+                  <img id="yape-checkout-qr-img" src="" alt="QR de Yape" class="yape-checkout-qr-thumb">
+                  <div class="yape-qr-actions-wrap">
+                    <button type="button" id="zoom-yape-qr-btn" class="btn-zoom-qr">
+                      <span>🔍 Ver Código QR en Grande</span>
+                    </button>
+                    <small style="color: var(--text-muted); font-size: 0.72rem;">Escanea desde tu app o haz captura de pantalla</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Subida de Comprobante por parte del Comprador -->
+              <div class="buyer-voucher-card">
+                <div class="buyer-voucher-header">
+                  <span class="buyer-voucher-title">📎 Adjuntar Comprobante de Pago</span>
+                  <span class="buyer-voucher-badge">Recomendado</span>
+                </div>
+
+                <div class="voucher-dropzone" id="buyer-voucher-dropzone">
+                  <div id="voucher-empty-prompt" class="voucher-empty-prompt">
+                    <span class="voucher-icon">📸</span>
+                    <strong class="voucher-prompt-title">Toca para subir captura de tu Yape</strong>
+                    <span class="voucher-prompt-sub">Sube tu comprobante para acelerar la preparación</span>
+                  </div>
+
+                  <div id="voucher-preview-wrap" class="voucher-preview-wrap hidden">
+                    <img id="buyer-voucher-preview-img" src="" alt="Comprobante adjuntado" class="voucher-preview-img">
+                    <div class="voucher-attached-badge">
+                      <span>✅ Comprobante adjuntado listo</span>
+                      <button type="button" id="remove-voucher-btn" class="remove-voucher-btn" title="Cambiar comprobante">✕ Quitar</button>
+                    </div>
+                  </div>
+                  <input type="file" id="buyer-voucher-input" accept="image/*" class="hidden">
+                </div>
+                <small class="voucher-help-text">💡 Todo el pedido y tu comprobante se enviarán juntos en el mensaje al WhatsApp del vendedor.</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resumen de Costos -->
+          <div class="order-summary-box">
+            <div class="summary-line">
+              <span>Subtotal Productos:</span>
+              <span id="summary-subtotal">S/ 0.00</span>
+            </div>
+            <div class="summary-line" id="summary-delivery-line">
+              <span>Costo de Envío:</span>
+              <span id="summary-delivery">S/ 5.00</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-line total-line">
+              <span>TOTAL A PAGAR:</span>
+              <span class="highlight-total" id="summary-total">S/ 0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sheet-footer">
+          <button id="send-whatsapp-order-btn" class="btn-whatsapp-hero" type="button">
+            <span class="whatsapp-btn-icon">💬</span>
+            <div class="whatsapp-btn-text">
+              <span class="wa-main-text">ENVIAR PEDIDO POR WHATSAPP</span>
+              <span class="wa-sub-text">Se abrirá tu chat con todo calculado</span>
+            </div>
+            <span class="wa-arrow">➔</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. MODAL CÓDIGO QR FIJO PARA IMPRIMIR -->
+    <div class="overlay qr-modal-overlay hidden" id="qr-modal">
+      <div class="qr-modal-card">
+        <button id="close-qr-btn" class="close-sheet-btn" type="button">✕</button>
+        <div class="qr-header">
+          <span class="qr-badge">🔲 CÓDIGO QR FIJO INTELIGENTE</span>
+          <h2 class="qr-title" id="qr-store-title">BurgerZap & Grill</h2>
+          <p class="qr-desc">Imprime este código una sola vez. Si cambias precios o productos en el menú, el QR seguirá funcionando igual sin tener que volver a imprimir.</p>
+        </div>
+
+        <!-- Selector de Destino -->
+        <div class="qr-target-selector">
+          <div class="qr-type-pills">
+            <button type="button" class="qr-pill-btn active" id="qr-pill-general">🌐 General / Redes</button>
+            <button type="button" class="qr-pill-btn" id="qr-pill-table">🍽️ Mesa Específica</button>
+          </div>
+          <div class="qr-table-input-row hidden" id="qr-table-input-row">
+            <label for="qr-table-number">Número o Nombre de la Mesa:</label>
+            <input type="text" id="qr-table-number" class="form-input" placeholder="Ej: Mesa 1, Mesa 2, Barra" value="Mesa 1">
+          </div>
+        </div>
+
+        <div class="qr-canvas-wrapper" id="qr-canvas-wrapper">
+          <canvas id="qr-canvas" width="240" height="240"></canvas>
+        </div>
+
+        <div class="qr-actions">
+          <button id="download-qr-btn" class="btn-save-product" type="button">⬇️ Descargar Código QR (PNG)</button>
+          <button id="copy-link-btn" class="btn-alt-sm" style="padding: 10px;" type="button">📋 Copiar Enlace Directo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. MODAL TICKET DE CONFIRMACIÓN -->
+    <div class="overlay ticket-modal-overlay hidden" id="ticket-modal">
+      <div class="ticket-card">
+        <div class="ticket-celebrate-badge">🎉 ¡PEDIDO GENERADO CON ÉXITO!</div>
+        <h2 class="ticket-title">Tu orden está lista para enviarse</h2>
+        <p class="ticket-desc">Si el chat de WhatsApp no se abrió automáticamente, presiona el botón inferior para confirmar tu orden con el negocio.</p>
+        
+        <div class="ticket-preview-box">
+          <pre id="ticket-text-preview" class="ticket-text-preview"></pre>
+        </div>
+
+        <!-- Previsualización del Comprobante si fue adjuntado -->
+        <div id="ticket-voucher-preview-box" class="ticket-voucher-preview-box hidden">
+          <span class="ticket-voucher-title">📸 Comprobante de Yape Adjuntado:</span>
+          <img id="ticket-voucher-preview-img" src="" alt="Comprobante Yape" class="ticket-voucher-thumb">
+          <p class="ticket-voucher-hint">💡 Recuerda adjuntar esta captura en tu conversación de WhatsApp si el chat lo solicita.</p>
+        </div>
+
+        <div class="ticket-actions">
+          <button id="ticket-retry-wa-btn" class="btn-whatsapp-hero" type="button">
+            <span>Abrir WhatsApp Ahora 💬</span>
+          </button>
+          <button id="ticket-close-btn" class="btn-alt-sm" style="padding: 10px;" type="button">
+            <span>Volver a la Tienda</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. MODAL ZOOM QR DE YAPE DEL COMERCIO (PARA EL CLIENTE) -->
+    <div class="overlay qr-modal-overlay hidden" id="yape-qr-zoom-modal">
+      <div class="qr-modal-card">
+        <button id="close-yape-zoom-btn" class="close-sheet-btn" type="button">✕</button>
+        <div class="qr-header">
+          <span class="qr-badge" style="background: rgba(147, 51, 234, 0.2); color: #c084fc; border-color: rgba(147, 51, 234, 0.4);">
+            📱 CÓDIGO QR DE YAPE / PLIN
+          </span>
+          <h2 class="qr-title" id="zoom-yape-title">BurgerZap & Grill</h2>
+          <p class="qr-desc">Escanea este código desde tu app de Yape o Plin, o toma una captura de pantalla para escanearlo desde tu galería.</p>
+        </div>
+
+        <div class="qr-zoom-img-wrapper">
+          <img id="zoom-yape-full-img" src="" alt="QR de Yape" class="zoom-yape-full-img">
+        </div>
+
+        <div class="yape-zoom-info-box">
+          <div>
+            <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Número de Yape:</span>
+            <strong style="font-size: 1.15rem; color: var(--text-main);" id="zoom-yape-phone">987 654 321</strong>
+          </div>
+          <div>
+            <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Titular:</span>
+            <strong style="font-size: 0.95rem; color: var(--primary);" id="zoom-yape-titular">Juan Pérez</strong>
+          </div>
+        </div>
+
+        <div class="qr-actions">
+          <button id="copy-zoom-phone-btn" class="btn-save-product" type="button">
+            <span>📋 Copiar Número</span>
+          </button>
+          <button id="close-zoom-done-btn" class="btn-alt-sm" style="padding: 10px;" type="button">
+            <span>Listo, Volver a Pagar</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST DE NOTIFICACIÓN FLOTANTE -->
+    <div class="app-toast hidden" id="app-toast">
+      <span class="toast-icon" id="toast-icon">✨</span>
+      <span class="toast-message" id="toast-message">Mensaje informativo</span>
+    </div>
+
+  </div>
+
+  <script src="app.js?v=20261016-apple-v25"></script>
+</body>
+</html>

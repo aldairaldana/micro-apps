@@ -1,0 +1,25 @@
+# Binaries & executables
+*.exe
+cloudflared.exe
+*.zip
+
+# Test scratch & browser profiles
+**/scratch/
+scratch/
+chrome_profile/
+
+# OS & System files
+.DS_Store
+Thumbs.db
+*.log
+*.out
+
+# Debug temporary screenshots
+screen_*.png
+shot*.png
+studio_verified.png
+
+# IDE & Dependencies
+.vscode/
+.idea/
+node_modules/

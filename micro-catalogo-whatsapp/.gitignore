@@ -1,0 +1,18 @@
+# Binary & Tooling
+cloudflared.exe
+*.exe
+
+# System & OS
+.DS_Store
+Thumbs.db
+*.log
+*.out
+
+# Debug & Temporary Artifacts
+screen_*.png
+shot*.png
+studio_verified.png
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#06070c">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CoreToCosmos">
+  <meta name="application-name" content="CoreToCosmos">
+  <meta name="format-detection" content="telephone=no">
+  <title>Core to Cosmos — StackTower Evolution</title>
+
+  <!-- PWA Manifest & App Icons -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+  <!-- Control de Caché para Actualizaciones Móviles Inmediatas -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=20261015-v7-full-fixes">
+</head>
+<body>
+  <div id="game-container">
+    <!-- Canvas Unificado de Alto Rendimiento (HiDPI / Retina Ready) -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Toast Flotante de Logro Desbloqueado -->
+    <div id="achievement-toast" class="achievement-toast hidden">
+      <span class="toast-icon">🏆</span>
+      <div class="toast-body">
+        <span class="toast-title">¡LOGRO DESBLOQUEADO!</span>
+        <span class="toast-name" id="toast-achievement-name">Escapista del Magma</span>
+      </div>
+    </div>
+
+    <!-- HUD Superior en Partida -->
+    <div id="hud" class="hidden">
+      <div class="hud-top-bar">
+        <!-- Grupo de Monedas y Diamantes en Partida -->
+        <div class="hud-currencies-group">
+          <div id="hud-coins" class="hud-coin-badge">
+            <span class="coin-icon">🪙</span>
+            <span id="hud-coins-val">50</span>
+          </div>
+          <div id="hud-diamonds" class="hud-diamond-badge">
+            <span class="diamond-icon">💎</span>
+            <span id="hud-diamonds-val">10</span>
+          </div>
+        </div>
+
+        <!-- Indicador de Nivel, Bioma, Meta y Textura Compacta -->
+        <div id="altitude-meter">
+          <div class="altitude-header">
+            <div class="altitude-header-left">
+              <span id="biome-icon">🌋</span>
+              <span id="level-badge-name">NIVEL 1</span>
+              <span id="material-badge" class="badge-compact">MAGMA</span>
+            </div>
+            <span id="target-counter">0 / 25</span>
+          </div>
+          <div class="layer-progress-bar">
+            <div id="layer-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Temporizador de Combate de Jefe -->
+        <div id="boss-timer-badge" class="boss-timer-badge hidden">
+          <span class="boss-timer-icon">⏱️</span>
+          <span id="boss-timer-val" class="boss-timer-val">45s</span>
+          <div class="boss-timer-track">
+            <div id="boss-timer-fill"></div>
+          </div>
+        </div>
+
+        <!-- Botones de Control: Pantalla Completa y Pausa -->
+        <div class="hud-controls-right">
+          <button id="hud-fullscreen-btn" class="hud-circle-btn hud-fs-btn" aria-label="Pantalla Completa" title="Pantalla Completa (⛶)">⛶</button>
+          <button id="pause-btn" class="hud-circle-btn" aria-label="Pausa" title="Pausa (⏸️)">⏸️</button>
+        </div>
+      </div>
+
+      <!-- Marcador Central de Pisos y Combo (Espaciado Limpio sin Solapamientos) -->
+      <div id="score-container">
+        <div id="score">0</div>
+        <div id="combo-badge" class="hidden">¡PERFECTO! x<span id="combo-count">1</span></div>
+      </div>
+    </div>
+
+    <!-- BANNER CINEMÁTICO DE BATALLA DE JEFE (FASE 5) -->
+    <div id="boss-intro-banner" class="boss-intro-banner hidden">
+      <div class="boss-banner-hazard">⚠️ ALERTA DE JEFE DE SECTOR ⚠️</div>
+      <div class="boss-banner-name" id="boss-intro-name">👹 GOLEM DE MAGMA FURIOSO</div>
+      <div class="boss-banner-goal" id="boss-intro-goal">META: 32 PISOS PARA DERROTARLO • BOTÍN +50 🪙</div>
+    </div>
+
+    <!-- OVERLAY DE TERREMOTO SÍSMICO Y BLOQUEO INICIAL (3s) -->
+    <div id="boss-quake-overlay" class="boss-quake-overlay hidden">
+      <div class="quake-icon">⚠️</div>
+      <div class="quake-title">¡RUGIDO SÍSMICO DEL JEFE!</div>
+      <div class="quake-desc">Terremoto violento en curso • Bloqueo de energía</div>
+      <div id="quake-timer" class="quake-timer">3.0s</div>
+    </div>
+
+    <!-- BANNER DINÁMICO DE HECHIZO / PODER DE JEFE -->
+    <div id="boss-spell-banner" class="boss-spell-banner hidden">
+      <div id="boss-spell-icon" class="boss-spell-icon">🔄</div>
+      <div class="boss-spell-content">
+        <div id="boss-spell-title" class="boss-spell-title">¡GRAVEDAD INVERTIDA!</div>
+        <div id="boss-spell-desc" class="boss-spell-desc">¡Voltea tu celular para poder apilar!</div>
+      </div>
+      <div id="boss-spell-countdown" class="boss-spell-countdown">6s</div>
+    </div>
+
+    <!-- CAPA DE ECLIPSE DE NIEBLA OSCURA -->
+    <div id="dark-eclipse-overlay" class="dark-eclipse-overlay"></div>
+
+    <!-- PANTALLA PRINCIPAL / MENÚ DE INICIO -->
+    <div id="start-screen" class="overlay">
+      <div class="top-nav">
+        <div class="top-nav-left">
+          <button class="player-pill" id="open-profile-btn" type="button">
+            <span class="avatar-emoji" id="nav-avatar">🧑‍🚀</span>
+            <span class="player-name-nav" id="nav-player-name">Explorador</span>
+          </button>
+          <div class="coin-pill" id="nav-coin-pill" title="Monedas Cósmicas">
+            <span class="coin-icon">🪙</span>
+            <span class="coin-count" id="nav-coins-count">50</span>
+          </div>
+          <div class="diamond-pill" id="nav-diamond-pill" title="Diamantes Astrales">
+            <span class="diamond-icon">💎</span>
+            <span class="diamond-count" id="nav-diamonds-count">10</span>
+          </div>
+        </div>
+        <div class="nav-actions">
+          <button id="open-skins-btn" class="nav-btn-shop" type="button" title="Tienda de Aspectos">
+            <span class="nav-btn-icon">🎨</span>
+            <span class="nav-btn-text">TIENDA</span>
+          </button>
+          <button id="open-settings-btn" class="nav-btn-menu" type="button" title="Menú de Ajustes y Récords">
+            <span class="nav-btn-icon">⚙️</span>
+            <span class="nav-btn-text">MENÚ</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-brand">
+        <div class="hero-subbadge">DEL SUBSUELO AL ESPACIO PROFUNDO • v2.6 GAMEPLAY DELUXE</div>
+        <h1 class="game-logo">CORE<span class="logo-to">TO</span><span class="logo-cosmos">COSMOS</span></h1>
+        <p class="hero-tagline">Conquista los 20 mundos y derrota a sus jefes o asciende sin límite en Modo Infinito.</p>
+      </div>
+
+      <!-- Selector de Modo de Juego: Misiones vs Infinito -->
+      <div class="game-mode-selector">
+        <button id="mode-missions-btn" class="mode-tab active" type="button">
+          <span class="mode-tab-icon">🎯</span>
+          <span class="mode-tab-title">MISIONES</span>
+        </button>
+        <button id="mode-endless-btn" class="mode-tab" type="button">
+          <span class="mode-tab-icon">♾️</span>
+          <span class="mode-tab-title">INFINITO</span>
+        </button>
+      </div>
+
+      <!-- Tarjeta del Nivel Actual Seleccionado (Con Acceso Directo al Mapa de Niveles) -->
+      <div class="biome-preview-carousel">
+        <div class="biome-card active" id="current-mission-card">
+          <div class="biome-card-top-row">
+            <span class="b-card-badge" id="mission-level-num">NIVEL 1 • META: 25 PISOS</span>
+            <button id="open-level-select-btn" class="change-level-chip" type="button" title="Explorar y elegir mundos">🗺️ Cambiar Nivel</button>
+          </div>
+          <div class="b-card-name" id="mission-level-title">🌋 Núcleo Magmático</div>
+          <div class="b-card-desc" id="mission-level-desc">Apila 25 bloques para escapar del núcleo ardiente de la Tierra.</div>
+        </div>
+      </div>
+
+      <!-- Potenciadores de Misión (Comprables Pre-Partida) -->
+      <div class="pregame-boosters-card" id="pregame-boosters-card">
+        <div class="boosters-header">
+          <span class="boosters-title">⚡ POTENCIADORES DE MISIÓN</span>
+          <span class="boosters-hint">Equipa ventajas tácticas</span>
+        </div>
+        <div class="boosters-row">
+          <button type="button" class="booster-slot-btn" id="booster-slowmo-toggle" title="Cámara Lenta (400 🪙)">
+            <span class="b-slot-icon">⏱️</span>
+            <div class="b-slot-info">
+              <span class="b-slot-name">Chrono -40%</span>
+              <span class="b-slot-count" id="booster-slowmo-count">x0 (400 🪙)</span>
+            </div>
+          </button>
+          <button type="button" class="booster-slot-btn" id="booster-titan-toggle" title="Bloque Titán Gigante (750 🪙)">
+            <span class="b-slot-icon">🧱</span>
+            <div class="b-slot-info">
+              <span class="b-slot-name">Base Titán</span>
+              <span class="b-slot-count" id="booster-titan-count">x0 (750 🪙)</span>
+            </div>
+          </button>
+          <button type="button" class="booster-slot-btn" id="booster-revive-toggle" title="Seguro Cósmico (15 💎)">
+            <span class="b-slot-icon">💎</span>
+            <div class="b-slot-info">
+              <span class="b-slot-name">Seguro Revivir</span>
+              <span class="b-slot-count" id="booster-revive-count">x0 (15 💎)</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="play-action-area">
+        <button id="main-play-btn" class="btn btn-hero">
+          <span class="btn-play-icon">▶</span>
+          <span id="play-btn-text">JUGAR NIVEL 1</span>
+        </button>
+        
+        <!-- Botón de Instalación Directa PWA (Móvil / WebAPK) -->
+        <button id="pwa-install-btn" class="btn btn-install hidden" type="button">
+          <span>📲 INSTALAR JUEGO EN CELULAR</span>
+        </button>
+
+        <span class="play-tip">👆 Toca en cualquier lugar de la pantalla para apilar</span>
+      </div>
+    </div>
+
+    <!-- MODAL: NIVEL COMPLETADO (VICTORIA) -->
+    <div id="level-clear-modal" class="overlay modal-overlay hidden">
+      <div class="modal-card modal-celebrate">
+        <div class="celebrate-badge">🎉 ¡MISIÓN CUMPLIDA!</div>
+        <h2 class="level-clear-title" id="clear-level-title">¡NIVEL 1 SUPERADO!</h2>
+        <p class="level-clear-subtitle" id="clear-level-desc">Has escapado del Núcleo de la Tierra.</p>
+
+        <!-- Estrellas de Calificación -->
+        <div class="stars-row">
+          <span class="star-icon" id="star-1">⭐</span>
+          <span class="star-icon" id="star-2">⭐</span>
+          <span class="star-icon" id="star-3">⭐</span>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <span class="stat-label">PISOS APILADOS</span>
+            <span class="stat-val" id="clear-score-val">25</span>
+          </div>
+          <div class="stat-box highlight-box">
+            <span class="stat-label">PRECISIÓN</span>
+            <span class="stat-val" id="clear-accuracy-val">92%</span>
+          </div>
+        </div>
+
+        <!-- RECOMPENSA DE NIVEL BONIFICADA CON ANUNCIO -->
+        <div class="ad-reward-block" id="clear-ad-rewards">
+          <button id="clear-double-ad-btn" class="btn btn-ad-double pulse-bonus" type="button">
+            <span class="ad-icon">🎬</span>
+            <div class="ad-btn-copy">
+              <span class="ad-btn-heading">DUPLICAR RECOMPENSA (x2)</span>
+              <span class="ad-btn-sub">Recibe +<span id="clear-double-val">100</span> 🪙 extras viendo un video</span>
+            </div>
+            <span class="ad-badge-bonus">x2</span>
+          </button>
+        </div>
+
+        <div class="actions">
+          <button id="next-level-btn" class="btn btn-hero">
+            <span>SIGUIENTE NIVEL ▶</span>
+          </button>
+          <button id="replay-level-btn" class="btn btn-secondary">
+            <span>🔄 REPETIR NIVEL</span>
+          </button>
+          <button id="clear-menu-btn" class="btn btn-secondary">
+            <span>🏠 MENÚ DE NIVELES</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: SELECTOR DE NIVELES (CAMPAÑA INFINITA POR MUNDOS) -->
+    <div id="level-select-modal" class="overlay modal-overlay hidden">
+      <div class="modal-card modal-wide">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-icon">🗺️</span>
+            <h2>MAPA DE NIVELES</h2>
+          </div>
+          <button class="close-modal-btn" data-close="level-select-modal">✕</button>
+        </div>
+
+        <!-- Navegador de Mundos / Sectores -->
+        <div class="world-navigator">
+          <button id="prev-world-btn" class="world-nav-arrow" title="Mundo Anterior">◀</button>
+          <div class="world-info">
+            <span class="world-title" id="world-title-label">Mundo 1: Núcleo Magmático</span>
+            <span class="world-range" id="world-range-label">Niveles 1 - 10</span>
+          </div>
+          <button id="next-world-btn" class="world-nav-arrow" title="Siguiente Mundo">▶</button>
+        </div>
+
+        <div class="level-grid" id="level-cards-container">
+          <!-- Generado dinámicamente con JS -->
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- MODAL PRINCIPAL: AJUSTES, PANTALLA COMPLETA, RÉCORDS Y LOGROS (HUB UNIFICADO) -->
+    <div id="settings-modal" class="overlay modal-overlay hidden">
+      <div class="modal-card modal-wide">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-icon">⚙️</span>
+            <h2>MENÚ DEL JUEGO</h2>
+          </div>
+          <button class="close-modal-btn" data-close="settings-modal">✕</button>
+        </div>
+
+        <!-- Pestañas del Menú Unificado -->
+        <div class="hub-tabs-bar">
+          <button type="button" class="hub-tab-btn active" id="hub-tab-settings">⚙️ Ajustes</button>
+          <button type="button" class="hub-tab-btn" id="hub-tab-records">🏆 Récords</button>
+          <button type="button" class="hub-tab-btn" id="hub-tab-trophies">🎖️ Logros</button>
+        </div>
+
+        <!-- Vista 1: Ajustes Clásicos de Videojuego -->
+        <div id="hub-view-settings" class="hub-view-panel active">
+          <div class="settings-list classic-settings-list">
+            
+            <!-- CATEGORÍA: AUDIO -->
+            <div class="settings-category-header">
+              <span class="category-icon">🔊</span>
+              <span class="category-title">AUDIO</span>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-name">Efectos de Sonido (SFX)</span>
+                <span class="setting-desc">Sonidos de cortes, combos y monedas</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="setting-sound" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-slider-item">
+              <span class="slider-label"><span>Volumen SFX</span><strong id="val-sound-volume">80%</strong></span>
+              <input type="range" id="setting-sound-volume" min="0" max="100" value="80" class="retro-range-slider">
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-name">Música de Fondo (BGM)</span>
+                <span class="setting-desc">Banda sonora adaptativa durante el juego</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="setting-music" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-slider-item">
+              <span class="slider-label"><span>Volumen Música</span><strong id="val-music-volume">70%</strong></span>
+              <input type="range" id="setting-music-volume" min="0" max="100" value="70" class="retro-range-slider">
+            </div>
+
+            <!-- CATEGORÍA: JUGABILIDAD -->
+            <div class="settings-category-header">
+              <span class="category-icon">🎮</span>
+              <span class="category-title">JUGABILIDAD & CONTROLES</span>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-name">Vibración Háptica</span>
+                <span class="setting-desc">Retroalimentación táctil al apilar</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="setting-vibrate" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-name">Guía de Alineación</span>
+                <span class="setting-desc">Asistente visual de puntería para cortes</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="setting-guide" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <!-- CATEGORÍA: GRÁFICOS & PANTALLA -->
+            <div class="settings-category-header">
+              <span class="category-icon">✨</span>
+              <span class="category-title">GRÁFICOS & RENDIMIENTO</span>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-name">Partículas y Efectos</span>
+                <span class="setting-desc">Chispas, destellos y fuegos artificiales</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="setting-particles" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-item highlight-setting">
+              <div class="setting-info">
+                <span class="setting-name">Pantalla Completa</span>
+                <span class="setting-desc">Modo inmersivo sin barras de navegación</span>
+              </div>
+              <button type="button" class="btn-toggle-fs" id="modal-fullscreen-btn">ACTIVAR ⛶</button>
+            </div>
+
+            <!-- CATEGORÍA: PERFIL -->
+            <div class="settings-category-header">
+              <span class="category-icon">👤</span>
+              <span class="category-title">PERFIL DEL JUGADOR</span>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-name">Nombre de Jugador</span>
+                <span class="setting-desc">Tu alias para el Salón de la Fama</span>
+              </div>
+              <input type="text" id="setting-player-name" maxlength="14" placeholder="Tu Nombre" class="setting-input">
+            </div>
+
+            <!-- CATEGORÍA: DATOS DEL JUEGO -->
+            <div class="settings-category-header">
+              <span class="category-icon">💾</span>
+              <span class="category-title">DATOS & RESTABLECIMIENTO</span>
+            </div>
+
+            <div class="setting-item danger-setting">
+              <div class="setting-info">
+                <span class="setting-name">Restablecer Progreso</span>
+                <span class="setting-desc">Reinicia niveles y récords locales</span>
+              </div>
+              <button type="button" class="btn-danger-sm" id="btn-reset-game-data">⚠️ REINICIAR</button>
+            </div>
+
+          </div>
+          <button class="btn btn-primary" id="save-settings-btn" style="margin-top: 14px;">GUARDAR AJUSTES</button>
+        </div>
+
+        <!-- Vista 2: Récords y Salón de la Fama -->
+        <div id="hub-view-records" class="hub-view-panel">
+          <div class="tab-switcher" style="margin-bottom: 10px;">
+            <button class="tab-btn active" id="tab-week">📅 SEMANAL (LUN-DOM)</button>
+            <button class="tab-btn" id="tab-global">👑 SALÓN DE LA FAMA</button>
+          </div>
+          <div id="view-week" class="tab-view active">
+            <div class="week-summary-box">
+              <span class="week-title">Semana en Curso</span>
+              <span class="week-dates" id="week-dates-label">Lunes a Domingo</span>
+            </div>
+            <div class="week-days-list" id="week-days-container"></div>
+          </div>
+          <div id="view-global" class="tab-view">
+            <div class="leaderboard-list" id="hall-of-fame-container"></div>
+          </div>
+        </div>
+
+        <!-- Vista 3: Logros Cósmicos -->
+        <div id="hub-view-trophies" class="hub-view-panel">
+          <div class="achievements-subtext" style="margin-bottom: 8px;">Supera desafíos cósmicos para ganar monedas y diamantes:</div>
+          <div class="achievements-grid" id="achievements-container">
+            <!-- Generado dinámicamente -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PANTALLA COMPLETA: TIENDA CÓSMICA DE ASPECTOS & TEXTURAS (FULLSCREEN VIEW) -->
+    <div id="skins-modal" class="fullscreen-shop hidden">
+      <div class="shop-top-bar">
+        <div class="shop-nav-header-row">
+          <button class="shop-back-btn" id="close-skins-shop-btn" data-close="skins-modal" aria-label="Volver">
+            <span class="shop-back-icon">◀</span>
+            <span class="shop-back-text">VOLVER</span>
+          </button>
+          <div class="shop-balances">
+            <div class="coin-pill" title="Monedas Cósmicas">
+              <span class="coin-icon">🪙</span>
+              <span class="coin-count" id="skins-modal-coins">50</span>
+            </div>
+            <div class="diamond-pill" title="Diamantes Astrales">
+              <span class="diamond-icon">💎</span>
+              <span class="diamond-count" id="skins-modal-diamonds">10</span>
+            </div>
+          </div>
+        </div>
+        <div class="shop-title-area">
+          <span class="shop-title-icon">🎨</span>
+          <h2>TIENDA DE ASPECTOS</h2>
+          <span class="shop-count-chip">217</span>
+        </div>
+      </div>
+
+      <!-- Tarjeta de Regalo Diario y Quitar Anuncios VIP -->
+      <div class="shop-monetization-row">
+        <div class="shop-ad-gift-card" id="shop-free-ad-gift-card">
+          <div class="ad-gift-left">
+            <div class="ad-gift-icon">🎁</div>
+            <div class="ad-gift-info">
+              <div class="ad-gift-title">COFRE GRATIS</div>
+              <div class="ad-gift-desc">+150 🪙 y +10 💎 con anuncio</div>
+            </div>
+          </div>
+          <button id="shop-claim-ad-gift-btn" class="btn btn-ad-claim" type="button">
+            <span>🎬 ABRIR</span>
+          </button>
+        </div>
+
+        <div class="shop-vip-noads-card" id="shop-noads-card">
+          <div class="vip-info">
+            <span class="vip-badge">⭐ VIP</span>
+            <span class="vip-text">Sin Anuncios</span>
+          </div>
+          <button id="shop-buy-noads-btn" class="btn btn-vip-buy" type="button">
+            <span>$1.99</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Contenedor Principal de la Tienda (Colección Completa Mixta de Aspectos) -->
+      <div class="shop-skins-list" id="skins-grid-container"></div>
+
+      <!-- Barra de Paginación Inferior (Con márgenes seguros para dedos en móvil) -->
+      <div class="shop-pagination-bar" id="skins-pagination-bar">
+        <button id="skins-prev-page-btn" class="shop-page-btn" type="button">◀ Anterior</button>
+        <span id="skins-page-info" class="shop-page-info">Página 1 de 10</span>
+        <button id="skins-next-page-btn" class="shop-page-btn" type="button">Siguiente ▶</button>
+      </div>
+    </div>
+
+    <!-- MODAL POPUP: JUEGO EN PAUSA (COMPACTO, SIN SCROLL, 100% ICONOS) -->
+    <div id="pause-modal" class="overlay modal-overlay hidden">
+      <div class="modal-card modal-pause-compact">
+        <div class="modal-header pause-compact-header">
+          <div class="modal-title-wrap">
+            <span class="modal-icon">⏸️</span>
+            <h2>PAUSA</h2>
+          </div>
+          <button class="close-modal-btn" id="close-pause-modal-btn" data-close="pause-modal" aria-label="Cerrar">✕</button>
+        </div>
+
+        <div class="pause-compact-status">
+          <span class="pause-level-badge" id="pause-level-badge">🌋 NIVEL 1</span>
+          <span class="pause-level-target" id="pause-level-target">Pisos: 0 / 25</span>
+        </div>
+
+        <!-- Fila de 4 Controles de Iconos Rápidos (Sin texto excesivo) -->
+        <div class="pause-icon-controls">
+          <button type="button" class="pause-icon-btn active" id="pause-toggle-sound" title="Efectos de Sonido">
+            <span class="pause-icon-glyph" id="pause-icon-sound">🔊</span>
+            <span class="pause-icon-label">Sonido</span>
+          </button>
+          <button type="button" class="pause-icon-btn active" id="pause-toggle-music" title="Música de Fondo">
+            <span class="pause-icon-glyph" id="pause-icon-music">🎵</span>
+            <span class="pause-icon-label">Música</span>
+          </button>
+          <button type="button" class="pause-icon-btn active" id="pause-toggle-vibrate" title="Vibración Háptica">
+            <span class="pause-icon-glyph" id="pause-icon-vibrate">📳</span>
+            <span class="pause-icon-label">Vibrar</span>
+          </button>
+          <button type="button" class="pause-icon-btn active" id="pause-toggle-guide" title="Guía de Alineación">
+            <span class="pause-icon-glyph" id="pause-icon-guide">🎯</span>
+            <span class="pause-icon-label">Guía</span>
+          </button>
+        </div>
+
+        <!-- Botones de Acción Clásicos (Siempre a la vista, cero scroll) -->
+        <div class="actions pause-actions">
+          <button id="resume-btn" class="btn btn-hero">
+            <span>▶️ REANUDAR</span>
+          </button>
+          
+          <button id="pause-restart-btn" class="btn btn-primary">
+            <span>🔄 REINICIAR</span>
+          </button>
+
+          <button id="pause-menu-btn" class="btn btn-secondary">
+            <span>🏠 MENÚ PRINCIPAL</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANTALLA DE GAME OVER (NIVEL FALLIDO) -->
+    <div id="gameover-screen" class="overlay modal-overlay hidden">
+      <div class="modal-card">
+        <div class="biome-reached-badge" id="go-biome-badge">🌋 NÚCLEO FALLIDO</div>
+        <h2 class="gameover-title">¡MISIÓN INCOMPLETA!</h2>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <span class="stat-label">PISOS LOGRADOS</span>
+            <span class="stat-val" id="final-score">0</span>
+          </div>
+          <div class="stat-box highlight-box">
+            <span class="stat-label">META DEL NIVEL</span>
+            <span class="stat-val" id="final-target-goal">25</span>
+          </div>
+        </div>
+
+        <div class="go-coins-earned" id="go-coins-earned-box">
+          <span class="coin-icon">🪙</span>
+          <span>+<span id="go-coins-val">0</span> Monedas ganadas</span>
+        </div>
+
+        <p class="streak-text" id="streak-msg">Te faltaron pocos pisos para salir del nivel. ¡Inténtalo de nuevo!</p>
+
+        <!-- BOTONES DE ANUNCIOS BONIFICADOS (REVIVIR Y DUPLICAR) -->
+        <div class="ad-reward-block" id="go-ad-rewards">
+          <button id="revive-ad-btn" class="btn btn-ad-revive pulse-revive" type="button">
+            <span class="ad-icon">🎬</span>
+            <div class="ad-btn-copy">
+              <span class="ad-btn-heading">REVIVIR Y CONTINUAR</span>
+              <span class="ad-btn-sub">Segunda oportunidad gratis para salvar la torre (+1 intento)</span>
+            </div>
+            <span class="ad-badge-free">GRATIS</span>
+          </button>
+
+          <button id="double-coins-ad-btn" class="btn btn-ad-double" type="button">
+            <span class="ad-icon">🪙</span>
+            <div class="ad-btn-copy">
+              <span class="ad-btn-heading">DUPLICAR MONEDAS x2</span>
+              <span class="ad-btn-sub">Gana +<span id="double-coins-amount">0</span> monedas extras viendo un video</span>
+            </div>
+            <span class="ad-badge-bonus">x2</span>
+          </button>
+        </div>
+
+        <div class="actions">
+          <button id="restart-btn" class="btn btn-hero">
+            <span>🔄 REINTENTAR NIVEL</span>
+          </button>
+
+          <button id="home-btn" class="btn btn-secondary">
+            <span>🏠 MENÚ PRINCIPAL</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: GUÍA DE INSTALACIÓN RÁPIDA EN CELULAR -->
+    <div id="install-help-modal" class="overlay modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-icon">📲</span>
+            <h2>INSTALAR EN TU CELULAR</h2>
+          </div>
+          <button class="close-modal-btn" data-close="install-help-modal">✕</button>
+        </div>
+
+        <div class="install-instructions">
+          <div class="install-step-card">
+            <span class="step-num">🤖</span>
+            <div class="step-content">
+              <strong>En Android (Chrome):</strong>
+              <p>Toca los tres puntos <strong>(⋮)</strong> arriba a la derecha y pulsa <strong>"Instalar aplicación"</strong> o <strong>"Agregar a pantalla principal"</strong>.</p>
+            </div>
+          </div>
+
+          <div class="install-step-card">
+            <span class="step-num">🍎</span>
+            <div class="step-content">
+              <strong>En iPhone (Safari):</strong>
+              <p>Toca el botón Compartir <strong>(⎋)</strong> abajo y selecciona <strong>"Agregar a inicio" (+)</strong>.</p>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-hero" data-close="install-help-modal">
+          <span>¡ENTENDIDO!</span>
+        </button>
+      </div>
+    </div>
+    <!-- MODAL DE ANUNCIO BONIFICADO (GOOGLE ADMOB READY) -->
+    <div id="ad-video-modal" class="overlay modal-overlay hidden">
+      <div class="ad-player-card">
+        <div class="ad-header-bar">
+          <div class="ad-info-tag">
+            <span class="ad-live-dot"></span>
+            <span>ANUNCIO PATROCINADO • GOOGLE ADMOB</span>
+          </div>
+          <div class="ad-timer-pill" id="ad-timer-pill">
+            <span class="timer-spinner">⏳</span>
+            <span id="ad-countdown-sec">5s</span>
+          </div>
+          <button id="ad-exit-btn" class="ad-exit-btn hidden" title="Cerrar Anuncio" type="button">✕</button>
+        </div>
+
+        <div class="ad-video-viewport">
+          <canvas id="ad-viewport-canvas" width="360" height="200"></canvas>
+          <div class="ad-sponsor-info">
+            <div class="ad-sponsor-badge">PATROCINADO</div>
+            <h3 class="ad-sponsor-title">CORE TO COSMOS: DELUXE</h3>
+            <p class="ad-sponsor-desc">¡Construye el imperio de torres más alto de la galaxia! Descárgalo en Google Play.</p>
+            <div class="ad-install-pill">INSTALAR AHORA ★★★★★</div>
+          </div>
+        </div>
+
+        <div class="ad-progress-track">
+          <div class="ad-progress-bar" id="ad-progress-bar"></div>
+        </div>
+
+        <div class="ad-footer-status" id="ad-footer-status">
+          Mira los 5 segundos para recibir tu recompensa...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js?v=20261015-v7-full-fixes"></script>
+</body>
+</html>
