@@ -6,17 +6,26 @@
 
 ## 🌟 Características Principales
 
-### 0. 🇵🇪 Versión 1.2 — Edición Emprendedores Perú (Fotos, Videos & Multi-Rubro)
+### 0. 🔒 Versión 1.3 — URLs Personalizadas /nombre-tienda, Sello Oficial & Hosting 100% Gratis
+* **🔗 Enlaces Personalizados y Amigables (`/nombre-tienda` o `?tienda=nombre-tienda`):** Generación automática de slugs limpios vía `slugifyStoreName()` (ej. "Flores Vanesa" -> `tiendazap.pages.dev/flores-vanesa`), con vista previa en vivo y personalización en el Onboarding y en Ajustes.
+* **🌐 Compatibilidad SPA Nativa para Cloudflare Pages & GitHub Pages (100% Gratis):**
+  * `_redirects`: Regla `/* /index.html 200` para enrutamiento directo en Cloudflare Pages.
+  * `404.html`: Redirección automática en GitHub Pages hacia `index.html?tienda=<slug>` conservando parámetros y fragmentos hash.
+* **🛡️ Sello de Seguridad y Confianza Oficial para el Comprador:** Píldora visible `🔒 Enlace Oficial Verificado · /[storeSlug]` en la cabecera, título de pestaña dinámico (`✅ Nombre — Catálogo Oficial & Pedidos por WhatsApp`) y encabezados verificados en el mensaje de WhatsApp.
+* **⚡ Sincronización Gratuita sin Servidor via Hash (`#d=...`):** Catálogo comprimido con `LZ-String` en el fragmento hash para mantener URLs legibles y no saturar logs de red. Incluye protección en memoria `isViewingRemoteCatalog` para evitar sobreescribir el catálogo local del comprador si también es comerciante.
+* **🏷️ Marca Centralizada (`APP_BRAND`):** Configuración unificada para fácil adaptación a cualquier marca o dominio.
+* **💐 Plantilla Especial "Flores & Joyas Vanesa":** Rubro optimizado para florerías, detalles, regalos sorpresa y joyería fina con variantes dinámicas (Rosas Ecuatorianas, Cajas de Lujo, etc.).
+
+### 1. 🇵🇪 Versión 1.2 — Edición Emprendedores Perú (Fotos, Videos & Multi-Rubro)
 * **🎥 Soporte de Video Orgánico Estilo Reels/TikTok:** Cada producto permite subir videos cortos desde el celular (almacenados localmente con `MediaStore` sobre IndexedDB) o pegar enlaces de Instagram Reels, TikTok, YouTube Shorts o archivos `.mp4`. La tarjeta muestra un badge flotante `🎥 Video` y el modal de compra incluye un conmutador fluido **Foto / Video**.
 * **🇵🇪 7 Rubros Comerciales con Opciones Dinámicas:**
   1. 👟 **Zapatillas & Calzado:** Talla (EUR / US) y Color / Modelo.
   2. ✨ **Perfumes & Belleza:** Presentación / Mililitros (Decants 10ml, Frascos) y Aroma / Familia.
-  3. ⌚ **Relojes & Joyas:** Modelo / Tamaño de Caja y Color / Correa.
+  3. 💐 **Flores & Joyas (Vanesa):** Variantes de arreglo / Ocasión y Presentación / Joya.
   4. 👖 **Ropa & Pantalones:** Talla (S, M, L o 28, 30, 32) y Color / Tela.
   5. 🍰 **Postres & Comida:** Tamaño / Porciones y Sabor / Relleno.
   6. 💻 **Tecnología & Gadgets:** Variantes / Licencia y Edición / Tipo.
   7. 🛍️ **Tienda General / Todo Rubro:** Opciones y Modelo.
-* **🌐 Compartición 100% Gratuita sin Servidor (LZ-String):** Al generar el enlace o el QR, todo el catálogo se comprime en la URL (`?mode=shop&c=...`), permitiendo que cualquier cliente en otro celular lo abra al instante sin que el comerciante pague un solo sol en hosting o bases de datos.
 * **📦 MediaStore en IndexedDB:** Almacenamiento local de fotos de alta fidelidad y videos cortos en el teléfono del vendedor superando el límite de 5 MB de localStorage.
 
 ### 1. 🪄 Onboarding Guiado Estilo Apple (Pasos 0 al 5)

@@ -19,6 +19,27 @@ function escapeHtml(str) {
 }
 
 // ============================================================================
+// 0.1 CONFIGURACIÓN CENTRALIZADA DE MARCA (APP_BRAND) & SLUGIFY
+// ============================================================================
+const APP_BRAND = {
+  name: "TiendaZap",
+  suffix: "Studio",
+  domainHint: "tiendazap.pages.dev"
+};
+
+function slugifyStoreName(name) {
+  if (!name) return "tienda";
+  return name
+    .toString()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "tienda";
+}
+
+// ============================================================================
 // 0. MEDIASTORE (INDEXEDDB WRAPPER PARA FOTOS Y VIDEOS LOCALES EN EL CELULAR)
 // ============================================================================
 const MediaStore = {
@@ -101,6 +122,7 @@ const BUSINESS_PRESETS = {
   sneakers: {
     config: {
       name: "Sneakers Lima Club",
+      storeSlug: "sneakers-lima",
       tagline: "Zapatillas exclusivas 100% originales, streetwear y envíos a todo el Perú 👟🔥",
       phone: "51987654321",
       currency: "S/",
@@ -163,6 +185,7 @@ const BUSINESS_PRESETS = {
   beauty: {
     config: {
       name: "Aroma & Glamour Perú",
+      storeSlug: "aroma-glamour",
       tagline: "Perfumería fina de diseñador, decants originales y cosmética árabe ✨🇵🇪",
       phone: "51987654321",
       currency: "S/",
@@ -224,26 +247,55 @@ const BUSINESS_PRESETS = {
   },
   watches: {
     config: {
-      name: "Cronos & Joyas Perú",
-      tagline: "Relojería de precisión, automáticos, smartwatches y joyería fina ⌚✨",
+      name: "Flores & Joyas Vanesa",
+      storeSlug: "flores-vanesa",
+      tagline: "Arreglos florales prémium, rosas eternas, joyería fina y detalles exclusivos 💐✨",
       phone: "51987654321",
       currency: "S/",
       deliveryCost: 10.0,
       deliveryTime: "Envíos 24-48h",
       isOpen: true,
-      logoUrl: "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=300&q=80",
-      bannerUrl: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80",
+      logoUrl: "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=300&q=80",
+      bannerUrl: "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=1200&q=80",
       googleSheetUrl: "",
       yapeEnabled: true,
       yapePhone: "987654321",
-      yapeName: "Cronos Joyería Perú",
+      yapeName: "Flores Vanesa SAC",
       yapeQrUrl: ""
     },
     products: [
       {
         id: "wat-01",
-        sku: "SEIKO-5-01",
-        name: "Seiko 5 Sports Automático SRPD",
+        sku: "FLOR-01",
+        name: "Ramo Premium 24 Rosas Rojas + Follaje Fino",
+        category: "Ramos & Flores",
+        price: 120.00,
+        desc: "Rosas ecuatorianas de tallo largo seleccionadas una a una, envueltas en papel coreano de lujo y lazo de satén.",
+        img: "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        sizes: ["Ramo 24 Rosas", "Ramo Gigante 50 Rosas (+S/ 110)"],
+        colors: ["Rojo Pasión", "Rosa Pastel", "Blanco Puro"],
+        promo: true,
+        available: true
+      },
+      {
+        id: "wat-02",
+        sku: "BOX-FLOR-02",
+        name: "Box Cilindro Rosa Eterna & Cadena Plata 925",
+        category: "Boxes de Regalo",
+        price: 145.00,
+        desc: "Rosa natural preservada de hasta 3 años de duración en cúpula con gaveta secreta y collar corazón de plata italiana.",
+        img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "",
+        sizes: ["Caja Clásica", "Caja Deluxe con Bombones (+S/ 35)"],
+        colors: ["Rosa Roja / Plata", "Rosa Azul / Plata"],
+        promo: true,
+        available: true
+      },
+      {
+        id: "wat-03",
+        sku: "SEIKO-5-03",
+        name: "Seiko 5 Sports Automático Edición Joya",
         category: "Relojes Automáticos",
         price: 890.00,
         desc: "Calibre 4R36 automático con 41 horas de reserva de marcha, fechador bilingüe, cristal Hardlex y resistencia al agua 100m.",
@@ -251,35 +303,7 @@ const BUSINESS_PRESETS = {
         videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
         sizes: ["Caja 42.5mm"],
         colors: ["Bisel Negro / Acero", "Bisel Azul / Jubilee (+S/ 40)"],
-        promo: true,
-        available: true
-      },
-      {
-        id: "wat-02",
-        sku: "CASIO-A168-02",
-        name: "Casio Vintage Edición Oro Rosa",
-        category: "Relojes Deportivos",
-        price: 230.00,
-        desc: "El clásico digital retro con iluminación ElectroLuminescence, cronómetro 1/100s, alarma diaria y brazalete autoajustable.",
-        img: "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=500&q=80",
-        videoUrl: "",
-        sizes: ["Estándar Unisex 38mm"],
-        colors: ["Oro Rosa", "Dorado Clásico", "Plateado (-S/ 20)"],
         promo: false,
-        available: true
-      },
-      {
-        id: "wat-03",
-        sku: "SMW-PRO-03",
-        name: "Smartwatch AMOLED Serie Pro Ultra",
-        category: "Smartwatches",
-        price: 280.00,
-        desc: "Pantalla AMOLED 1.43 pulgadas Always-On, llamadas Bluetooth, monitoreo cardíaco/SpO2, resistencia IP68 y batería de 10 días.",
-        img: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=500&q=80",
-        videoUrl: "",
-        sizes: ["Caja 46mm Titanio"],
-        colors: ["Correa Cuero Café", "Correa Silicona Negra"],
-        promo: true,
         available: true
       }
     ]
@@ -287,6 +311,7 @@ const BUSINESS_PRESETS = {
   fashion: {
     config: {
       name: "Urban Jeans & Moda",
+      storeSlug: "urban-jeans",
       tagline: "Pantalones cargo, jeans wide leg, casacas y outfits en tendencia 👖✨",
       phone: "51987654321",
       currency: "S/",
@@ -349,6 +374,7 @@ const BUSINESS_PRESETS = {
   food: {
     config: {
       name: "Dulce & Pasión Repostería",
+      storeSlug: "dulce-pasion",
       tagline: "Tortas artesanales, postres en vaso y boxes temáticos para regalar 🍰🧁",
       phone: "51987654321",
       currency: "S/",
@@ -411,6 +437,7 @@ const BUSINESS_PRESETS = {
   tech: {
     config: {
       name: "Licencias & Tech Perú",
+      storeSlug: "licencias-tech",
       tagline: "Software original, licencias digitales garantizadas y gadgets tech 💻⚡",
       phone: "51987654321",
       currency: "S/",
@@ -473,6 +500,7 @@ const BUSINESS_PRESETS = {
   general: {
     config: {
       name: "MegaTienda Express Perú",
+      storeSlug: "megatienda-express",
       tagline: "Tus productos favoritos en tendencia con envíos directos y pago contraentrega o Yape 🛍️✨",
       phone: "51987654321",
       currency: "S/",
@@ -576,12 +604,12 @@ const NICHE_DATA = {
   },
   watches: {
     key: "watches",
-    label: "Relojes, Joyas & Accesorios",
-    tagline: "Relojería de precisión, automáticos, smartwatches y joyería fina ⌚✨",
-    suggestedCategories: ["Relojes Automáticos", "Relojes Deportivos", "Smartwatches", "Cadenas & Pulseras", "Lentes de Sol"],
+    label: "Relojes, Joyas & Regalos",
+    tagline: "Arreglos florales prémium, rosas eternas, joyería fina y relojes de colección 💐⌚✨",
+    suggestedCategories: ["Ramos & Flores", "Boxes de Regalo", "Relojes Automáticos", "Joyas & Cadenas", "Accesorios"],
     variantLabels: {
-      size: "Modelo / Tamaño de Caja",
-      color: "Color / Correa"
+      size: "Modelo / Tamaño",
+      color: "Color / Acabado"
     },
     defaultDeliveryTime: "Envíos en 24-48h",
     defaultDeliveryCost: 10.0,
@@ -617,7 +645,7 @@ const NICHE_DATA = {
     suggestedCategories: ["Postres & Tortas", "Boxes de Regalo", "Hamburguesas & Alitas", "Bebidas", "Combos"],
     variantLabels: {
       size: "Tamaño / Porciones",
-      color: "Sabor / Relleno"
+      color: "Sabor / Dedicatoria"
     },
     defaultDeliveryTime: "30-45 min",
     defaultDeliveryCost: 6.0,
@@ -673,6 +701,13 @@ const AppState = {
   activePreset: "sneakers",
   shopConfig: { ...BUSINESS_PRESETS.sneakers.config },
   products: [...BUSINESS_PRESETS.sneakers.products],
+  isViewingRemoteCatalog: false,
+
+  getStoreSlug() {
+    return (this.shopConfig && this.shopConfig.storeSlug)
+      ? this.shopConfig.storeSlug
+      : slugifyStoreName(this.shopConfig?.name || "tienda");
+  },
   categories: [], // Entidad de primer nivel: { id, name, icon }
   cart: {}, // { [cartKey]: { product, quantity, note, selectedSize, selectedColor } }
   
@@ -791,16 +826,35 @@ const AppState = {
         if (addrInp) addrInp.value = client.address || "";
       }
 
-      // 3. Cargar catálogo comprimido LZ-String o Google Sheets si viene en URL
-      const cParam = urlParams.get("c");
-      if (cParam && typeof LZString !== "undefined") {
+      // 3. Detectar slug de tienda desde pathname (/flores-vanesa) o parámetro (?tienda=flores-vanesa)
+      const pathSegments = window.location.pathname.split("/").filter(Boolean);
+      let pathSlug = "";
+      if (pathSegments.length > 0) {
+        const lastSeg = pathSegments[pathSegments.length - 1];
+        if (!lastSeg.endsWith(".html") && lastSeg !== "micro-catalogo-whatsapp") {
+          pathSlug = lastSeg;
+        }
+      }
+      const tiendaParam = urlParams.get("tienda") || pathSlug;
+
+      // Detectar payload comprimido en hash #d=... o parámetros ?c=... / ?d=...
+      let rawCompressed = urlParams.get("c") || urlParams.get("d");
+      if (!rawCompressed) {
+        const hash = window.location.hash;
+        const dMatch = hash.match(/[#&]d=([^&]+)/);
+        if (dMatch) rawCompressed = decodeURIComponent(dMatch[1]);
+      }
+
+      if (rawCompressed && typeof LZString !== "undefined") {
         try {
-          const jsonStr = LZString.decompressFromEncodedURIComponent(cParam);
+          const jsonStr = LZString.decompressFromEncodedURIComponent(rawCompressed);
           if (jsonStr) {
             const data = JSON.parse(jsonStr);
             if (data && data.cfg) {
+              this.isViewingRemoteCatalog = true;
               this.shopConfig = {
                 name: data.cfg.n || "Tienda Online",
+                storeSlug: data.cfg.s || tiendaParam || slugifyStoreName(data.cfg.n || "tienda"),
                 tagline: data.cfg.t || "",
                 phone: data.cfg.p || "",
                 currency: data.cfg.c || "S/",
@@ -837,7 +891,7 @@ const AppState = {
             }
           }
         } catch (err) {
-          console.warn("Error desempaquetando catalogo c=:", err);
+          console.warn("Error desempaquetando catalogo:", err);
         }
       }
 
@@ -847,11 +901,15 @@ const AppState = {
         this.isCustomerOnlyMode = true;
       }
 
+      if (tiendaParam) {
+        this.isCustomerOnlyMode = true;
+      }
+
       // 4. Determinar el modo inicial según usuario
       const prodParam = urlParams.get("p");
       const modeParam = urlParams.get("mode");
 
-      if (prodParam || modeParam === "shop" || mesaParam || cParam || sheetParam) {
+      if (prodParam || modeParam === "shop" || mesaParam || rawCompressed || sheetParam || tiendaParam) {
         // MODO USUARIO FINAL (El comprador que ve el catálogo, compra y paga)
         this.isCustomerOnlyMode = true;
         ViewController.showCustomerPreview();
@@ -1091,10 +1149,12 @@ const AppState = {
   },
 
   saveConfig() {
+    if (this.isViewingRemoteCatalog) return;
     this.safeSetItem("tiendazap_config", JSON.stringify(this.shopConfig));
   },
 
   saveProducts() {
+    if (this.isViewingRemoteCatalog) return;
     this.safeSetItem("tiendazap_products", JSON.stringify(this.products));
   },
 
@@ -1367,9 +1427,14 @@ const OnboardingWizard = {
     if (regContact) regContact.value = merchant.contact || "";
     if (regPin) regPin.value = merchant.pin || "";
 
-    // Paso 2: Marca y Logo
+    // Paso 2: Marca, Logo y Enlace Web
     const storeName = document.getElementById("apple-store-name");
+    const storeSlug = document.getElementById("apple-store-slug");
+    const slugPreview = document.getElementById("apple-slug-preview");
     const storeTag = document.getElementById("apple-store-tagline");
+
+    if (storeSlug) storeSlug.value = AppState.getStoreSlug();
+    if (slugPreview) slugPreview.textContent = `${APP_BRAND.domainHint}/${AppState.getStoreSlug()}`;
     const logoImg = document.getElementById("apple-logo-img");
     const logoPlaceholder = document.getElementById("apple-logo-placeholder");
 
@@ -1518,8 +1583,12 @@ const OnboardingWizard = {
       AppState.saveMerchant();
     } else if (this.currentStep === 2) {
       const nameVal = document.getElementById("apple-store-name")?.value.trim();
+      const slugVal = document.getElementById("apple-store-slug")?.value.trim();
       const tagVal = document.getElementById("apple-store-tagline")?.value.trim();
-      if (nameVal) shop.name = nameVal;
+      if (nameVal) {
+        shop.name = nameVal;
+        shop.storeSlug = slugifyStoreName(slugVal || nameVal);
+      }
       if (tagVal) shop.tagline = tagVal;
     } else if (this.currentStep === 3) {
       const rawPhone = document.getElementById("apple-store-phone")?.value.trim();
@@ -1640,7 +1709,7 @@ const OnboardingWizard = {
         "apple-reg-name", "apple-reg-contact", "apple-reg-pin",
         "apple-store-name", "apple-store-tagline", "apple-store-phone",
         "apple-yape-phone", "apple-yape-titular",
-        "apple-prod-name", "apple-prod-price", "apple-prod-cat", "apple-prod-video"
+        "apple-prod-name", "apple-prod-price", "apple-prod-cat", "apple-prod-video", "apple-store-slug"
       ];
       inputs.forEach(id => {
         const el = document.getElementById(id);
@@ -2513,6 +2582,11 @@ const StudioController = {
 
   populateSettingsTab() {
     const shop = AppState.shopConfig;
+    const slugInput = document.getElementById("settings-store-slug");
+    const slugPrefix = document.getElementById("settings-slug-prefix");
+    if (slugInput) slugInput.value = AppState.getStoreSlug();
+    if (slugPrefix) slugPrefix.textContent = `${APP_BRAND.domainHint}/`;
+
     const phoneInput = document.getElementById("settings-phone");
     const currInput = document.getElementById("settings-currency");
     const costInput = document.getElementById("settings-delivery-cost");
@@ -2557,6 +2631,10 @@ const StudioController = {
 
   saveSettingsForm(e) {
     if (e) e.preventDefault();
+    const slugInp = document.getElementById("settings-store-slug");
+    if (slugInp && slugInp.value.trim()) {
+      AppState.shopConfig.storeSlug = slugifyStoreName(slugInp.value.trim());
+    }
     const phone = document.getElementById("settings-phone")?.value.trim() || AppState.shopConfig.phone;
     const currency = document.getElementById("settings-currency")?.value.trim() || "S/";
     const deliveryCost = parseFloat(document.getElementById("settings-delivery-cost")?.value) || 0;
@@ -2654,6 +2732,12 @@ const CustomerUI = {
     if (logoEl) logoEl.src = shop.logoUrl || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80";
     if (nameEl) nameEl.textContent = shop.name || "Mi Tienda Digital";
     if (taglineEl) taglineEl.textContent = shop.tagline || "Catálogo y pedidos directos por WhatsApp";
+
+    const slug = AppState.getStoreSlug();
+    const sealEl = document.getElementById("seal-slug-text");
+    if (sealEl) sealEl.textContent = `/${slug}`;
+
+    document.title = `✅ ${shop.name || "Tienda"} — Catálogo Oficial & Pedidos por WhatsApp`;
 
     if (statusDot) {
       statusDot.className = `status-indicator-dot ${shop.isOpen ? "online" : "offline"}`;
@@ -3488,7 +3572,10 @@ const WhatsAppOrder = {
       timeStyle: "short"
     });
 
-    let msg = `*NUEVO PEDIDO — ${shop.name.toUpperCase()}*\n`;
+    const cleanStoreUrl = QRGenerator.getTargetUrl();
+    let msg = `🛍️ *Catálogo Oficial de ${shop.name}*\n`;
+    msg += `🔒 *Enlace seguro:* ${cleanStoreUrl}\n\n`;
+    msg += `*NUEVO PEDIDO — ${shop.name.toUpperCase()}*\n`;
     msg += `📅 *Fecha:* ${dateStr}\n`;
     msg += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
 
@@ -3798,19 +3885,23 @@ const QRGenerator = {
   },
 
   getTargetUrl() {
+    const slug = AppState.getStoreSlug();
     const baseUrl = window.location.origin + window.location.pathname;
+    const cleanBase = baseUrl.replace(/\/index\.html$/i, "");
+
     if (this.isTableMode) {
       const tableVal = document.getElementById("qr-table-number")?.value.trim() || "Mesa 1";
-      return `${baseUrl}?mesa=${encodeURIComponent(tableVal)}`;
+      return `${cleanBase}?tienda=${encodeURIComponent(slug)}&mesa=${encodeURIComponent(tableVal)}`;
     }
     if (AppState.shopConfig.googleSheetUrl) {
-      return `${baseUrl}?mode=shop&sheet=${encodeURIComponent(AppState.shopConfig.googleSheetUrl)}`;
+      return `${cleanBase}?tienda=${encodeURIComponent(slug)}&mode=shop&sheet=${encodeURIComponent(AppState.shopConfig.googleSheetUrl)}`;
     }
     if (typeof LZString !== "undefined") {
       try {
         const payload = {
           cfg: {
             n: AppState.shopConfig.name,
+            s: slug,
             t: AppState.shopConfig.tagline,
             p: AppState.shopConfig.phone,
             c: AppState.shopConfig.currency,
@@ -3843,12 +3934,12 @@ const QRGenerator = {
             }))
         };
         const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(payload));
-        return `${baseUrl}?mode=shop&c=${compressed}`;
+        return `${cleanBase}?tienda=${encodeURIComponent(slug)}&mode=shop#d=${compressed}`;
       } catch (err) {
         console.warn("Error comprimiendo catalogo para URL:", err);
       }
     }
-    return `${baseUrl}?mode=shop`;
+    return `${cleanBase}?tienda=${encodeURIComponent(slug)}&mode=shop`;
   },
 
   openQRModal() {
@@ -3996,12 +4087,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const url = QRGenerator.getTargetUrl();
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url).then(() => {
-        Toast.show("Enlace de tu tienda copiado al portapapeles", "📋");
+        Toast.show("Enlace oficial de tu tienda copiado", "📋");
       }).catch(() => {
-        prompt("Enlace de tu tienda para compartir:", url);
+        prompt("Enlace seguro de tu tienda:", url);
       });
     } else {
-      prompt("Enlace de tu tienda para compartir:", url);
+      prompt("Enlace seguro de tu tienda:", url);
     }
   };
 
@@ -4010,10 +4101,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (studioShareBtn) {
     studioShareBtn.addEventListener("click", () => {
       const url = QRGenerator.getTargetUrl();
+      const shareText = `🛍️ *Catálogo Oficial de ${AppState.shopConfig.name}*\n🔒 Enlace seguro: ${url}`;
       if (navigator.share) {
         navigator.share({
-          title: AppState.shopConfig.name,
-          text: `Visita el catálogo digital de ${AppState.shopConfig.name}:`,
+          title: `Catálogo Oficial de ${AppState.shopConfig.name}`,
+          text: shareText,
           url: url
         }).catch(() => copyStoreLinkAction());
       } else {
@@ -4697,6 +4789,29 @@ document.addEventListener("DOMContentLoaded", () => {
       Toast.show(`Rubro: ${pill.textContent.trim()}`, "👌");
     });
   });
+
+  const appleStoreNameInp = document.getElementById("apple-store-name");
+  const appleStoreSlugInp = document.getElementById("apple-store-slug");
+  const appleSlugPreview = document.getElementById("apple-slug-preview");
+
+  if (appleStoreNameInp) {
+    appleStoreNameInp.addEventListener("input", () => {
+      if (!appleStoreSlugInp?.dataset.userEdited) {
+        const slug = slugifyStoreName(appleStoreNameInp.value);
+        if (appleStoreSlugInp) appleStoreSlugInp.value = slug;
+        if (appleSlugPreview) appleSlugPreview.textContent = `${APP_BRAND.domainHint}/${slug}`;
+      }
+    });
+  }
+
+  if (appleStoreSlugInp) {
+    appleStoreSlugInp.addEventListener("input", () => {
+      appleStoreSlugInp.dataset.userEdited = "true";
+      const slug = slugifyStoreName(appleStoreSlugInp.value);
+      appleStoreSlugInp.value = slug;
+      if (appleSlugPreview) appleSlugPreview.textContent = `${APP_BRAND.domainHint}/${slug}`;
+    });
+  }
 
   const applePrev2Btn = document.getElementById("apple-prev-2-btn");
   const appleNext2Btn = document.getElementById("apple-next-2-btn");

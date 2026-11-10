@@ -200,6 +200,18 @@
               <label for="apple-store-name" class="apple-floating-label">Nombre Comercial de la Empresa *</label>
             </div>
 
+            <div class="apple-slug-preview-box">
+              <div class="apple-slug-display">
+                <span class="apple-slug-icon">🔒</span>
+                <span class="apple-slug-text">Tu dirección web oficial:</span>
+                <strong class="apple-slug-url" id="apple-slug-preview">tiendazap.pages.dev/tienda</strong>
+              </div>
+              <div class="apple-input-group" style="margin-top: 6px;">
+                <input type="text" id="apple-store-slug" placeholder=" " class="apple-floating-input" style="font-family: monospace; font-size: 0.82rem;">
+                <label for="apple-store-slug" class="apple-floating-label">Personalizar enlace (ej: flores-vanesa)</label>
+              </div>
+            </div>
+
             <div class="apple-field-block">
               <label class="apple-static-label">Rubro o Giro Comercial</label>
               <div class="apple-segmented-grid" id="apple-niche-grid">
@@ -752,8 +764,17 @@
 
             <!-- Datos de WhatsApp & Moneda -->
             <section class="settings-section-card">
-              <h3 class="section-card-title">Canal Oficial de WhatsApp</h3>
-              <p class="section-card-desc">Número al que tus clientes enviarán los pedidos generados desde el catálogo.</p>
+              <h3 class="section-card-title">Canal Oficial de WhatsApp & Enlace Web</h3>
+              <p class="section-card-desc">Personaliza el enlace de tu tienda y el número al que tus clientes enviarán sus pedidos.</p>
+              
+              <div class="editor-field-group">
+                <label for="settings-store-slug">🔒 Enlace Web Oficial de tu Negocio (Slug)</label>
+                <div class="slug-input-wrapper">
+                  <span class="slug-domain-prefix" id="settings-slug-prefix">tiendazap.pages.dev/</span>
+                  <input type="text" id="settings-store-slug" class="input-modern" placeholder="flores-vanesa">
+                </div>
+                <span class="field-hint">Tus clientes verán este nombre en su enlace seguro. Solo letras minúsculas, números y guiones.</span>
+              </div>
               
               <div class="editor-field-group">
                 <label for="settings-phone">Número de WhatsApp (con código de país, ej: 51987654321) *</label>
@@ -938,6 +959,12 @@
               <div class="store-title-row">
                 <h2 class="store-name" id="store-name">Mi Tienda</h2>
                 <span class="verified-badge" title="Comercio Verificado">✓</span>
+              </div>
+
+              <!-- Sello de Seguridad y Confianza para el Comprador -->
+              <div class="store-verified-seal" id="store-verified-seal">
+                <span class="seal-icon">🔒</span>
+                <span class="seal-text">Enlace Oficial Verificado · <strong id="seal-slug-text">/tienda</strong></span>
               </div>
 
               <p class="store-tagline" id="store-tagline">Eslogan del negocio</p>

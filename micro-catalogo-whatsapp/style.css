@@ -4724,3 +4724,99 @@ img {
   background: rgba(239, 68, 68, 0.3);
   color: #ffffff;
 }
+
+
+/* ============================================================================
+   TIENDAZAP v1.3: ENLACES PERSONALIZADOS (/nombre-tienda) Y SELLO VERIFICADO
+   ============================================================================ */
+
+/* Vista previa de enlace en Onboarding */
+.apple-slug-preview-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-top: 2px;
+  margin-bottom: 4px;
+}
+
+.apple-slug-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.apple-slug-icon {
+  font-size: 0.85rem;
+}
+
+.apple-slug-url {
+  color: var(--accent-green);
+  font-weight: 700;
+  word-break: break-all;
+}
+
+/* Input con prefijo de dominio en Ajustes */
+.slug-input-wrapper {
+  display: flex;
+  align-items: stretch;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color var(--transition-fast);
+}
+
+.slug-input-wrapper:focus-within {
+  border-color: var(--accent-green);
+}
+
+.slug-domain-prefix {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-family: monospace;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--border-subtle);
+  user-select: none;
+}
+
+.slug-input-wrapper .input-modern {
+  border: none !important;
+  border-radius: 0 !important;
+  font-family: monospace;
+  font-size: 0.82rem;
+  flex: 1;
+}
+
+/* Sello de Enlace Oficial Verificado en Cabecera */
+.store-verified-seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 210, 106, 0.08);
+  border: 1px solid rgba(0, 210, 106, 0.25);
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+  margin-bottom: 5px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.store-verified-seal .seal-icon {
+  font-size: 0.75rem;
+}
+
+.store-verified-seal strong {
+  color: var(--accent-green);
+  font-weight: 700;
+}

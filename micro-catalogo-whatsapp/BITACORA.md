@@ -7,6 +7,33 @@
 
 ---
 
+## 🔒 Versión 1.3 — URLs Personalizadas /nombre-tienda, Despliegue Cloudflare & Sello Oficial (Noviembre 2026)
+
+### 1. URLs Amigables y Personalizadas con Slugs Oficiales
+- **Generación Automática de Slugs (`slugifyStoreName`):** Convierte nombres como "Flores Vanesa" en `flores-vanesa` (minúsculas, normalización de tildes y diacríticos, guiones limpios).
+- **Vista Previa en Vivo:** Integrado en el Paso 2 de Onboarding (`#apple-slug-preview-box`) y en la Pestaña Ajustes (`#settings-store-slug`), permitiendo al comerciante editar y personalizar su slug oficial con el prefijo de dominio `tiendazap.pages.dev/`.
+
+### 2. Soporte de Enrutamiento SPA 100% Gratuito en Cloudflare Pages y GitHub Pages
+- **Archivo `_redirects`:** Regla `/* /index.html 200` para que Cloudflare Pages resuelva cualquier subruta limpia (`/flores-vanesa`) hacia `index.html` sin error 404.
+- **Archivo `404.html`:** Redireccionador de SPA para GitHub Pages que captura la ruta no encontrada y la reenvía a `index.html?tienda=<slug>`, preservando parámetros de consulta y fragmentos `#d=`.
+
+### 3. Sello de Seguridad y Confianza Oficial para el Comprador
+- **Píldora Verificada en Catálogo:** `#store-verified-seal` con ícono de candado verde `🔒 Enlace Oficial Verificado · /[storeSlug]`.
+- **Título de Navegador y Vista Previa:** `document.title` dinámico formateado como `✅ ${shopConfig.name} — Catálogo Oficial & Pedidos por WhatsApp`.
+- **Encabezado en Mensajes WhatsApp:** El generador de pedidos y el botón compartir incorporan el encabezado formal `🛍️ *Catálogo Oficial Verificado de [Nombre]*` y `🔒 Enlace seguro: [URL]`.
+
+### 4. Sincronización Gratuita sin Servidor via Hash Fragment (`#d=...`)
+- **Transporte de Catálogo en Fragmento Hash:** Se migró el transporte comprimido de catálogo por defecto a `#d=${compressedData}` (manteniendo retrocompatibilidad con `?c=...`), asegurando que las URLs en la barra de direcciones sean limpias y no envíen datos pesados en los headers HTTP al servidor.
+- **Protección de Catálogo Local (`isViewingRemoteCatalog`):** Cuando un usuario que también es comerciante abre la tienda de otro comerciante, el catálogo remoto solo se carga en memoria; `saveConfig()` y `saveProducts()` ignoran el guardado para evitar sobrescribir su propio negocio local.
+
+### 5. Configuración de Marca Centralizada (`APP_BRAND`)
+- Configuración global `APP_BRAND = { name: "TiendaZap", suffix: "Studio", domainHint: "tiendazap.pages.dev" }` para unificación de nombres de dominio sugeridos y textos de marca.
+
+### 6. Preset Ampliado "Flores & Joyas Vanesa"
+- Adaptado para florerías, regalos sorpresa y joyería fina con slug `flores-vanesa`, variantes dinámicas de arreglo/ocasión y productos preconfigurados con precios en Soles.
+
+---
+
 ## 🚀 Versión 1.2 — Edición Emprendedores Perú: Videos, Multi-Rubro y Compartición Gratuita (Noviembre 2026)
 
 ### 1. Reproductor de Video + Foto Orgánico (Estilo Reels / TikTok)
