@@ -903,6 +903,13 @@ const AppState = {
 
       if (tiendaParam) {
         this.isCustomerOnlyMode = true;
+        this.shopConfig.storeSlug = slugifyStoreName(tiendaParam);
+        const matchedPreset = Object.values(BUSINESS_PRESETS).find(p => p.config && p.config.storeSlug === this.shopConfig.storeSlug);
+        if (matchedPreset && !rawCompressed) {
+          this.isViewingRemoteCatalog = true;
+          this.shopConfig = { ...matchedPreset.config };
+          this.products = [ ...matchedPreset.products ];
+        }
       }
 
       // 4. Determinar el modo inicial según usuario
