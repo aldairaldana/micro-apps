@@ -6,6 +6,19 @@
  */
 
 // ============================================================================
+// 0. UTILIDAD DE SANITIZACIÓN (PREVENCIÓN DE XSS)
+// ============================================================================
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// ============================================================================
 // 1. PLANTILLAS DE NEGOCIOS VIRTUALES (1 CLIC)
 // ============================================================================
 const BUSINESS_PRESETS = {
@@ -405,6 +418,7 @@ const AppState = {
   activePreset: "food",
   shopConfig: { ...BUSINESS_PRESETS.food.config },
   products: [...BUSINESS_PRESETS.food.products],
+  categories: [], // Entidad de primer nivel: { id, name, icon }
   cart: {}, // { [cartKey]: { product, quantity, note, selectedSize, selectedColor } }
   
   // Filtros en Studio y Cliente
@@ -419,6 +433,8 @@ const AppState = {
   gpsCoords: "",
   paymentMethod: "Yape / Plin",
   buyerVoucherBase64: "", // Comprobante de pago subido por el comprador
+  buyerVoucherFile: null, // Archivo original para Web Share API
+  isCustomerOnlyMode: false, // Flag de comprador sin barra de retorno al Studio
 
   // Registro del Propietario / Comerciante
   merchant: {
@@ -450,6 +466,7 @@ const AppState = {
         localStorage.removeItem("tiendazap_merchant");
         localStorage.removeItem("tiendazap_config");
         localStorage.removeItem("tiendazap_products");
+        localStorage.removeItem("tiendazap_categories");
         localStorage.removeItem("tiendazap_preset");
         localStorage.removeItem("tiendazap_cart");
         localStorage.removeItem("tiendazap_client");
@@ -502,6 +519,9 @@ const AppState = {
         this.products = [...BUSINESS_PRESETS[this.activePreset].products];
       }
 
+      // Inicializar y sincronizar categorías oficiales de la tienda
+      this.initCategories();
+
       const storedCart = localStorage.getItem("tiendazap_cart");
       if (storedCart) this.cart = JSON.parse(storedCart);
 
@@ -522,6 +542,7 @@ const AppState = {
 
       if (prodParam || modeParam === "shop" || mesaParam) {
         // MODO USUARIO FINAL (El comprador que ve el catálogo, compra y paga)
+        this.isCustomerOnlyMode = true;
         ViewController.showCustomerPreview();
         if (prodParam) {
           setTimeout(() => {
@@ -556,24 +577,222 @@ const AppState = {
     }
   },
 
+  initCategories() {
+    const storedCats = localStorage.getItem("tiendazap_categories");
+    if (storedCats) {
+      try {
+        const parsed = JSON.parse(storedCats);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          this.categories = parsed.map((c, i) => {
+            if (typeof c === "string") {
+              return { id: "cat_" + (i + 1), name: c.trim(), icon: CustomerUI.getCategoryIcon(c) };
+            }
+            return {
+              id: c.id || "cat_" + (i + 1),
+              name: (c.name || "General").trim(),
+              icon: c.icon || CustomerUI.getCategoryIcon(c.name)
+            };
+          }).filter(c => c.name);
+        }
+      } catch (e) {
+        console.warn("Error leyendo categorías almacenadas:", e);
+      }
+    }
+
+    // Si aún no hay categorías, sembrar desde productos existentes o presets
+    if (!this.categories || this.categories.length === 0) {
+      const prodCats = [...new Set(this.products.map(p => (p.category || "").trim()).filter(Boolean))];
+      const nicheCats = NICHE_DATA[this.activePreset]?.suggestedCategories || NICHE_DATA.general.suggestedCategories || [];
+      const combined = [...new Set([...prodCats, ...nicheCats])];
+      this.categories = combined.map((name, i) => ({
+        id: "cat_" + (i + 1),
+        name: name,
+        icon: CustomerUI.getCategoryIcon(name)
+      }));
+      this.saveCategories();
+    } else {
+      // Asegurar que si hay productos con una categoría nueva, se añada automáticamente
+      let changed = false;
+      this.products.forEach(p => {
+        const cName = (p.category || "").trim();
+        if (cName && !this.categories.some(c => c.name.toLowerCase() === cName.toLowerCase())) {
+          this.categories.push({
+            id: "cat_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
+            name: cName,
+            icon: CustomerUI.getCategoryIcon(cName)
+          });
+          changed = true;
+        }
+      });
+      if (changed) this.saveCategories();
+    }
+  },
+
+  safeSetItem(key, value) {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      console.error(`Error guardando en localStorage [${key}]:`, e);
+      if (e.name === "QuotaExceededError" || e.code === 22 || e.code === 1014) {
+        Toast.show("⚠️ Memoria llena: usa imágenes más ligeras o enlaces externos", "⚠️");
+      } else {
+        Toast.show("Error al guardar datos localmente", "❌");
+      }
+      return false;
+    }
+  },
+
+  saveCategories() {
+    this.safeSetItem("tiendazap_categories", JSON.stringify(this.categories));
+  },
+
+  getCategoriesList() {
+    if (!this.categories || this.categories.length === 0) {
+      this.initCategories();
+    }
+    // Calcular conteo reactivo de productos para cada categoría registrada
+    return this.categories.map(c => {
+      const count = this.products.filter(p => (p.category || "").trim().toLowerCase() === c.name.toLowerCase()).length;
+      return {
+        ...c,
+        count
+      };
+    });
+  },
+
+  addCategory(rawName, rawIcon) {
+    const name = (rawName || "").trim();
+    if (!name) return { ok: false, msg: "Por favor ingresa un nombre para la categoría." };
+
+    const exists = this.categories.some(c => c.name.toLowerCase() === name.toLowerCase());
+    if (exists) return { ok: false, msg: `La categoría "${name}" ya existe en tu catálogo.` };
+
+    const icon = rawIcon || CustomerUI.getCategoryIcon(name);
+    const newCat = {
+      id: "cat_" + Date.now(),
+      name: name,
+      icon: icon
+    };
+    this.categories.push(newCat);
+    this.saveCategories();
+
+    StudioController.renderCategoryFilters();
+    StudioController.renderEditorCategoryChips();
+    CustomerUI.renderCategoryTabs();
+    CustomerUI.renderProductCards();
+    return { ok: true, cat: newCat };
+  },
+
+  renameCategory(oldName, rawNewName, newIcon) {
+    const newName = (rawNewName || "").trim();
+    if (!newName) return { ok: false, msg: "El nombre nuevo no puede estar en blanco." };
+
+    const idx = this.categories.findIndex(c => c.name.toLowerCase() === oldName.toLowerCase());
+    if (idx === -1) return { ok: false, msg: "Categoría no encontrada." };
+
+    // Si cambió el nombre y el nuevo ya existe en otra categoría
+    if (oldName.toLowerCase() !== newName.toLowerCase()) {
+      const exists = this.categories.some(c => c.name.toLowerCase() === newName.toLowerCase());
+      if (exists) return { ok: false, msg: `Ya existe otra categoría llamada "${newName}".` };
+    }
+
+    this.categories[idx].name = newName;
+    if (newIcon) this.categories[idx].icon = newIcon;
+    this.saveCategories();
+
+    // Actualizar en cascada todos los productos vinculados
+    let updatedCount = 0;
+    this.products.forEach(p => {
+      if ((p.category || "").trim().toLowerCase() === oldName.toLowerCase()) {
+        p.category = newName;
+        updatedCount++;
+      }
+    });
+    if (updatedCount > 0) this.saveProducts();
+
+    if (this.studioCategory && this.studioCategory.toLowerCase() === oldName.toLowerCase()) {
+      this.studioCategory = newName;
+    }
+    if (this.customerCategory && this.customerCategory.toLowerCase() === oldName.toLowerCase()) {
+      this.customerCategory = newName;
+    }
+
+    StudioController.renderAll();
+    CustomerUI.renderCategoryTabs();
+    CustomerUI.renderProductCards();
+    return { ok: true, count: updatedCount };
+  },
+
+  deleteCategory(catName, targetCatName = "General") {
+    const idx = this.categories.findIndex(c => c.name.toLowerCase() === catName.toLowerCase());
+    if (idx === -1) return { ok: false, msg: "Categoría no encontrada." };
+
+    const prodsInCategory = this.products.filter(p => (p.category || "").trim().toLowerCase() === catName.toLowerCase());
+
+    if (prodsInCategory.length > 0) {
+      const cleanTarget = (targetCatName || "General").trim();
+      // Si la categoría de destino no existe, la registramos
+      if (!this.categories.some(c => c.name.toLowerCase() === cleanTarget.toLowerCase())) {
+        this.categories.push({
+          id: "cat_" + Date.now(),
+          name: cleanTarget,
+          icon: CustomerUI.getCategoryIcon(cleanTarget)
+        });
+      }
+      prodsInCategory.forEach(p => {
+        p.category = cleanTarget;
+      });
+      this.saveProducts();
+    }
+
+    this.categories.splice(idx, 1);
+    this.saveCategories();
+
+    if (this.studioCategory && this.studioCategory.toLowerCase() === catName.toLowerCase()) {
+      this.studioCategory = "all";
+    }
+    if (this.customerCategory && this.customerCategory.toLowerCase() === catName.toLowerCase()) {
+      this.customerCategory = "all";
+    }
+
+    StudioController.renderAll();
+    CustomerUI.renderCategoryTabs();
+    CustomerUI.renderProductCards();
+    return { ok: true, reallocated: prodsInCategory.length };
+  },
+
+  reorderCategory(index, direction) {
+    const targetIdx = index + direction;
+    if (targetIdx < 0 || targetIdx >= this.categories.length) return;
+    const temp = this.categories[index];
+    this.categories[index] = this.categories[targetIdx];
+    this.categories[targetIdx] = temp;
+    this.saveCategories();
+    StudioController.renderCategoryFilters();
+    StudioController.renderCategoryManagerList();
+    CustomerUI.renderCategoryTabs();
+    CustomerUI.renderProductCards();
+  },
+
   saveMerchant() {
-    localStorage.setItem("tiendazap_merchant", JSON.stringify(this.merchant));
+    this.safeSetItem("tiendazap_merchant", JSON.stringify(this.merchant));
   },
 
   saveConfig() {
-    localStorage.setItem("tiendazap_config", JSON.stringify(this.shopConfig));
+    this.safeSetItem("tiendazap_config", JSON.stringify(this.shopConfig));
   },
 
   saveProducts() {
-    localStorage.setItem("tiendazap_products", JSON.stringify(this.products));
+    this.safeSetItem("tiendazap_products", JSON.stringify(this.products));
   },
 
   saveCart() {
-    localStorage.setItem("tiendazap_cart", JSON.stringify(this.cart));
+    this.safeSetItem("tiendazap_cart", JSON.stringify(this.cart));
   },
 
   saveClientData(name, phone, address) {
-    localStorage.setItem("tiendazap_client", JSON.stringify({ name, phone, address }));
+    this.safeSetItem("tiendazap_client", JSON.stringify({ name, phone, address }));
   },
 
   applyPreset(presetKey) {
@@ -582,6 +801,14 @@ const AppState = {
     this.shopConfig = { ...BUSINESS_PRESETS[presetKey].config };
     this.products = [...BUSINESS_PRESETS[presetKey].products];
     this.cart = {};
+
+    const nicheCats = NICHE_DATA[presetKey]?.suggestedCategories || [];
+    this.categories = nicheCats.map((name, i) => ({
+      id: "cat_" + (i + 1),
+      name: name,
+      icon: CustomerUI.getCategoryIcon(name)
+    }));
+    this.saveCategories();
 
     localStorage.setItem("tiendazap_preset", presetKey);
     this.saveConfig();
@@ -662,7 +889,7 @@ const AppState = {
 // 3. UTILIDADES: COMPRESIÓN DE IMÁGENES CANVAS (EXPERIENCIA EXPERTA)
 // ============================================================================
 const ImageOptimizer = {
-  compressImage(file, maxDimension = 800, quality = 0.85) {
+  compressImage(file, maxDimension = 640, quality = 0.78) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -728,6 +955,17 @@ const ViewController = {
   },
 
   showStudio() {
+    if (AppState.merchant && AppState.merchant.pin && AppState.merchant.pin.length >= 4) {
+      if (sessionStorage.getItem("tiendazap_pin_unlocked") !== "true") {
+        const enteredPin = prompt("🔒 Ingresa tu PIN de seguridad (4 a 6 dígitos) para acceder al panel de administración:");
+        if (!enteredPin || enteredPin.trim() !== AppState.merchant.pin.trim()) {
+          Toast.show("PIN incorrecto o acceso denegado", "🔒");
+          return;
+        }
+        sessionStorage.setItem("tiendazap_pin_unlocked", "true");
+      }
+    }
+
     const obScreen = document.getElementById("onboarding-screen");
     const studioView = document.getElementById("admin-studio-view");
     const previewView = document.getElementById("customer-preview-view");
@@ -753,6 +991,7 @@ const ViewController = {
     const obScreen = document.getElementById("onboarding-screen");
     const studioView = document.getElementById("admin-studio-view");
     const previewView = document.getElementById("customer-preview-view");
+    const previewBar = document.querySelector(".preview-mode-bar");
 
     if (obScreen) {
       obScreen.classList.add("hidden");
@@ -767,13 +1006,24 @@ const ViewController = {
       previewView.classList.add("active");
     }
 
+    if (previewBar) {
+      if (AppState.isCustomerOnlyMode) {
+        previewBar.classList.add("hidden");
+      } else {
+        previewBar.classList.remove("hidden");
+      }
+    }
+
     CustomerUI.renderStoreHeader();
     CustomerUI.renderCategoryTabs();
     CustomerUI.renderProductCards();
     CustomerUI.updateCartBar();
     CustomerUI.renderYapeCheckoutBox();
     window.scrollTo({ top: 0, behavior: "smooth" });
-    Toast.show("Modo Vista Previa: Así ven tu tienda tus clientes", "👁️");
+
+    if (!AppState.isCustomerOnlyMode) {
+      Toast.show("Modo Vista Previa: Así ven tu tienda tus clientes", "👁️");
+    }
   }
 };
 
@@ -984,12 +1234,13 @@ const OnboardingWizard = {
           ? previewImg.src
           : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80";
 
+        const catName = prodCat || "Destacados";
         const newP = {
           id: "p_" + Date.now(),
           sku: "ART-01",
           name: prodName,
           price: prodPrice,
-          category: prodCat || "Destacados",
+          category: catName,
           desc: "Producto publicado durante el registro inicial.",
           sizes: [],
           colors: [],
@@ -999,6 +1250,9 @@ const OnboardingWizard = {
         };
         AppState.products.unshift(newP);
         AppState.saveProducts();
+        if (!AppState.categories.some(c => c.name.toLowerCase() === catName.toLowerCase())) {
+          AppState.addCategory(catName);
+        }
       }
     }
 
@@ -1016,6 +1270,7 @@ const OnboardingWizard = {
       AppState.products = [...preset.products];
       AppState.saveProducts();
     }
+    AppState.initCategories();
 
     localStorage.setItem("tiendazap_onboarding_done", "true");
     AppState.saveConfig();
@@ -1040,9 +1295,11 @@ const OnboardingWizard = {
       localStorage.removeItem("tiendazap_merchant");
       localStorage.removeItem("tiendazap_config");
       localStorage.removeItem("tiendazap_products");
+      localStorage.removeItem("tiendazap_categories");
       localStorage.removeItem("tiendazap_preset");
       localStorage.removeItem("tiendazap_cart");
       localStorage.removeItem("tiendazap_client");
+      sessionStorage.removeItem("tiendazap_pin_unlocked");
 
       AppState.merchant = { name: "", contact: "", pin: "" };
       AppState.shopConfig = {
@@ -1062,6 +1319,7 @@ const OnboardingWizard = {
         yapeQrUrl: ""
       };
       AppState.products = [];
+      AppState.categories = [];
       AppState.cart = {};
 
       // Limpiar inputs
@@ -1143,10 +1401,10 @@ const StudioController = {
     if (!toggleBtn || !label) return;
 
     if (AppState.shopConfig.isOpen) {
-      toggleBtn.className = "status-quick-toggle open";
+      toggleBtn.className = "apple-status-pill open";
       label.textContent = "Abierto";
     } else {
-      toggleBtn.className = "status-quick-toggle closed";
+      toggleBtn.className = "apple-status-pill closed";
       label.textContent = "Cerrado";
     }
   },
@@ -1265,45 +1523,221 @@ const StudioController = {
   },
 
   getCategories() {
-    const map = {};
-    AppState.products.forEach(p => {
-      map[p.category] = (map[p.category] || 0) + 1;
-    });
-
-    return [
-      { name: "all", label: "Todos", count: AppState.products.length, icon: "" },
-      ...Object.keys(map).map(cat => ({
-        name: cat,
-        label: cat,
-        count: map[cat],
-        icon: CustomerUI.getCategoryIcon(cat)
-      }))
-    ];
+    return AppState.getCategoriesList();
   },
 
   renderCategoryFilters() {
     const track = document.getElementById("studio-categories-track");
     const badge = document.getElementById("studio-products-badge");
+    const catBadge = document.getElementById("studio-categories-badge");
     if (badge) badge.textContent = AppState.products.length;
 
-    if (!track) return;
-    const cats = this.getCategories();
+    const catList = AppState.getCategoriesList();
+    if (catBadge) catBadge.textContent = catList.length;
 
-    track.innerHTML = cats.map(c => `
-      <button type="button" class="studio-cat-chip ${AppState.studioCategory === c.name ? "active" : ""}" data-category="${c.name}">
+    if (!track) return;
+
+    // Verificar si la categoría activa en Studio aún existe
+    if (AppState.studioCategory !== "all" && !catList.some(c => c.name.toLowerCase() === AppState.studioCategory.toLowerCase())) {
+      AppState.studioCategory = "all";
+    }
+
+    let chipsHtml = `
+      <button type="button" class="studio-cat-chip ${AppState.studioCategory === "all" ? "active" : ""}" data-category="all">
+        <span>✨</span>
+        <span>Todos</span>
+        <span style="opacity: 0.65; font-size: 0.7rem;">(${AppState.products.length})</span>
+      </button>
+    `;
+
+    chipsHtml += catList.map(c => `
+      <button type="button" class="studio-cat-chip ${AppState.studioCategory.toLowerCase() === c.name.toLowerCase() ? "active" : ""}" data-category="${c.name}">
         <span>${c.icon}</span>
-        <span>${c.label}</span>
+        <span>${c.name}</span>
         <span style="opacity: 0.65; font-size: 0.7rem;">(${c.count})</span>
       </button>
     `).join("");
 
-    track.querySelectorAll(".studio-cat-chip").forEach(btn => {
+    chipsHtml += `
+      <button type="button" class="studio-cat-chip add-cat-trigger" id="studio-quick-add-cat-chip" title="Gestionar categorías">
+        <span>+ Categoría</span>
+      </button>
+    `;
+
+    track.innerHTML = chipsHtml;
+
+    track.querySelectorAll(".studio-cat-chip[data-category]").forEach(btn => {
       btn.addEventListener("click", () => {
         AppState.studioCategory = btn.getAttribute("data-category");
         this.renderCategoryFilters();
         this.renderProductsList();
       });
     });
+
+    const quickCatBtn = document.getElementById("studio-quick-add-cat-chip");
+    if (quickCatBtn) quickCatBtn.addEventListener("click", () => this.openCategoryManager());
+  },
+
+  openCategoryManager() {
+    const modal = document.getElementById("categories-manager-modal");
+    if (!modal) return;
+    this.renderCategoryManagerList();
+    const newCatInput = document.getElementById("new-category-name-input");
+    if (newCatInput) {
+      newCatInput.value = "";
+      setTimeout(() => newCatInput.focus(), 150);
+    }
+    modal.classList.remove("hidden");
+  },
+
+  closeCategoryManager() {
+    const modal = document.getElementById("categories-manager-modal");
+    if (modal) modal.classList.add("hidden");
+    const palette = document.getElementById("cat-emoji-palette");
+    if (palette) palette.classList.add("hidden");
+    this.renderCategoryFilters();
+    this.renderProductsList();
+    CustomerUI.renderCategoryTabs();
+    CustomerUI.renderProductCards();
+  },
+
+  renderCategoryManagerList() {
+    const listEl = document.getElementById("cat-manager-items-list");
+    const countEl = document.getElementById("cat-manager-total-count");
+    if (!listEl) return;
+
+    const cats = AppState.getCategoriesList();
+    if (countEl) countEl.textContent = cats.length;
+
+    if (cats.length === 0) {
+      listEl.innerHTML = `
+        <div style="text-align: center; padding: 25px 10px; color: var(--text-dim); font-size: 0.8rem;">
+          <span style="font-size: 1.8rem; display: block; margin-bottom: 6px;">🏷️</span>
+          <p>No tienes categorías registradas aún.<br>Añade tu primera sección arriba.</p>
+        </div>
+      `;
+      return;
+    }
+
+    listEl.innerHTML = cats.map((c, idx) => `
+      <div class="cat-item-row" data-name="${escapeHtml(c.name)}">
+        <div class="cat-item-left">
+          <button type="button" class="cat-item-icon-btn cat-action-icon" data-name="${escapeHtml(c.name)}" title="Toca para cambiar icono">
+            ${c.icon}
+          </button>
+          <div class="cat-item-meta">
+            <span class="cat-item-name">${escapeHtml(c.name)}</span>
+            <span class="cat-item-count">${c.count} ${c.count === 1 ? 'producto' : 'productos'}</span>
+          </div>
+        </div>
+
+        <div class="cat-item-actions">
+          <button type="button" class="cat-tool-btn cat-action-move-up" data-idx="${idx}" ${idx === 0 ? 'disabled style="opacity:0.25; cursor:not-allowed;"' : ''} title="Mover arriba">⬆️</button>
+          <button type="button" class="cat-tool-btn cat-action-move-down" data-idx="${idx}" ${idx === cats.length - 1 ? 'disabled style="opacity:0.25; cursor:not-allowed;"' : ''} title="Mover abajo">⬇️</button>
+          <button type="button" class="cat-tool-btn cat-action-rename" data-name="${escapeHtml(c.name)}" title="Renombrar categoría">✏️</button>
+          <button type="button" class="cat-tool-btn danger cat-action-delete" data-name="${escapeHtml(c.name)}" data-count="${c.count}" title="Eliminar categoría">🗑️</button>
+        </div>
+      </div>
+    `).join("");
+
+    listEl.querySelectorAll(".cat-action-icon").forEach(btn => {
+      btn.addEventListener("click", () => StudioController.changeCategoryIcon(btn.dataset.name));
+    });
+    listEl.querySelectorAll(".cat-action-move-up").forEach(btn => {
+      btn.addEventListener("click", () => AppState.reorderCategory(parseInt(btn.dataset.idx, 10), -1));
+    });
+    listEl.querySelectorAll(".cat-action-move-down").forEach(btn => {
+      btn.addEventListener("click", () => AppState.reorderCategory(parseInt(btn.dataset.idx, 10), 1));
+    });
+    listEl.querySelectorAll(".cat-action-rename").forEach(btn => {
+      btn.addEventListener("click", () => StudioController.promptRenameCategory(btn.dataset.name));
+    });
+    listEl.querySelectorAll(".cat-action-delete").forEach(btn => {
+      btn.addEventListener("click", () => StudioController.confirmDeleteCategory(btn.dataset.name, parseInt(btn.dataset.count, 10)));
+    });
+  },
+
+  changeCategoryIcon(catName) {
+    const emojis = ["🍔", "🍗", "🍕", "🥤", "🍰", "☕", "👗", "👚", "👖", "👠", "👟", "💄", "✨", "💻", "📱", "🎧", "🔌", "⭐", "🔥", "🛍️", "🏷️", "📦"];
+    const currentCat = AppState.categories.find(c => c.name.toLowerCase() === catName.toLowerCase());
+    if (!currentCat) return;
+
+    const currentIdx = emojis.indexOf(currentCat.icon);
+    const nextEmoji = emojis[(currentIdx + 1) % emojis.length];
+    currentCat.icon = nextEmoji;
+    AppState.saveCategories();
+    this.renderCategoryManagerList();
+    this.renderCategoryFilters();
+    CustomerUI.renderCategoryTabs();
+    Toast.show(`Icono de "${catName}" actualizado a ${nextEmoji}`, nextEmoji);
+  },
+
+  promptRenameCategory(oldName) {
+    const newName = prompt(`Renombrar categoría "${oldName}":\n(Se actualizarán todos los productos automáticamente)`, oldName);
+    if (!newName || newName.trim() === oldName) return;
+
+    const res = AppState.renameCategory(oldName, newName.trim());
+    if (!res.ok) {
+      alert(res.msg);
+    } else {
+      this.renderCategoryManagerList();
+      this.renderCategoryFilters();
+      Toast.show(`Categoría renombrada a "${newName.trim()}" (${res.count} productos actualizados)`, "✅");
+    }
+  },
+
+  confirmDeleteCategory(catName, prodCount) {
+    if (prodCount > 0) {
+      const targetCat = prompt(
+        `La categoría "${catName}" tiene ${prodCount} producto(s) asignado(s).\n\nIngresa el nombre de la categoría a donde deseas moverlos (o deja "General"):`,
+        "General"
+      );
+      if (targetCat === null) return;
+      const res = AppState.deleteCategory(catName, targetCat.trim() || "General");
+      this.renderCategoryManagerList();
+      this.renderCategoryFilters();
+      Toast.show(`Categoría eliminada. ${res.reallocated} productos movidos a "${targetCat.trim() || 'General'}"`, "🗑️");
+    } else {
+      if (confirm(`¿Eliminar definitivamente la categoría "${catName}"?`)) {
+        AppState.deleteCategory(catName);
+        this.renderCategoryManagerList();
+        this.renderCategoryFilters();
+        Toast.show(`Categoría "${catName}" eliminada`, "🗑️");
+      }
+    }
+  },
+
+  renderEditorCategoryChips() {
+    const pillsRow = document.getElementById("editor-cat-pills-row");
+    const dataList = document.getElementById("categories-datalist");
+    const catInput = document.getElementById("editor-category-input");
+    const catList = AppState.getCategoriesList();
+
+    if (dataList) {
+      dataList.innerHTML = catList.map(c => `<option value="${c.name}">`).join("");
+    }
+
+    if (pillsRow) {
+      const currentVal = catInput ? (catInput.value || "").trim().toLowerCase() : "";
+      pillsRow.innerHTML = catList.map(c => `
+        <button type="button" class="editor-cat-chip ${currentVal === c.name.toLowerCase() ? "active" : ""}" data-cat="${c.name}">
+          <span>${c.icon}</span>
+          <span>${c.name}</span>
+        </button>
+      `).join("");
+
+      pillsRow.querySelectorAll(".editor-cat-chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          const catName = chip.getAttribute("data-cat");
+          if (catInput) {
+            catInput.value = catName;
+            catInput.dispatchEvent(new Event("input"));
+          }
+          pillsRow.querySelectorAll(".editor-cat-chip").forEach(c => c.classList.remove("active"));
+          chip.classList.add("active");
+        });
+      });
+    }
   },
 
   renderProductsList() {
@@ -1315,14 +1749,15 @@ const StudioController = {
     const query = AppState.studioSearchQuery.toLowerCase().trim();
 
     if (AppState.studioCategory !== "all") {
-      items = items.filter(p => p.category === AppState.studioCategory);
+      items = items.filter(p => (p.category || "").trim().toLowerCase() === AppState.studioCategory.toLowerCase());
     }
 
     if (query) {
       items = items.filter(p => 
-        p.name.toLowerCase().includes(query) || 
+        (p.name || "").toLowerCase().includes(query) || 
         (p.sku && p.sku.toLowerCase().includes(query)) ||
-        p.category.toLowerCase().includes(query)
+        (p.category && p.category.toLowerCase().includes(query)) ||
+        (p.desc && p.desc.toLowerCase().includes(query))
       );
     }
 
@@ -1337,18 +1772,18 @@ const StudioController = {
 
     listContainer.innerHTML = items.map(p => {
       const isAvailable = p.available !== false;
-      const skuTag = p.sku ? `<span class="apple-sku-pill">${p.sku}</span>` : "";
+      const skuTag = p.sku ? `<span class="apple-sku-pill">${escapeHtml(p.sku)}</span>` : "";
       const promoBadge = p.promo ? `<span class="apple-promo-pill">PROMO</span>` : "";
 
       return `
-        <article class="apple-studio-prod-card ${!isAvailable ? 'is-out-of-stock' : ''}" data-id="${p.id}">
-          <div class="apple-prod-thumb-wrap" onclick="StudioController.openEditProduct('${p.id}')">
-            <img src="${p.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=200&q=80'}" alt="${p.name}" class="apple-prod-thumb" loading="lazy">
+        <article class="apple-studio-prod-card ${!isAvailable ? 'is-out-of-stock' : ''}" data-id="${escapeHtml(p.id)}">
+          <div class="apple-prod-thumb-wrap action-open-edit" data-prod-id="${escapeHtml(p.id)}" style="cursor: pointer;">
+            <img src="${p.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=200&q=80'}" alt="${escapeHtml(p.name)}" class="apple-prod-thumb" loading="lazy">
           </div>
 
           <div class="apple-prod-info">
             <div class="apple-prod-header-line">
-              <h4 class="apple-prod-title" onclick="StudioController.openEditProduct('${p.id}')">${p.name}</h4>
+              <h4 class="apple-prod-title action-open-edit" data-prod-id="${escapeHtml(p.id)}" style="cursor: pointer;">${escapeHtml(p.name)}</h4>
               <div style="display: flex; gap: 4px; align-items: center;">
                 ${skuTag}
                 ${promoBadge}
@@ -1356,13 +1791,13 @@ const StudioController = {
             </div>
 
             <div class="apple-prod-meta">
-              <span>${p.category}</span>
+              <span>${escapeHtml(p.category || "")}</span>
               ${(p.sizes && p.sizes.length > 0) ? ` • ${p.sizes.length} opciones` : ''}
             </div>
 
             <div class="apple-prod-controls-row">
               <!-- Píldora de Modificación de Precio Apple -->
-              <button type="button" class="apple-price-chip" onclick="StudioController.quickEditPrice('${p.id}')" title="Toca para cambiar precio">
+              <button type="button" class="apple-price-chip action-quick-price" data-prod-id="${escapeHtml(p.id)}" title="Toca para cambiar precio">
                 <span>${currency} ${Number(p.price).toFixed(2)}</span>
                 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -1371,8 +1806,8 @@ const StudioController = {
               </button>
 
               <!-- Switch de Stock -->
-              <button type="button" class="apple-stock-chip ${isAvailable ? 'in-stock' : 'out-stock'}" 
-                      onclick="StudioController.quickToggleStock('${p.id}')" 
+              <button type="button" class="apple-stock-chip ${isAvailable ? 'in-stock' : 'out-stock'} action-quick-stock" 
+                      data-prod-id="${escapeHtml(p.id)}" 
                       title="Cambiar disponibilidad">
                 <span class="apple-chip-dot"></span>
                 <span>${isAvailable ? 'Activo' : 'Agotado'}</span>
@@ -1380,18 +1815,18 @@ const StudioController = {
 
               <!-- Acciones Rápidas Vectoriales -->
               <div class="apple-prod-actions">
-                <button type="button" class="apple-icon-btn" onclick="StudioController.copyLiveLink('${p.id}')" title="Copiar enlace directo">
+                <button type="button" class="apple-icon-btn action-copy-link" data-prod-id="${escapeHtml(p.id)}" title="Copiar enlace directo">
                   <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
                     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
                   </svg>
                 </button>
-                <button type="button" class="apple-icon-btn" onclick="StudioController.openEditProduct('${p.id}')" title="Editar">
+                <button type="button" class="apple-icon-btn action-open-edit" data-prod-id="${escapeHtml(p.id)}" title="Editar">
                   <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
                   </svg>
                 </button>
-                <button type="button" class="apple-icon-btn danger" onclick="StudioController.deleteProduct('${p.id}')" title="Eliminar">
+                <button type="button" class="apple-icon-btn danger action-delete-prod" data-prod-id="${escapeHtml(p.id)}" title="Eliminar">
                   <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="3 6 5 6 21 6"/>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -1403,6 +1838,22 @@ const StudioController = {
         </article>
       `;
     }).join("");
+
+    listContainer.querySelectorAll(".action-open-edit").forEach(el => {
+      el.addEventListener("click", () => StudioController.openEditProduct(el.dataset.prodId));
+    });
+    listContainer.querySelectorAll(".action-quick-price").forEach(el => {
+      el.addEventListener("click", () => StudioController.quickEditPrice(el.dataset.prodId));
+    });
+    listContainer.querySelectorAll(".action-quick-stock").forEach(el => {
+      el.addEventListener("click", () => StudioController.quickToggleStock(el.dataset.prodId));
+    });
+    listContainer.querySelectorAll(".action-copy-link").forEach(el => {
+      el.addEventListener("click", () => StudioController.copyLiveLink(el.dataset.prodId));
+    });
+    listContainer.querySelectorAll(".action-delete-prod").forEach(el => {
+      el.addEventListener("click", () => StudioController.deleteProduct(el.dataset.prodId));
+    });
   },
 
   // Modificación Instantánea de Precio con 1 Toque
@@ -1464,6 +1915,7 @@ const StudioController = {
 
     form.reset();
     document.getElementById("editor-product-id").value = "";
+    document.getElementById("editor-category-input").value = "";
     document.getElementById("editor-available-check").checked = true;
     document.getElementById("editor-promo-check").checked = false;
     this.currentProductPhoto = "";
@@ -1478,6 +1930,8 @@ const StudioController = {
 
     const currSymbol = document.getElementById("editor-currency-symbol");
     if (currSymbol) currSymbol.textContent = AppState.shopConfig.currency || "S/";
+
+    this.renderEditorCategoryChips("");
 
     if (title) title.textContent = "Añadir Nuevo Producto";
     editor.classList.remove("hidden");
@@ -1516,6 +1970,8 @@ const StudioController = {
       if (previewImg) previewImg.classList.add("hidden");
       if (placeholder) placeholder.classList.remove("hidden");
     }
+
+    this.renderEditorCategoryChips(p.category);
 
     if (title) title.textContent = "Editar Producto";
     editor.classList.remove("hidden");
@@ -1571,6 +2027,14 @@ const StudioController = {
     if (!name || isNaN(price) || !category) {
       alert("Por favor completa los campos obligatorios: Nombre, Precio y Categoría.");
       return;
+    }
+
+    // Auto-registrar categoría si no existe en AppState.categories
+    const catExists = (AppState.categories || []).some(
+      c => c.name.toLowerCase() === category.toLowerCase()
+    );
+    if (!catExists) {
+      AppState.addCategory(category);
     }
 
     const sizes = sizesStr ? sizesStr.split(",").map(s => s.trim()).filter(Boolean) : [];
@@ -1697,9 +2161,10 @@ const StudioController = {
 
   exportJSON() {
     const backupData = {
-      version: "2.1-studio-yape",
+      version: "2.2-studio-categories",
       timestamp: new Date().toISOString(),
       shopConfig: AppState.shopConfig,
+      categories: AppState.categories,
       products: AppState.products
     };
 
@@ -1722,6 +2187,12 @@ const StudioController = {
         if (data.shopConfig && data.products) {
           AppState.shopConfig = data.shopConfig;
           AppState.products = data.products;
+          if (Array.isArray(data.categories)) {
+            AppState.categories = data.categories;
+            AppState.saveCategories();
+          } else {
+            AppState.initCategories();
+          }
           AppState.saveConfig();
           AppState.saveProducts();
           this.renderAll();
@@ -1830,6 +2301,7 @@ const CustomerUI = {
   async handleBuyerVoucherUpload(file) {
     if (!file) return;
     try {
+      AppState.buyerVoucherFile = file;
       Toast.show("Optimizando comprobante...", "⏳");
       const compressedUrl = await ImageOptimizer.compressImage(file, 900, 0.85);
       AppState.buyerVoucherBase64 = compressedUrl;
@@ -1850,6 +2322,7 @@ const CustomerUI = {
 
   removeBuyerVoucher() {
     AppState.buyerVoucherBase64 = "";
+    AppState.buyerVoucherFile = null;
     const previewWrap = document.getElementById("voucher-preview-wrap");
     const emptyPrompt = document.getElementById("voucher-empty-prompt");
     const voucherInput = document.getElementById("buyer-voucher-input");
@@ -1861,6 +2334,9 @@ const CustomerUI = {
   },
 
   getCategoryIcon(catName) {
+    if (!catName) return "🛍️";
+    const found = (AppState.categories || []).find(c => c.name.toLowerCase() === catName.toLowerCase());
+    if (found && found.icon) return found.icon;
     const c = catName.toLowerCase();
     if (c.includes("hamburguesa") || c.includes("burger")) return "🍔";
     if (c.includes("combo") || c.includes("promo")) return "⭐";
@@ -1880,19 +2356,10 @@ const CustomerUI = {
   },
 
   getCategories() {
-    const map = {};
-    AppState.products.forEach(p => {
-      map[p.category] = (map[p.category] || 0) + 1;
-    });
-
+    const list = AppState.getCategoriesList();
     return [
-      { name: "all", label: "Todos", count: AppState.products.length, icon: "" },
-      ...Object.keys(map).map(cat => ({
-        name: cat,
-        label: cat,
-        count: map[cat],
-        icon: this.getCategoryIcon(cat)
-      }))
+      { name: "all", label: "Todos", count: AppState.products.length, icon: "✨" },
+      ...list.filter(c => c.count > 0)
     ];
   },
 
@@ -1936,7 +2403,7 @@ const CustomerUI = {
         p.name.toLowerCase().includes(query) || 
         (p.sku && p.sku.toLowerCase().includes(query)) ||
         (p.desc && p.desc.toLowerCase().includes(query)) ||
-        p.category.toLowerCase().includes(query)
+        (p.category && p.category.toLowerCase().includes(query))
       );
     }
 
@@ -1961,19 +2428,34 @@ const CustomerUI = {
 
     const grouped = {};
     filtered.forEach(p => {
-      if (!grouped[p.category]) grouped[p.category] = [];
-      grouped[p.category].push(p);
+      const cat = p.category || "General";
+      if (!grouped[cat]) grouped[cat] = [];
+      grouped[cat].push(p);
     });
 
     const currency = AppState.shopConfig.currency || "S/";
 
+    // Ordenar categorías según el orden establecido en AppState.categories
+    const catOrder = (AppState.categories || []).map(c => c.name);
+    const sortedCats = Object.keys(grouped).sort((a, b) => {
+      const idxA = catOrder.indexOf(a);
+      const idxB = catOrder.indexOf(b);
+      if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+      if (idxA !== -1) return -1;
+      if (idxB !== -1) return 1;
+      return a.localeCompare(b);
+    });
+
     let html = "";
-    Object.keys(grouped).forEach(cat => {
+    sortedCats.forEach(cat => {
       const items = grouped[cat];
+      const catIcon = this.getCategoryIcon(cat);
+      const slugId = `cat-${cat.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+
       html += `
-        <section class="category-section-block" id="cat-${cat.replace(/\s+/g, '-')}">
+        <section class="category-section-block" id="${slugId}">
           <div class="category-section-header">
-            <h2 class="category-section-title">${cat}</h2>
+            <h2 class="category-section-title"><span class="cat-sec-icon">${catIcon}</span> ${escapeHtml(cat)}</h2>
             <span class="category-section-qty">${items.length} opciones</span>
           </div>
           <div class="products-grid">
@@ -1982,10 +2464,10 @@ const CustomerUI = {
               const hasVariants = (p.sizes && p.sizes.length > 0) || (p.colors && p.colors.length > 0);
 
               return `
-                <div class="product-card ${!isAvailable ? 'out-of-stock' : ''}" data-product-id="${p.id}">
-                  <div class="product-img-wrapper" onclick="CustomerUI.openProductModal('${p.id}')">
+                <div class="product-card ${!isAvailable ? 'out-of-stock' : ''}" data-product-id="${escapeHtml(p.id)}">
+                  <div class="product-img-wrapper" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')">
                     <img src="${p.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80'}" 
-                         alt="${p.name}" class="product-card-img" loading="lazy">
+                         alt="${escapeHtml(p.name)}" class="product-card-img" loading="lazy">
                     ${p.promo ? `<span class="badge-promo-flag">PROMO</span>` : ""}
                     ${!isAvailable ? `<span class="badge-out-of-stock">AGOTADO</span>` : ""}
                   </div>
@@ -1993,13 +2475,13 @@ const CustomerUI = {
                   <div class="product-info-wrapper">
                     <div>
                       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-                        ${p.sku ? `<span class="badge-sku">REF: ${p.sku}</span>` : "<span></span>"}
-                        <button type="button" class="product-live-share-btn" onclick="CustomerUI.copyLiveProductLink('${p.id}', event)" title="Copiar enlace para el Live">
+                        ${p.sku ? `<span class="badge-sku">REF: ${escapeHtml(p.sku)}</span>` : "<span></span>"}
+                        <button type="button" class="product-live-share-btn" onclick="CustomerUI.copyLiveProductLink('${escapeHtml(p.id)}', event)" title="Copiar enlace para el Live">
                           <span class="live-dot"></span> Link Live
                         </button>
                       </div>
-                      <h3 class="product-name" onclick="CustomerUI.openProductModal('${p.id}')">${p.name}</h3>
-                      <p class="product-desc">${p.desc || ""}</p>
+                      <h3 class="product-name" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')">${escapeHtml(p.name)}</h3>
+                      <p class="product-desc">${escapeHtml(p.desc || "")}</p>
                     </div>
 
                     <div class="product-bottom-row">
@@ -2010,11 +2492,11 @@ const CustomerUI = {
                           <span>Agotado</span>
                         </button>
                       ` : hasVariants ? `
-                        <button class="add-product-btn" onclick="CustomerUI.openProductModal('${p.id}')" type="button">
+                        <button class="add-product-btn" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')" type="button">
                           <span>Elegir Talla / Color ➔</span>
                         </button>
                       ` : `
-                        <button class="add-product-btn" onclick="CartController.addToCart('${p.id}', 1)" type="button">
+                        <button class="add-product-btn" onclick="CartController.addToCart('${escapeHtml(p.id)}', 1)" type="button">
                           <span>+ Agregar</span>
                         </button>
                       `}
@@ -2080,20 +2562,18 @@ const CustomerUI = {
       else promoBadge.classList.add("hidden");
     }
     if (titleEl) {
-      titleEl.innerHTML = `${product.name} ${product.sku ? `<small style="font-size:0.75rem; color:var(--accent-gold); display:block;">REF: ${product.sku}</small>` : ''}`;
+      titleEl.innerHTML = `${escapeHtml(product.name)} ${product.sku ? `<small style="font-size:0.75rem; color:var(--accent-gold); display:block;">REF: ${escapeHtml(product.sku)}</small>` : ''}`;
     }
     if (descEl) descEl.textContent = product.desc || "Artículo de calidad prémium.";
-    if (priceEl) priceEl.textContent = `${currency} ${Number(product.price).toFixed(2)}`;
     if (qtyValEl) qtyValEl.textContent = AppState.modalQuantity;
-    if (btnTotalEl) btnTotalEl.textContent = `${currency} ${Number(product.price * AppState.modalQuantity).toFixed(2)}`;
     if (noteInput) noteInput.value = "";
 
     // Selector de tallas
     if (product.sizes && product.sizes.length > 0 && sizesGroup && sizesRow) {
       sizesGroup.classList.remove("hidden");
       sizesRow.innerHTML = product.sizes.map((s, idx) => `
-        <button type="button" class="variant-chip ${idx === 0 ? 'active' : ''}" data-size="${s}">
-          ${s}
+        <button type="button" class="variant-chip ${idx === 0 ? 'active' : ''}" data-size="${escapeHtml(s)}">
+          ${escapeHtml(s)}
         </button>
       `).join("");
 
@@ -2102,6 +2582,7 @@ const CustomerUI = {
           sizesRow.querySelectorAll(".variant-chip").forEach(c => c.classList.remove("active"));
           chip.classList.add("active");
           AppState.modalSelectedSize = chip.getAttribute("data-size");
+          CustomerUI.updateModalPrice();
         });
       });
     } else if (sizesGroup) {
@@ -2112,8 +2593,8 @@ const CustomerUI = {
     if (product.colors && product.colors.length > 0 && colorsGroup && colorsRow) {
       colorsGroup.classList.remove("hidden");
       colorsRow.innerHTML = product.colors.map((c, idx) => `
-        <button type="button" class="variant-chip ${idx === 0 ? 'active' : ''}" data-color="${c}">
-          ${c}
+        <button type="button" class="variant-chip ${idx === 0 ? 'active' : ''}" data-color="${escapeHtml(c)}">
+          ${escapeHtml(c)}
         </button>
       `).join("");
 
@@ -2122,6 +2603,7 @@ const CustomerUI = {
           colorsRow.querySelectorAll(".variant-chip").forEach(c => c.classList.remove("active"));
           chip.classList.add("active");
           AppState.modalSelectedColor = chip.getAttribute("data-color");
+          CustomerUI.updateModalPrice();
         });
       });
     } else if (colorsGroup) {
@@ -2136,11 +2618,25 @@ const CustomerUI = {
       } else {
         addBtn.disabled = false;
         addBtn.classList.remove("btn-disabled");
-        addBtn.innerHTML = `<span>Agregar al Pedido • <span id="modal-button-total">${currency} ${Number(product.price * AppState.modalQuantity).toFixed(2)}</span></span>`;
+        addBtn.innerHTML = `<span>Agregar al Pedido • <span id="modal-button-total"></span></span>`;
       }
     }
 
+    CustomerUI.updateModalPrice();
     if (modal) modal.classList.remove("hidden");
+  },
+
+  updateModalPrice() {
+    if (!AppState.selectedProductModal) return;
+    const product = AppState.selectedProductModal;
+    const currency = AppState.shopConfig.currency || "S/";
+    const unitPrice = CartController.getUnitPrice(product, AppState.modalSelectedSize, AppState.modalSelectedColor);
+    const total = unitPrice * AppState.modalQuantity;
+
+    const priceEl = document.getElementById("detail-price");
+    const btnTotalEl = document.getElementById("modal-button-total");
+    if (priceEl) priceEl.textContent = `${currency} ${unitPrice.toFixed(2)}`;
+    if (btnTotalEl) btnTotalEl.textContent = `${currency} ${total.toFixed(2)}`;
   },
 
   closeProductModal() {
@@ -2196,28 +2692,37 @@ const CustomerUI = {
     } else {
       list.innerHTML = items.map(item => {
         let variantBadge = [];
-        if (item.selectedSize) variantBadge.push(`Talla: ${item.selectedSize}`);
-        if (item.selectedColor) variantBadge.push(`Color: ${item.selectedColor}`);
+        if (item.selectedSize) variantBadge.push(`Talla: ${escapeHtml(item.selectedSize)}`);
+        if (item.selectedColor) variantBadge.push(`Color: ${escapeHtml(item.selectedColor)}`);
+        const unitPrice = CartController.getUnitPrice(item.product, item.selectedSize, item.selectedColor);
+        const itemSubtotal = (unitPrice * item.quantity).toFixed(2);
 
         return `
           <div class="cart-item-row">
             <div class="cart-item-info">
-              <h4 class="cart-item-title">${item.product.name}</h4>
+              <h4 class="cart-item-title">${escapeHtml(item.product.name)}</h4>
               ${variantBadge.length > 0 ? `<div style="font-size: 0.72rem; color: var(--accent-gold); font-weight: 600;">${variantBadge.join(" • ")}</div>` : ""}
-              <span class="cart-item-subtotal">${currency} ${(item.product.price * item.quantity).toFixed(2)}</span>
-              ${item.note ? `<div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 2px;">Nota: ${item.note}</div>` : ""}
+              <span class="cart-item-subtotal">${currency} ${itemSubtotal}</span>
+              ${item.note ? `<div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 2px;">Nota: ${escapeHtml(item.note)}</div>` : ""}
             </div>
 
             <div class="cart-item-actions">
               <div class="card-qty-stepper">
-                <button class="stepper-btn minus" onclick="CartController.decreaseQuantity('${item.cartKey}')" type="button">-</button>
+                <button class="stepper-btn minus cart-btn-minus" data-cart-key="${escapeHtml(item.cartKey)}" type="button">-</button>
                 <span class="stepper-num">${item.quantity}</span>
-                <button class="stepper-btn" onclick="CartController.addToCart('${item.product.id}', 1, '${item.note}', '${item.selectedSize}', '${item.selectedColor}')" type="button">+</button>
+                <button class="stepper-btn plus cart-btn-plus" data-cart-key="${escapeHtml(item.cartKey)}" type="button">+</button>
               </div>
             </div>
           </div>
         `;
       }).join("");
+
+      list.querySelectorAll(".cart-btn-minus").forEach(btn => {
+        btn.addEventListener("click", () => CartController.decreaseQuantity(btn.dataset.cartKey));
+      });
+      list.querySelectorAll(".cart-btn-plus").forEach(btn => {
+        btn.addEventListener("click", () => CartController.increaseQuantity(btn.dataset.cartKey));
+      });
     }
 
     const subtotal = CartController.getSubtotal();
@@ -2328,6 +2833,24 @@ const CustomerUI = {
 // 9. CARRITO DE COMPRAS Y PEDIDOS
 // ============================================================================
 const CartController = {
+  getVariantExtraPrice(sizeStr, colorStr) {
+    let extra = 0;
+    const regex = /\+\s*(?:S\/|\$|€|MXN\$|COP\$)?\s*(\d+(?:\.\d+)?)/i;
+    if (sizeStr) {
+      const m = String(sizeStr).match(regex);
+      if (m && m[1]) extra += parseFloat(m[1]);
+    }
+    if (colorStr) {
+      const m = String(colorStr).match(regex);
+      if (m && m[1]) extra += parseFloat(m[1]);
+    }
+    return extra;
+  },
+
+  getUnitPrice(product, selectedSize, selectedColor) {
+    return Number(product?.price || 0) + this.getVariantExtraPrice(selectedSize, selectedColor);
+  },
+
   addToCart(productId, quantity = 1, note = "", selectedSize = "", selectedColor = "") {
     const product = AppState.products.find(p => p.id === productId);
     if (!product) return;
@@ -2369,6 +2892,15 @@ const CartController = {
     Toast.show(`Agregado: ${product.name}${variantInfo}`, "🛍️");
   },
 
+  increaseQuantity(cartKey) {
+    if (!AppState.cart[cartKey]) return;
+    AppState.cart[cartKey].quantity += 1;
+    AppState.saveCart();
+    CustomerUI.updateCartBar();
+    CustomerUI.renderProductCards();
+    CustomerUI.renderCartItemsList();
+  },
+
   decreaseQuantity(cartKey) {
     if (!AppState.cart[cartKey]) return;
     AppState.cart[cartKey].quantity -= 1;
@@ -2390,7 +2922,10 @@ const CartController = {
   },
 
   getSubtotal() {
-    return Object.values(AppState.cart).reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+    return Object.values(AppState.cart).reduce((sum, item) => {
+      const unitPrice = this.getUnitPrice(item.product, item.selectedSize, item.selectedColor);
+      return sum + (unitPrice * item.quantity);
+    }, 0);
   },
 
   getDeliveryCost() {
@@ -2444,7 +2979,8 @@ const WhatsAppOrder = {
 
     msg += `\n📦 *DETALLE DE PRODUCTOS:*\n`;
     items.forEach((item, idx) => {
-      const itemSub = (item.product.price * item.quantity).toFixed(2);
+      const unitPrice = CartController.getUnitPrice(item.product, item.selectedSize, item.selectedColor);
+      const itemSub = (unitPrice * item.quantity).toFixed(2);
       const skuTag = item.product.sku ? `[${item.product.sku}] ` : "";
       
       let variantParts = [];
@@ -2570,6 +3106,7 @@ const WhatsAppOrder = {
     const modal = document.getElementById("ticket-modal");
     const previewEl = document.getElementById("ticket-text-preview");
     const retryBtn = document.getElementById("ticket-retry-wa-btn");
+    const shareBtn = document.getElementById("ticket-share-voucher-btn");
     const voucherBox = document.getElementById("ticket-voucher-preview-box");
     const voucherImg = document.getElementById("ticket-voucher-preview-img");
 
@@ -2578,6 +3115,27 @@ const WhatsAppOrder = {
       retryBtn.onclick = () => {
         window.open(waUrl, "_blank");
       };
+    }
+
+    if (shareBtn) {
+      if (navigator.canShare && AppState.buyerVoucherFile && navigator.canShare({ files: [AppState.buyerVoucherFile] })) {
+        shareBtn.classList.remove("hidden");
+        shareBtn.onclick = async () => {
+          try {
+            await navigator.share({
+              files: [AppState.buyerVoucherFile],
+              text: orderText
+            });
+          } catch (err) {
+            if (err.name !== "AbortError") {
+              console.warn("Error en navigator.share:", err);
+              window.open(waUrl, "_blank");
+            }
+          }
+        };
+      } else {
+        shareBtn.classList.add("hidden");
+      }
     }
 
     // Mostrar miniatura del comprobante si fue cargado
@@ -2609,105 +3167,91 @@ const QRGenerator = {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, size, size);
 
-    const modules = 29;
-    const cellSize = (size - 32) / modules;
-    const offset = 16;
-    const grid = Array.from({ length: modules }, () => Array(modules).fill(false));
+    if (typeof qrcode === "undefined") {
+      ctx.fillStyle = "#ff453a";
+      ctx.font = "bold 13px system-ui, -apple-system, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("⚠️ Conéctate a internet para", size / 2, size / 2 - 12);
+      ctx.fillText("generar el Código QR escaneable.", size / 2, size / 2 + 12);
+      Toast.show("No se pudo cargar la librería QR. Requiere conexión a internet.", "⚠️");
+      return;
+    }
 
-    const addFinderPattern = (row, col) => {
-      for (let r = -1; r <= 7; r++) {
-        for (let c = -1; c <= 7; c++) {
-          const gr = row + r;
-          const gc = col + c;
-          if (gr >= 0 && gr < modules && gc >= 0 && gc < modules) {
-            if (r >= 0 && r <= 6 && c >= 0 && c <= 6) {
-              if (r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4)) {
-                grid[gr][gc] = true;
-              } else {
-                grid[gr][gc] = false;
-              }
-            } else {
-              grid[gr][gc] = false;
-            }
-          }
-        }
-      }
-    };
-
-    addFinderPattern(0, 0);
-    addFinderPattern(0, modules - 7);
-    addFinderPattern(modules - 7, 0);
-
-    const alignR = 20, alignC = 20;
-    for (let r = -2; r <= 2; r++) {
-      for (let c = -2; c <= 2; c++) {
-        if (Math.abs(r) === 2 || Math.abs(c) === 2 || (r === 0 && c === 0)) {
-          grid[alignR + r][alignC + c] = true;
-        }
+    let qr;
+    try {
+      // Nivel H: 30% de redundancia/corrección de errores, óptimo para logo central
+      qr = qrcode(0, "H");
+      qr.addData(text);
+      qr.make();
+    } catch (e) {
+      console.warn("Error generando QR en nivel H, reintentando en nivel Q:", e);
+      try {
+        qr = qrcode(0, "Q");
+        qr.addData(text);
+        qr.make();
+      } catch (err) {
+        console.error("Error definitivo generando QR:", err);
+        return;
       }
     }
 
-    for (let i = 8; i < modules - 8; i++) {
-      grid[6][i] = i % 2 === 0;
-      grid[i][6] = i % 2 === 0;
-    }
-
-    let hash = 0;
-    for (let i = 0; i < text.length; i++) {
-      hash = ((hash << 5) - hash) + text.charCodeAt(i);
-      hash |= 0;
-    }
-
-    let seed = Math.abs(hash);
-    const pseudoRandom = () => {
-      seed = (seed * 9301 + 49297) % 233280;
-      return seed / 233280;
-    };
-
-    for (let r = 0; r < modules; r++) {
-      for (let c = 0; c < modules; c++) {
-        const inTopLeft = r <= 8 && c <= 8;
-        const inTopRight = r <= 8 && c >= modules - 9;
-        const inBottomLeft = r >= modules - 9 && c <= 8;
-        const inTiming = (r === 6) || (c === 6);
-        const inAlign = (r >= 18 && r <= 22 && c >= 18 && c <= 22);
-
-        if (!inTopLeft && !inTopRight && !inBottomLeft && !inTiming && !inAlign) {
-          grid[r][c] = pseudoRandom() > 0.48;
-        }
-      }
-    }
+    const modules = qr.getModuleCount();
+    const padding = 16;
+    const cellSize = (size - padding * 2) / modules;
+    const offset = padding;
 
     ctx.fillStyle = "#0c1222";
     for (let r = 0; r < modules; r++) {
       for (let c = 0; c < modules; c++) {
-        if (grid[r][c]) {
+        if (qr.isDark(r, c)) {
           const x = offset + c * cellSize;
           const y = offset + r * cellSize;
           ctx.beginPath();
-          ctx.roundRect(x, y, cellSize, cellSize, 1.5);
+          if (ctx.roundRect) {
+            ctx.roundRect(x, y, cellSize, cellSize, 1.2);
+          } else {
+            ctx.rect(x, y, cellSize, cellSize);
+          }
           ctx.fill();
         }
       }
     }
 
-    const logoSize = cellSize * 5;
+    // Logo central verde (#00d26a) con ícono 🍽️ o ⚡
+    // En nivel H (30% tolerancia), un recuadro central de ~18-20% de módulos se lee al 100%
+    const logoModuleSpan = Math.max(5, Math.floor(modules * 0.18));
+    const logoSize = cellSize * logoModuleSpan;
     const center = size / 2;
+
+    // Borde blanco protector
     ctx.fillStyle = "#ffffff";
     ctx.beginPath();
-    ctx.roundRect(center - logoSize / 2 - 2, center - logoSize / 2 - 2, logoSize + 4, logoSize + 4, 6);
+    if (ctx.roundRect) {
+      ctx.roundRect(center - logoSize / 2 - 3, center - logoSize / 2 - 3, logoSize + 6, logoSize + 6, 6);
+    } else {
+      ctx.rect(center - logoSize / 2 - 3, center - logoSize / 2 - 3, logoSize + 6, logoSize + 6);
+    }
     ctx.fill();
 
+    // Recuadro verde (#00d26a)
     ctx.fillStyle = "#00d26a";
     ctx.beginPath();
-    ctx.roundRect(center - logoSize / 2, center - logoSize / 2, logoSize, logoSize, 5);
+    if (ctx.roundRect) {
+      ctx.roundRect(center - logoSize / 2, center - logoSize / 2, logoSize, logoSize, 5);
+    } else {
+      ctx.rect(center - logoSize / 2, center - logoSize / 2, logoSize, logoSize);
+    }
     ctx.fill();
 
+    // Ícono en el centro
+    const nicheInfo = NICHE_DATA[AppState.activePreset] || NICHE_DATA.general;
+    const isFoodOrTable = this.isTableMode || (nicheInfo && nicheInfo.hasDineIn);
     ctx.fillStyle = "#080c14";
-    ctx.font = "bold 15px Outfit, sans-serif";
+    ctx.font = `bold ${Math.round(logoSize * 0.55)}px system-ui, -apple-system, sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(this.isTableMode ? "🍽️" : "⚡", center, center);
+    ctx.fillText(isFoodOrTable ? "🍽️" : "⚡", center, center);
   },
 
   getTargetUrl() {
@@ -2932,6 +3476,93 @@ document.addEventListener("DOMContentLoaded", () => {
   if (editorCancelBtn) editorCancelBtn.addEventListener("click", () => StudioController.closeProductEditor());
   if (studioProductForm) studioProductForm.addEventListener("submit", (e) => StudioController.saveProduct(e));
 
+  // 9.1 Gestor de Categorías (Modal y Paleta de Emojis)
+  const studioManageCategoriesBtn = document.getElementById("studio-manage-categories-btn");
+  const closeCategoriesModalBtn = document.getElementById("close-categories-modal-btn");
+  const closeCategoriesModalDoneBtn = document.getElementById("close-categories-modal-done-btn");
+  const catEmojiPickerBtn = document.getElementById("cat-emoji-picker-btn");
+  const catEmojiPalette = document.getElementById("cat-emoji-palette");
+  const addCategorySubmitBtn = document.getElementById("add-category-submit-btn");
+  const newCategoryNameInput = document.getElementById("new-category-name-input");
+  const editorQuickAddCatBtn = document.getElementById("editor-quick-add-cat-btn");
+
+  if (studioManageCategoriesBtn) {
+    studioManageCategoriesBtn.addEventListener("click", () => StudioController.openCategoryManager());
+  }
+  if (closeCategoriesModalBtn) {
+    closeCategoriesModalBtn.addEventListener("click", () => StudioController.closeCategoryManager());
+  }
+  if (closeCategoriesModalDoneBtn) {
+    closeCategoriesModalDoneBtn.addEventListener("click", () => StudioController.closeCategoryManager());
+  }
+
+  if (catEmojiPickerBtn && catEmojiPalette) {
+    catEmojiPickerBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      catEmojiPalette.classList.toggle("hidden");
+    });
+    document.addEventListener("click", (e) => {
+      if (!catEmojiPalette.contains(e.target) && e.target !== catEmojiPickerBtn) {
+        catEmojiPalette.classList.add("hidden");
+      }
+    });
+  }
+
+  document.querySelectorAll("#cat-emoji-palette .emoji-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const emoji = chip.getAttribute("data-emoji");
+      if (catEmojiPickerBtn && emoji) {
+        catEmojiPickerBtn.textContent = emoji;
+      }
+      if (catEmojiPalette) catEmojiPalette.classList.add("hidden");
+    });
+  });
+
+  const handleCreateCategory = () => {
+    if (!newCategoryNameInput) return;
+    const name = newCategoryNameInput.value.trim();
+    if (!name) {
+      Toast.show("Escribe el nombre de la categoría", "✏️");
+      newCategoryNameInput.focus();
+      return;
+    }
+    const icon = catEmojiPickerBtn ? catEmojiPickerBtn.textContent.trim() : "🏷️";
+    const added = AppState.addCategory(name, icon);
+    if (added) {
+      newCategoryNameInput.value = "";
+      if (catEmojiPickerBtn) catEmojiPickerBtn.textContent = "🏷️";
+      StudioController.renderCategoryManagerList();
+      StudioController.renderCategoryFilters();
+      CustomerUI.renderCategoryTabs();
+    }
+  };
+
+  if (addCategorySubmitBtn) addCategorySubmitBtn.addEventListener("click", handleCreateCategory);
+  if (newCategoryNameInput) {
+    newCategoryNameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleCreateCategory();
+      }
+    });
+  }
+
+  if (editorQuickAddCatBtn) {
+    editorQuickAddCatBtn.addEventListener("click", () => {
+      const newCat = prompt("Ingresa el nombre de la nueva categoría:");
+      if (newCat && newCat.trim()) {
+        const added = AppState.addCategory(newCat.trim());
+        if (added) {
+          const catInp = document.getElementById("editor-category-input");
+          if (catInp) catInp.value = added.name;
+          StudioController.renderEditorCategoryChips(added.name);
+          StudioController.renderCategoryFilters();
+          CustomerUI.renderCategoryTabs();
+        }
+      }
+    });
+  }
+
   // 10. Subida de Foto en el Editor de Producto (Cámara o Galería)
   const productPhotoBox = document.getElementById("product-photo-upload-box");
   const editorTriggerFileBtn = document.getElementById("editor-trigger-file-btn");
@@ -3088,20 +3719,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (AppState.modalQuantity > 1) {
         AppState.modalQuantity--;
         modalQtyVal.textContent = AppState.modalQuantity;
-        if (AppState.selectedProductModal && modalBtnTotal) {
-          const currency = AppState.shopConfig.currency || "S/";
-          modalBtnTotal.textContent = `${currency} ${(AppState.selectedProductModal.price * AppState.modalQuantity).toFixed(2)}`;
-        }
+        CustomerUI.updateModalPrice();
       }
     });
 
     modalQtyPlus.addEventListener("click", () => {
       AppState.modalQuantity++;
       modalQtyVal.textContent = AppState.modalQuantity;
-      if (AppState.selectedProductModal && modalBtnTotal) {
-        const currency = AppState.shopConfig.currency || "S/";
-        modalBtnTotal.textContent = `${currency} ${(AppState.selectedProductModal.price * AppState.modalQuantity).toFixed(2)}`;
-      }
+      CustomerUI.updateModalPrice();
     });
   }
 
@@ -3577,22 +4202,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (appleOpenStudioBtn) appleOpenStudioBtn.addEventListener("click", () => ViewController.showStudio());
 
   // Triggers en el Studio
-  const topbarWizardBtn = document.getElementById("topbar-wizard-btn");
   const studioWizardBtn = document.getElementById("studio-open-wizard-btn");
   const studioResetBtn = document.getElementById("studio-reset-btn");
-  const startOnboardingBtn = document.getElementById("start-onboarding-btn");
-  const dismissOnboardingBannerBtn = document.getElementById("dismiss-onboarding-banner-btn");
-  const closeOnboardingBannerX = document.getElementById("close-onboarding-banner-x");
 
-  if (topbarWizardBtn) topbarWizardBtn.addEventListener("click", () => ViewController.showOnboarding(1));
   if (studioWizardBtn) studioWizardBtn.addEventListener("click", () => ViewController.showOnboarding(1));
-  if (startOnboardingBtn) startOnboardingBtn.addEventListener("click", () => ViewController.showOnboarding(1));
   if (studioResetBtn) studioResetBtn.addEventListener("click", () => OnboardingWizard.resetFromScratch());
-
-  const dismissBannerAction = () => {
-    const banner = document.getElementById("studio-onboarding-banner");
-    if (banner) banner.classList.add("hidden");
-  };
-  if (dismissOnboardingBannerBtn) dismissOnboardingBannerBtn.addEventListener("click", dismissBannerAction);
-  if (closeOnboardingBannerX) closeOnboardingBannerX.addEventListener("click", dismissBannerAction);
 });

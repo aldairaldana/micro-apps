@@ -488,10 +488,10 @@
 
           <div class="identity-info-box">
             <div class="title-edit-wrapper">
-              <input type="text" id="live-store-name" class="inline-edit-name" value="" placeholder="Nombre comercial de tu tienda" placeholder="Nombre de tu negocio">
+              <input type="text" id="live-store-name" class="inline-edit-name" value="" placeholder="Nombre comercial de tu tienda">
               <span class="edit-hint-icon">✏️</span>
             </div>
-            <input type="text" id="live-store-tagline" class="inline-edit-tagline" value="" placeholder="Eslogan o descripción de tu catálogo" placeholder="Eslogan o descripción corta">
+            <input type="text" id="live-store-tagline" class="inline-edit-tagline" value="" placeholder="Eslogan o descripción de tu catálogo">
           </div>
         </div>
 
@@ -502,6 +502,9 @@
           </button>
           <button type="button" id="studio-copy-link-btn" class="quick-link-btn">
             <span>🔗 Enlace de Clientes</span>
+          </button>
+          <button type="button" id="studio-share-btn" class="quick-link-btn" title="Compartir catálogo">
+            <span>📤 Compartir</span>
           </button>
           <button type="button" id="studio-open-qr-btn" class="quick-link-btn">
             <span>🔲 Código QR</span>
@@ -543,13 +546,20 @@
               <input type="text" id="studio-search-input" class="search-input-field" placeholder="Buscar por nombre, código o categoría...">
               <button type="button" id="studio-clear-search-btn" class="search-clear hidden">✕</button>
             </div>
-            <button type="button" id="studio-add-product-btn" class="btn-create-product">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-              <span>+ Añadir Producto</span>
-            </button>
+            <div class="toolbar-buttons-group">
+              <button type="button" id="studio-manage-categories-btn" class="btn-manage-categories" title="Gestionar categorías de la tienda">
+                <span class="btn-cat-icon">🏷️</span>
+                <span>Categorías</span>
+                <span class="cat-count-badge" id="studio-categories-badge">0</span>
+              </button>
+              <button type="button" id="studio-add-product-btn" class="btn-create-product">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>+ Añadir Producto</span>
+              </button>
+            </div>
           </div>
 
           <!-- Filtros de Categorías Horizontales -->
@@ -593,8 +603,14 @@
                   <input type="number" id="editor-price-input" step="0.01" min="0" class="input-modern price-highlight" placeholder="0.00" required>
                 </div>
                 <div class="editor-field-group">
-                  <label for="editor-category-input">Categoría *</label>
-                  <input type="text" id="editor-category-input" class="input-modern" placeholder="Ej: Software / Licencias / Accesorios" required>
+                  <div class="label-with-action">
+                    <label for="editor-category-input">Categoría *</label>
+                    <button type="button" id="editor-quick-add-cat-btn" class="btn-text-link">+ Nueva</button>
+                  </div>
+                  <!-- Chips rápidos de categorías existentes para 1 solo toque -->
+                  <div class="editor-cat-pills-row" id="editor-cat-pills-row"></div>
+                  <input type="text" id="editor-category-input" class="input-modern" placeholder="Ej: Hamburguesas, Vestidos, Software..." list="categories-datalist" required>
+                  <datalist id="categories-datalist"></datalist>
                 </div>
               </div>
 
@@ -1194,7 +1210,7 @@
                   </div>
                   <input type="file" id="buyer-voucher-input" accept="image/*" class="hidden">
                 </div>
-                <small class="voucher-help-text">💡 Todo el pedido y tu comprobante se enviarán juntos en el mensaje al WhatsApp del vendedor.</small>
+                <small class="voucher-help-text">💡 Tu pedido quedará registrado con comprobante adjunto. Al abrirse WhatsApp, envía el mensaje y adjunta tu captura en el chat.</small>
               </div>
             </div>
           </div>
@@ -1282,6 +1298,9 @@
         </div>
 
         <div class="ticket-actions">
+          <button id="ticket-share-voucher-btn" class="btn-whatsapp-hero hidden" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); margin-bottom: 8px;" type="button">
+            <span>📤 Compartir Comprobante + Pedido</span>
+          </button>
           <button id="ticket-retry-wa-btn" class="btn-whatsapp-hero" type="button">
             <span>Abrir WhatsApp Ahora 💬</span>
           </button>
@@ -1330,6 +1349,86 @@
       </div>
     </div>
 
+    <!-- 6. MODAL GESTOR DE CATEGORÍAS (APPLE STUDIO) -->
+    <div class="overlay hidden" id="categories-manager-modal">
+      <div class="category-modal-card">
+        <div class="sheet-header">
+          <div class="sheet-title-group">
+            <span class="sheet-icon">🏷️</span>
+            <div>
+              <h3 class="sheet-title">Gestión de Categorías</h3>
+              <span class="sheet-subtitle">Crea, renombra y ordena las secciones de tu vitrina</span>
+            </div>
+          </div>
+          <button id="close-categories-modal-btn" class="close-sheet-btn" type="button">✕</button>
+        </div>
+
+        <div class="cat-modal-scroll-body">
+          <!-- Formulario para Crear Nueva Categoría -->
+          <div class="cat-add-card">
+            <span class="cat-add-title">Añadir Nueva Categoría</span>
+            <div class="cat-add-inputs-group">
+              <button type="button" id="cat-emoji-picker-btn" class="cat-emoji-picker-btn" title="Elegir icono para esta categoría">🏷️</button>
+              <input type="text" id="new-category-name-input" class="input-modern" placeholder="Nombre de categoría (ej: Promociones, Bebidas)" maxlength="32">
+              <button type="button" id="add-category-submit-btn" class="btn-cat-add-action">
+                <span>+ Crear</span>
+              </button>
+            </div>
+
+            <!-- Paleta Rápida de Emojis desplegable -->
+            <div class="cat-emoji-palette hidden" id="cat-emoji-palette">
+              <div class="emoji-palette-header">
+                <span>Elige un icono temático:</span>
+                <span class="emoji-hint">O escribe el tuyo</span>
+              </div>
+              <div class="emoji-palette-grid">
+                <button type="button" class="emoji-chip" data-emoji="🍔">🍔</button>
+                <button type="button" class="emoji-chip" data-emoji="🍗">🍗</button>
+                <button type="button" class="emoji-chip" data-emoji="🍕">🍕</button>
+                <button type="button" class="emoji-chip" data-emoji="🥤">🥤</button>
+                <button type="button" class="emoji-chip" data-emoji="🍰">🍰</button>
+                <button type="button" class="emoji-chip" data-emoji="☕">☕</button>
+                <button type="button" class="emoji-chip" data-emoji="👗">👗</button>
+                <button type="button" class="emoji-chip" data-emoji="👚">👚</button>
+                <button type="button" class="emoji-chip" data-emoji="👖">👖</button>
+                <button type="button" class="emoji-chip" data-emoji="👠">👠</button>
+                <button type="button" class="emoji-chip" data-emoji="👟">👟</button>
+                <button type="button" class="emoji-chip" data-emoji="💄">💄</button>
+                <button type="button" class="emoji-chip" data-emoji="✨">✨</button>
+                <button type="button" class="emoji-chip" data-emoji="💻">💻</button>
+                <button type="button" class="emoji-chip" data-emoji="📱">📱</button>
+                <button type="button" class="emoji-chip" data-emoji="🎧">🎧</button>
+                <button type="button" class="emoji-chip" data-emoji="🔌">🔌</button>
+                <button type="button" class="emoji-chip" data-emoji="⭐">⭐</button>
+                <button type="button" class="emoji-chip" data-emoji="🔥">🔥</button>
+                <button type="button" class="emoji-chip" data-emoji="🛍️">🛍️</button>
+                <button type="button" class="emoji-chip" data-emoji="🏷️">🏷️</button>
+                <button type="button" class="emoji-chip" data-emoji="📦">📦</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Listado de Categorías Existentes -->
+          <div class="cat-list-section">
+            <div class="cat-list-title-row">
+              <span class="cat-list-heading">Categorías Activas (<span id="cat-manager-total-count">0</span>)</span>
+              <span class="cat-list-sub">Orden en la vitrina</span>
+            </div>
+
+            <div class="cat-items-list" id="cat-manager-items-list">
+              <!-- Renderizado dinámico desde AppState -->
+            </div>
+          </div>
+        </div>
+
+        <div class="sheet-footer">
+          <button type="button" id="close-categories-modal-done-btn" class="btn-save-product" style="width: 100%;">
+            <span>Guardar & Volver al Catálogo</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- TOAST DE NOTIFICACIÓN FLOTANTE -->
     <div class="app-toast hidden" id="app-toast">
       <span class="toast-icon" id="toast-icon">✨</span>
@@ -1338,6 +1437,7 @@
 
   </div>
 
-  <script src="app.js?v=20261016-apple-v25"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <script src="app.js?v=20261109-v27"></script>
 </body>
 </html>
