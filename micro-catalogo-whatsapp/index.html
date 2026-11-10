@@ -203,11 +203,13 @@
             <div class="apple-field-block">
               <label class="apple-static-label">Rubro o Giro Comercial</label>
               <div class="apple-segmented-grid" id="apple-niche-grid">
-                <button type="button" class="apple-segment-pill active" data-niche="food">Gastronomía</button>
-                <button type="button" class="apple-segment-pill" data-niche="fashion">Moda & Calzado</button>
-                <button type="button" class="apple-segment-pill" data-niche="beauty">Belleza & Cosmética</button>
-                <button type="button" class="apple-segment-pill" data-niche="tech">Tecnología & Gadgets</button>
-                <button type="button" class="apple-segment-pill" data-niche="general">Tienda General</button>
+                <button type="button" class="apple-segment-pill active" data-niche="sneakers">👟 Zapatillas & Calzado</button>
+                <button type="button" class="apple-segment-pill" data-niche="beauty">✨ Perfumes & Belleza</button>
+                <button type="button" class="apple-segment-pill" data-niche="watches">⌚ Relojes & Joyas</button>
+                <button type="button" class="apple-segment-pill" data-niche="fashion">👖 Ropa & Moda</button>
+                <button type="button" class="apple-segment-pill" data-niche="food">🍰 Postres & Comida</button>
+                <button type="button" class="apple-segment-pill" data-niche="tech">💻 Tecnología & Gadgets</button>
+                <button type="button" class="apple-segment-pill" data-niche="general">🛍️ Tienda General</button>
               </div>
             </div>
 
@@ -349,6 +351,11 @@
                 <input type="text" id="apple-prod-cat" placeholder=" " class="apple-floating-input">
                 <label for="apple-prod-cat" class="apple-floating-label">Categoría *</label>
               </div>
+            </div>
+
+            <div class="apple-input-group">
+              <input type="url" id="apple-prod-video" placeholder=" " class="apple-floating-input">
+              <label for="apple-prod-video" class="apple-floating-label">🎥 Video del Producto (Opcional: Reel, TikTok, Shorts o .mp4)</label>
             </div>
 
             <!-- Sugerencias de Categorías según Rubro -->
@@ -591,6 +598,20 @@
               </div>
               <input type="url" id="editor-url-input" class="input-modern hidden" placeholder="https://ejemplo.com/foto.jpg">
 
+              <!-- Video del Producto (Opcional) -->
+              <div class="editor-field-group">
+                <label for="editor-video-url-input">🎥 Video del Producto (Opcional: Reels, TikTok, YouTube Shorts o sube clip)</label>
+                <div class="video-input-dual-row">
+                  <input type="url" id="editor-video-url-input" class="input-modern" placeholder="Pega link de TikTok, Instagram Reel, YouTube Short o video .mp4">
+                  <button type="button" id="editor-trigger-video-btn" class="btn-alt-sm">Subir Video</button>
+                </div>
+                <input type="file" id="editor-video-file-input" accept="video/mp4,video/webm,video/quicktime" class="hidden">
+                <div id="editor-video-preview-wrap" class="editor-video-preview-wrap hidden">
+                  <video id="editor-video-preview" controls playsinline muted class="editor-video-thumb"></video>
+                  <button type="button" id="editor-remove-video-btn" class="btn-remove-video">✕ Quitar Video</button>
+                </div>
+              </div>
+
               <!-- Nombre y Precio -->
               <div class="editor-field-group">
                 <label for="editor-name-input">Nombre del Producto / Servicio *</label>
@@ -627,11 +648,11 @@
 
               <div class="form-grid-2">
                 <div class="editor-field-group">
-                  <label for="editor-sizes-input">Variantes / Opciones (separadas por coma)</label>
+                  <label for="editor-sizes-input" id="editor-sizes-label">Variantes / Opciones (separadas por coma)</label>
                   <input type="text" id="editor-sizes-input" class="input-modern" placeholder="Ej: 1 PC, 3 PCs, 5 PCs">
                 </div>
                 <div class="editor-field-group">
-                  <label for="editor-colors-input">Edición / Tipo (opcional)</label>
+                  <label for="editor-colors-input" id="editor-colors-label">Edición / Tipo (opcional)</label>
                   <input type="text" id="editor-colors-input" class="input-modern" placeholder="Ej: Global, Retail, Anual">
                 </div>
               </div>
@@ -677,32 +698,53 @@
               <p class="section-card-desc">Elige el rubro de tu tienda. TiendaZap adaptará automáticamente las modalidades de entrega y sugerencias.</p>
               
               <div class="niche-selector-grid">
-                <button type="button" class="niche-card-btn active" data-niche="tech">
-                  <span class="niche-emoji">💻</span>
+                <button type="button" class="niche-card-btn active" data-niche="sneakers">
+                  <span class="niche-emoji">👟</span>
                   <div class="niche-meta">
-                    <strong>Tecnología & Licencias</strong>
-                    <span>Software, Digital, Gadgets</span>
-                  </div>
-                </button>
-                <button type="button" class="niche-card-btn" data-niche="food">
-                  <span class="niche-emoji">🍔</span>
-                  <div class="niche-meta">
-                    <strong>Gastronomía</strong>
-                    <span>Restaurante, Comida rápida</span>
-                  </div>
-                </button>
-                <button type="button" class="niche-card-btn" data-niche="fashion">
-                  <span class="niche-emoji">👗</span>
-                  <div class="niche-meta">
-                    <strong>Moda & Ropa</strong>
-                    <span>Prendas, Calzado, Estilo</span>
+                    <strong>Zapatillas & Calzado</strong>
+                    <span>Sneakers, Urbana, Running</span>
                   </div>
                 </button>
                 <button type="button" class="niche-card-btn" data-niche="beauty">
-                  <span class="niche-emoji">💄</span>
+                  <span class="niche-emoji">✨</span>
                   <div class="niche-meta">
-                    <strong>Belleza & Skincare</strong>
-                    <span>Cosméticos, Cuidado personal</span>
+                    <strong>Perfumes & Belleza</strong>
+                    <span>Decants, Diseñador, Árabes</span>
+                  </div>
+                </button>
+                <button type="button" class="niche-card-btn" data-niche="watches">
+                  <span class="niche-emoji">⌚</span>
+                  <div class="niche-meta">
+                    <strong>Relojes & Joyas</strong>
+                    <span>Automáticos, Joyería, Lentes</span>
+                  </div>
+                </button>
+                <button type="button" class="niche-card-btn" data-niche="fashion">
+                  <span class="niche-emoji">👖</span>
+                  <div class="niche-meta">
+                    <strong>Ropa & Pantalones</strong>
+                    <span>Jeans, Polos, Casacas, Outfits</span>
+                  </div>
+                </button>
+                <button type="button" class="niche-card-btn" data-niche="food">
+                  <span class="niche-emoji">🍰</span>
+                  <div class="niche-meta">
+                    <strong>Postres & Comida</strong>
+                    <span>Tortas, Boxes, Snacks, Burgers</span>
+                  </div>
+                </button>
+                <button type="button" class="niche-card-btn" data-niche="tech">
+                  <span class="niche-emoji">💻</span>
+                  <div class="niche-meta">
+                    <strong>Tecnología & Gadgets</strong>
+                    <span>Software, Digital, Accesorios</span>
+                  </div>
+                </button>
+                <button type="button" class="niche-card-btn" data-niche="general">
+                  <span class="niche-emoji">🛍️</span>
+                  <div class="niche-meta">
+                    <strong>Tienda General</strong>
+                    <span>Todo rubro, Multicategoría</span>
                   </div>
                 </button>
               </div>
@@ -974,8 +1016,21 @@
     <div class="overlay product-modal-overlay hidden" id="product-detail-modal">
       <div class="product-modal-card">
         <button id="close-product-modal-btn" class="close-sheet-btn product-close" type="button">✕</button>
-        <div class="product-modal-img-wrap">
-          <img id="detail-product-img" src="" alt="Producto" class="detail-product-img">
+        <div class="product-modal-media-header">
+          <div class="product-modal-media-switcher hidden" id="detail-media-switcher">
+            <button type="button" class="media-switch-btn active" id="detail-switch-photo-btn">📷 Foto</button>
+            <button type="button" class="media-switch-btn" id="detail-switch-video-btn">🎥 Video</button>
+          </div>
+          <div class="product-modal-img-wrap" id="detail-photo-wrap">
+            <img id="detail-product-img" src="" alt="Producto" class="detail-product-img">
+          </div>
+          <div class="product-modal-video-wrap hidden" id="detail-video-wrap">
+            <video id="detail-product-video" controls playsinline muted loop preload="metadata" class="detail-product-video hidden"></video>
+            <div id="detail-video-embed" class="detail-video-embed hidden"></div>
+            <div id="detail-video-action" class="detail-video-action hidden">
+              <a id="detail-video-ext-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn-external-video">▶️ Ver Video Demostrativo (Reels / TikTok)</a>
+            </div>
+          </div>
         </div>
         <div class="product-modal-body">
           <div class="detail-badge-row">
@@ -988,13 +1043,13 @@
 
           <!-- Selector de Tallas si aplica -->
           <div class="detail-variants-group hidden" id="detail-sizes-group">
-            <span class="detail-variant-label">Elige tu Talla / Medida:</span>
+            <span class="detail-variant-label" id="detail-sizes-label">Elige tu Talla / Medida:</span>
             <div class="variant-chips-row" id="detail-sizes-row"></div>
           </div>
 
           <!-- Selector de Colores si aplica -->
           <div class="detail-variants-group hidden" id="detail-colors-group">
-            <span class="detail-variant-label">Elige tu Color / Tono:</span>
+            <span class="detail-variant-label" id="detail-colors-label">Elige tu Color / Tono:</span>
             <div class="variant-chips-row" id="detail-colors-row"></div>
           </div>
 
@@ -1438,6 +1493,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
   <script src="app.js?v=20261109-v27"></script>
 </body>
 </html>

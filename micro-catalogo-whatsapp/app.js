@@ -19,359 +19,588 @@ function escapeHtml(str) {
 }
 
 // ============================================================================
-// 1. PLANTILLAS DE NEGOCIOS VIRTUALES (1 CLIC)
+// 0. MEDIASTORE (INDEXEDDB WRAPPER PARA FOTOS Y VIDEOS LOCALES EN EL CELULAR)
+// ============================================================================
+const MediaStore = {
+  dbName: "TiendaZapMediaDB",
+  storeName: "media",
+  db: null,
+
+  async init() {
+    if (this.db) return this.db;
+    return new Promise((resolve) => {
+      if (!window.indexedDB) {
+        resolve(null);
+        return;
+      }
+      try {
+        const req = indexedDB.open(this.dbName, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(this.storeName)) {
+            db.createObjectStore(this.storeName);
+          }
+        };
+        req.onsuccess = (e) => {
+          this.db = e.target.result;
+          resolve(this.db);
+        };
+        req.onerror = () => resolve(null);
+      } catch (err) {
+        resolve(null);
+      }
+    });
+  },
+
+  async saveMedia(key, fileOrBlob) {
+    const db = await this.init();
+    if (!db) return false;
+    return new Promise((resolve) => {
+      try {
+        const tx = db.transaction(this.storeName, "readwrite");
+        const store = tx.objectStore(this.storeName);
+        store.put(fileOrBlob, key);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => resolve(false);
+      } catch (err) {
+        resolve(false);
+      }
+    });
+  },
+
+  async getMedia(key) {
+    const db = await this.init();
+    if (!db) return null;
+    return new Promise((resolve) => {
+      try {
+        const tx = db.transaction(this.storeName, "readonly");
+        const store = tx.objectStore(this.storeName);
+        const req = store.get(key);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => resolve(null);
+      } catch (err) {
+        resolve(null);
+      }
+    });
+  },
+
+  async deleteMedia(key) {
+    const db = await this.init();
+    if (!db) return;
+    try {
+      const tx = db.transaction(this.storeName, "readwrite");
+      tx.objectStore(this.storeName).delete(key);
+    } catch (err) {}
+  }
+};
+
+// ============================================================================
+// 1. PLANTILLAS DE NEGOCIOS REALES EN PERÚ (1 CLIC)
 // ============================================================================
 const BUSINESS_PRESETS = {
-  food: {
+  sneakers: {
     config: {
-      name: "BurgerZap & Grill",
-      tagline: "Hamburguesas artesanales smash, alitas crujientes y papas rústicas 🍔🔥",
+      name: "Sneakers Lima Club",
+      tagline: "Zapatillas exclusivas 100% originales, streetwear y envíos a todo el Perú 👟🔥",
       phone: "51987654321",
       currency: "S/",
-      deliveryCost: 5.0,
-      deliveryTime: "25-35 min",
+      deliveryCost: 10.0,
+      deliveryTime: "24-48 hrs",
       isOpen: true,
-      logoUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80",
-      bannerUrl: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80",
+      logoUrl: "https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=300&q=80",
+      bannerUrl: "https://images.unsplash.com/photo-1556906781-9a412961c28c?auto=format&fit=crop&w=1200&q=80",
       googleSheetUrl: "",
       yapeEnabled: true,
       yapePhone: "987654321",
-      yapeName: "BurgerZap & Grill Administrador",
-      yapeQrUrl: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=500&q=80"
+      yapeName: "Sneakers Lima Club SAC",
+      yapeQrUrl: ""
     },
     products: [
       {
-        id: "p1",
-        sku: "HAM-01",
-        name: "Smash Burger Clásica",
-        category: "Hamburguesas",
-        price: 19.90,
-        desc: "150g carne angus smash, doble cheddar fundido, pepinillos dulces y salsa especial de la casa en pan brioche.",
-        img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80",
-        sizes: ["Normal", "Doble Medallón (+S/ 6)"],
-        colors: [],
-        promo: false,
-        available: true
-      },
-      {
-        id: "p2",
-        sku: "HAM-02",
-        name: "Monster Bacon BBQ",
-        category: "Hamburguesas",
-        price: 24.50,
-        desc: "Doble medallón smash (220g), abundante tocino ahumado en salsa BBQ, cebolla caramelizada y cheddar americano.",
-        img: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=500&q=80",
-        sizes: ["Normal", "Doble Medallón"],
-        colors: [],
+        id: "snk-01",
+        sku: "NK-DUNK-01",
+        name: "Nike Dunk Low Retro Panda",
+        category: "Urbano & Streetwear",
+        price: 489.00,
+        desc: "El ícono streetwear por excelencia. Cuero premium blanco y negro, suela de goma con tracción duradera y lengüeta acolchada.",
+        img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        sizes: ["38", "39", "40", "41", "42", "43 (+S/ 30)"],
+        colors: ["Black / White"],
         promo: true,
         available: true
       },
       {
-        id: "p3",
-        sku: "BOX-01",
-        name: "Combo Smash Dúo + Papas Familiares",
-        category: "Combos & Promos",
-        price: 42.00,
-        desc: "2 Smash Clásicas + porción gigante de papas rústicas con sal marina y 2 salsas a elección.",
-        img: "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?auto=format&fit=crop&w=500&q=80",
-        sizes: [],
-        colors: [],
+        id: "snk-02",
+        sku: "ADI-SAMBA-02",
+        name: "Adidas Samba OG Cloud White",
+        category: "Urbano & Streetwear",
+        price: 429.00,
+        desc: "Silueta clásica atemporal con puntera en T de gamuza, capellada de cuero suave y la mítica suela de goma caramelo.",
+        img: "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "",
+        sizes: ["38", "39", "40", "41", "42"],
+        colors: ["Cloud White / Core Black Gum"],
+        promo: false,
+        available: true
+      },
+      {
+        id: "snk-03",
+        sku: "NB-550-03",
+        name: "New Balance 550 White Grey",
+        category: "Edición Limitada",
+        price: 469.00,
+        desc: "Homenaje al básquetbol retro de los 80. Construcción en cuero microperforado de alta densidad y amortiguación EVA.",
+        img: "https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "",
+        sizes: ["39", "40", "41", "42 (+S/ 25)"],
+        colors: ["White / Grey Leather"],
         promo: true,
-        available: true
-      },
-      {
-        id: "p4",
-        sku: "SNK-01",
-        name: "Alitas Buffalo Hot (8 pcs)",
-        category: "Alitas & Snacks",
-        price: 22.00,
-        desc: "Alitas crocantes bañadas en salsa buffalo picante con apio fresco y dip de queso azul.",
-        img: "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=500&q=80",
-        sizes: ["8 piezas", "12 piezas (+S/ 6)"],
-        colors: [],
-        promo: false,
-        available: true
-      },
-      {
-        id: "p5",
-        sku: "BEB-01",
-        name: "Limonada Frozzen Hierbabuena (500ml)",
-        category: "Bebidas",
-        price: 8.50,
-        desc: "Refrescante limonada frappé con limones recién exprimidos y hojas de hierbabuena aromática.",
-        img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=500&q=80",
-        sizes: [],
-        colors: [],
-        promo: false,
         available: true
       }
     ]
   },
-
-  fashion: {
+  beauty: {
     config: {
-      name: "BellaZap Boutique & Moda",
-      tagline: "Tendencias exclusivas, vestidos de fiesta, blusas y calzado en tendencia ✨👗",
+      name: "Aroma & Glamour Perú",
+      tagline: "Perfumería fina de diseñador, decants originales y cosmética árabe ✨🇵🇪",
       phone: "51987654321",
       currency: "S/",
       deliveryCost: 8.0,
-      deliveryTime: "Envíos hoy mismo",
+      deliveryTime: "Envíos en 24h",
       isOpen: true,
-      logoUrl: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=300&q=80",
-      bannerUrl: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
+      logoUrl: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=300&q=80",
+      bannerUrl: "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=1200&q=80",
       googleSheetUrl: "",
       yapeEnabled: true,
       yapePhone: "987654321",
-      yapeName: "BellaZap Boutique Oficial",
-      yapeQrUrl: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=500&q=80"
+      yapeName: "Aroma & Glamour",
+      yapeQrUrl: ""
     },
     products: [
       {
-        id: "f1",
-        sku: "VES-101",
-        name: "Vestido Midi Seda Floral",
-        category: "Vestidos",
-        price: 79.90,
-        desc: "Vestido con escote en V, tirantes ajustables y caída elegante en satín de seda importado. Ideal para eventos.",
-        img: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=500&q=80",
-        sizes: ["S", "M", "L"],
-        colors: ["Palo Rosa", "Negro Elegante", "Blanco Marfil"],
+        id: "bea-01",
+        sku: "ARMAF-CDN-01",
+        name: "Club de Nuit Intense Man (Armaf)",
+        category: "Perfumes Árabes",
+        price: 75.00,
+        desc: "La bestia negra de la perfumería árabe. Salida cítrica ahumada de piña, abedul y pachulí de duración nuclear (+10 horas).",
+        img: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        sizes: ["Decant 10ml", "Frasco 105ml (+S/ 120)"],
+        colors: ["Amaderado Especiado Cítrico"],
         promo: true,
         available: true
       },
       {
-        id: "f2",
-        sku: "BLU-205",
-        name: "Blusa Crop Lino con Botones",
-        category: "Blusas & Tops",
-        price: 49.00,
-        desc: "Blusa fresca confeccionada en 100% lino orgánico con mangas abullonadas y botones de coco.",
-        img: "https://images.unsplash.com/photo-1534126511673-b6899657816a?auto=format&fit=crop&w=500&q=80",
-        sizes: ["XS", "S", "M", "L"],
-        colors: ["Beige Arena", "Verde Olivo", "Blanco"],
-        promo: false,
-        available: true
-      },
-      {
-        id: "f3",
-        sku: "PAN-310",
-        name: "Pantalón Wide Leg Denim Rígido",
-        category: "Pantalones & Jeans",
+        id: "bea-02",
+        sku: "YSL-LIB-02",
+        name: "YSL Libre Eau De Parfum",
+        category: "Perfumes Dama",
         price: 89.00,
-        desc: "Corte alto a la cintura, bota recta amplia y tela denim prémium que estiliza la figura.",
-        img: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=500&q=80",
-        sizes: ["26", "28", "30", "32"],
-        colors: ["Azul Clásico", "Celeste Claro", "Negro Lavado"],
+        desc: "Flor de lavanda francesa combinada con la sensualidad del azahar de Marruecos. Sofisticado, elegante y de alta proyección.",
+        img: "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "",
+        sizes: ["Decant 10ml", "Frasco 50ml (+S/ 260)", "Frasco 90ml (+S/ 380)"],
+        colors: ["Floral Lavanda Cálido"],
         promo: false,
         available: true
       },
       {
-        id: "f4",
-        sku: "CAL-402",
-        name: "Sandalias de Tacón Cuadrado Cuero",
-        category: "Calzado",
-        price: 110.00,
-        desc: "Tacón cómodo de 5cm, plantilla confort acolchada y tiras finas de cuero vegano antideslizante.",
-        img: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=500&q=80",
-        sizes: ["36", "37", "38", "39"],
-        colors: ["Nude", "Negro", "Dorado"],
+        id: "bea-03",
+        sku: "DIOR-SAU-03",
+        name: "Dior Sauvage Elixir",
+        category: "Perfumes Caballero",
+        price: 99.00,
+        desc: "Concentración extrema con notas de pomelo fresco, canela, nuez moscada y una rica base de lavanda nocturna y maderas.",
+        img: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "",
+        sizes: ["Decant 10ml", "Frasco 60ml (+S/ 360)"],
+        colors: ["Especiado Oriental Magnético"],
         promo: true,
         available: true
       }
     ]
   },
-
-  beauty: {
+  watches: {
     config: {
-      name: "GlowZap Cosméticos & Skincare",
-      tagline: "Maquillaje importado original, sérums coreanos y cuidado facial 💄✨",
+      name: "Cronos & Joyas Perú",
+      tagline: "Relojería de precisión, automáticos, smartwatches y joyería fina ⌚✨",
       phone: "51987654321",
       currency: "S/",
-      deliveryCost: 7.0,
-      deliveryTime: "Envíos en 24-48h",
+      deliveryCost: 10.0,
+      deliveryTime: "Envíos 24-48h",
       isOpen: true,
-      logoUrl: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=300&q=80",
-      bannerUrl: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1200&q=80",
+      logoUrl: "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=300&q=80",
+      bannerUrl: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80",
       googleSheetUrl: "",
       yapeEnabled: true,
       yapePhone: "987654321",
-      yapeName: "GlowZap Cosméticos",
-      yapeQrUrl: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=500&q=80"
+      yapeName: "Cronos Joyería Perú",
+      yapeQrUrl: ""
     },
     products: [
       {
-        id: "b1",
-        sku: "LIP-01",
-        name: "Labial Líquido Mate Indeleble 16h",
-        category: "Labios",
-        price: 35.00,
-        desc: "Color intenso que no transfiere ni reseca. Fórmula ultra ligera enriquecida con vitamina E.",
-        img: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=500&q=80",
-        sizes: [],
-        colors: ["01 Nude Rosado", "02 Rojo Pasión", "03 Cherry Velvet", "04 Terracota"],
+        id: "wat-01",
+        sku: "SEIKO-5-01",
+        name: "Seiko 5 Sports Automático SRPD",
+        category: "Relojes Automáticos",
+        price: 890.00,
+        desc: "Calibre 4R36 automático con 41 horas de reserva de marcha, fechador bilingüe, cristal Hardlex y resistencia al agua 100m.",
+        img: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        sizes: ["Caja 42.5mm"],
+        colors: ["Bisel Negro / Acero", "Bisel Azul / Jubilee (+S/ 40)"],
         promo: true,
         available: true
       },
       {
-        id: "b2",
-        sku: "SRM-05",
-        name: "Sérum Facial Ácido Hialurónico + B5",
-        category: "Skincare",
-        price: 65.00,
-        desc: "Hidratación profunda multicapa. Rellena líneas de expresión y deja un efecto glow radiante.",
-        img: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=500&q=80",
-        sizes: ["30ml", "60ml (+S/ 35)"],
-        colors: [],
+        id: "wat-02",
+        sku: "CASIO-A168-02",
+        name: "Casio Vintage Edición Oro Rosa",
+        category: "Relojes Deportivos",
+        price: 230.00,
+        desc: "El clásico digital retro con iluminación ElectroLuminescence, cronómetro 1/100s, alarma diaria y brazalete autoajustable.",
+        img: "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "",
+        sizes: ["Estándar Unisex 38mm"],
+        colors: ["Oro Rosa", "Dorado Clásico", "Plateado (-S/ 20)"],
         promo: false,
         available: true
       },
       {
-        id: "b3",
-        sku: "PAL-12",
-        name: "Paleta de Sombras Golden Sunset (18 tonos)",
-        category: "Ojos",
-        price: 85.00,
-        desc: "Tonos tierra, cobrizos y glitters prensados de alta pigmentación con textura aterciopelada.",
-        img: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=500&q=80",
-        sizes: [],
-        colors: [],
+        id: "wat-03",
+        sku: "SMW-PRO-03",
+        name: "Smartwatch AMOLED Serie Pro Ultra",
+        category: "Smartwatches",
+        price: 280.00,
+        desc: "Pantalla AMOLED 1.43 pulgadas Always-On, llamadas Bluetooth, monitoreo cardíaco/SpO2, resistencia IP68 y batería de 10 días.",
+        img: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "",
+        sizes: ["Caja 46mm Titanio"],
+        colors: ["Correa Cuero Café", "Correa Silicona Negra"],
         promo: true,
         available: true
       }
     ]
   },
-
+  fashion: {
+    config: {
+      name: "Urban Jeans & Moda",
+      tagline: "Pantalones cargo, jeans wide leg, casacas y outfits en tendencia 👖✨",
+      phone: "51987654321",
+      currency: "S/",
+      deliveryCost: 8.0,
+      deliveryTime: "Envíos en 24-48h",
+      isOpen: true,
+      logoUrl: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=300&q=80",
+      bannerUrl: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=80",
+      googleSheetUrl: "",
+      yapeEnabled: true,
+      yapePhone: "987654321",
+      yapeName: "Urban Moda Perú",
+      yapeQrUrl: ""
+    },
+    products: [
+      {
+        id: "fas-01",
+        sku: "CARGO-WL-01",
+        name: "Pantalón Cargo Wide Leg Baggy",
+        category: "Pantalones & Jeans",
+        price: 89.00,
+        desc: "Denim rígido 100% algodón de 12 oz, corte amplio ultra holgado con 6 bolsillos utilitarios y cordón ajustable en tobillos.",
+        img: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        sizes: ["28", "30", "32", "34"],
+        colors: ["Negro Washed", "Beige Safari", "Verde Militar"],
+        promo: true,
+        available: true
+      },
+      {
+        id: "fas-02",
+        sku: "CSK-DNM-02",
+        name: "Casaca Oversize Denim Vintage",
+        category: "Casacas",
+        price: 129.00,
+        desc: "Casaca jean estilo retro años 90 con forro interno suave, botones metálicos grabados y lavado artesanal con efecto desgastado.",
+        img: "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "",
+        sizes: ["S", "M", "L", "XL (+S/ 10)"],
+        colors: ["Azul Celeste Vintage", "Negro Gastado"],
+        promo: false,
+        available: true
+      },
+      {
+        id: "fas-03",
+        sku: "POL-HW-03",
+        name: "Polo Heavyweight 240g Streetwear",
+        category: "Polos & Poleras",
+        price: 59.00,
+        desc: "Algodón tangüis peinado pesado 240g, cuello cerrado acanalado de 3cm que no se deforma y corte boxy fit relajado.",
+        img: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "",
+        sizes: ["S", "M", "L", "XL"],
+        colors: ["Blanco Puro", "Negro Onyx", "Gris Melange"],
+        promo: true,
+        available: true
+      }
+    ]
+  },
+  food: {
+    config: {
+      name: "Dulce & Pasión Repostería",
+      tagline: "Tortas artesanales, postres en vaso y boxes temáticos para regalar 🍰🧁",
+      phone: "51987654321",
+      currency: "S/",
+      deliveryCost: 6.0,
+      deliveryTime: "30-45 min",
+      isOpen: true,
+      logoUrl: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=300&q=80",
+      bannerUrl: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=80",
+      googleSheetUrl: "",
+      yapeEnabled: true,
+      yapePhone: "987654321",
+      yapeName: "Dulce Pasión Repostería",
+      yapeQrUrl: ""
+    },
+    products: [
+      {
+        id: "foo-01",
+        sku: "TRL-01",
+        name: "Torta Tres Leches Clásica",
+        category: "Postres & Tortas",
+        price: 22.00,
+        desc: "Bizcochuelo súper esponjoso bañado en nuestra mezcla secreta de 3 leches, canela fina y merengue tostado al soplete.",
+        img: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        sizes: ["Porción Personal", "Molde 8 Porciones (+S/ 38)", "Molde 16 Porciones (+S/ 65)"],
+        colors: ["Canela & Vainilla", "Fudge Artesanal (+S/ 5)"],
+        promo: true,
+        available: true
+      },
+      {
+        id: "foo-02",
+        sku: "BOX-CUP-02",
+        name: "Caja Box de 6 Cupcakes Gourmet",
+        category: "Boxes de Regalo",
+        price: 35.00,
+        desc: "Caja decorada con cinta de regalo. Sabores variados: Red Velvet con frosting de queso crema, Chocolate fudge y Zanahoria nuez.",
+        img: "https://images.unsplash.com/photo-1587668178277-295251f900ce?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "",
+        sizes: ["Box 6 Uds", "Box 12 Uds (+S/ 28)"],
+        colors: ["Surtido Gourmet", "Full Chocolate Fudge"],
+        promo: true,
+        available: true
+      },
+      {
+        id: "foo-03",
+        sku: "HAM-01",
+        name: "Smash Burger Monster Doble Queso",
+        category: "Hamburguesas & Alitas",
+        price: 24.50,
+        desc: "Doble medallón smash (200g) en pan brioche artesanal, doble queso cheddar fundido, tocino crocante y salsa ahumada de la casa.",
+        img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "",
+        sizes: ["Normal", "Doble Medallón (+S/ 6)"],
+        colors: ["Papas Rústicas", "Papas Nativas (+S/ 3)"],
+        promo: false,
+        available: true
+      }
+    ]
+  },
   tech: {
     config: {
-      name: "ZapTech & Licencias",
-      tagline: "Software original, licencias digitales garantizadas y accesorios tech 💻⚡",
+      name: "Licencias & Tech Perú",
+      tagline: "Software original, licencias digitales garantizadas y gadgets tech 💻⚡",
       phone: "51987654321",
       currency: "S/",
       deliveryCost: 0.0,
       deliveryTime: "Entrega Inmediata",
       isOpen: true,
-      logoUrl: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=300&q=80",
-      bannerUrl: "https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=1200&q=80",
+      logoUrl: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=300&q=80",
+      bannerUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80",
       googleSheetUrl: "",
       yapeEnabled: true,
       yapePhone: "987654321",
-      yapeName: "ZapTech Oficial",
-      yapeQrUrl: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=500&q=80"
+      yapeName: "Licencias Digitales Perú",
+      yapeQrUrl: ""
     },
     products: [
       {
-        id: "t1",
-        sku: "SOFT-01",
-        name: "Licencia Windows 11 Pro (Digital)",
-        category: "Software & Licencias",
-        price: 39.00,
-        desc: "Licencia digital 100% original con clave de 25 dígitos para 1 PC. Activación permanente en línea y soporte oficial.",
-        img: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=500&q=80",
-        sizes: ["1 PC Permanente", "3 PCs Hogar (+S/ 30)"],
-        colors: ["Entrega Inmediata WhatsApp", "Envío a Correo"],
-        promo: true,
-        available: true
-      },
-      {
-        id: "t2",
-        sku: "SOFT-02",
-        name: "Microsoft 365 Pro Plus (Anual)",
+        id: "tec-01",
+        sku: "WIN-11-PRO",
+        name: "Licencia Windows 11 Pro 64-bit Retail",
         category: "Software & Licencias",
         price: 49.00,
-        desc: "Word, Excel, PowerPoint y 1TB en OneDrive. Compatible con Windows, Mac, Android y iOS.",
-        img: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=500&q=80",
-        sizes: ["1 Año (5 Dispositivos)"],
-        colors: ["Activación Directa"],
+        desc: "Clave de producto original 25 caracteres para activación permanente. Soporta reinstalación y actualizaciones oficiales de por vida.",
+        img: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        sizes: ["1 PC", "3 PCs Hogar (+S/ 30)", "5 PCs Empresa (+S/ 60)"],
+        colors: ["Activación Digital Inmediata"],
         promo: true,
         available: true
       },
       {
-        id: "t3",
-        sku: "AUD-80",
-        name: "Audífonos Bluetooth Pro ANC",
-        category: "Audio & Gadgets",
-        price: 119.00,
-        desc: "Sonido Hi-Res con cancelación activa de ruido, micrófono dual y hasta 28h de batería con estuche.",
-        img: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=500&q=80",
-        sizes: [],
-        colors: ["Blanco Puro", "Negro Titanio", "Azul Noche"],
+        id: "tec-02",
+        sku: "M365-FAM",
+        name: "Microsoft 365 Familia Anual (6 Usuarios)",
+        category: "Suscripciones Digitales",
+        price: 159.00,
+        desc: "Word, Excel, PowerPoint, Outlook y 1TB en OneDrive por cada usuario (6TB total). Activación oficial vinculada a tu cuenta personal.",
+        img: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "",
+        sizes: ["Suscripción 1 Año", "Suscripción 2 Años (+S/ 130)"],
+        colors: ["Activación a tu correo"],
         promo: false,
+        available: true
+      },
+      {
+        id: "tec-03",
+        sku: "EAR-ANC-01",
+        name: "Audífonos Bluetooth Noise Cancelling Pro",
+        category: "Audio & Gadgets",
+        price: 189.00,
+        desc: "Cancelación activa de ruido (ANC) híbrida -35dB, transductores de 40mm con graves profundos y autonomía de 30 horas con estuche.",
+        img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "",
+        sizes: ["Edición Estándar"],
+        colors: ["Negro Mate", "Blanco Glaciar"],
+        promo: true,
         available: true
       }
     ]
   },
-
   general: {
     config: {
-      name: "Mi Tienda Express",
-      tagline: "Variedad de artículos, novedades y envíos directos por WhatsApp 🛍️",
+      name: "MegaTienda Express Perú",
+      tagline: "Tus productos favoritos en tendencia con envíos directos y pago contraentrega o Yape 🛍️✨",
       phone: "51987654321",
       currency: "S/",
-      deliveryCost: 6.0,
-      deliveryTime: "Envíos hoy",
+      deliveryCost: 7.0,
+      deliveryTime: "Envíos hoy mismo",
       isOpen: true,
       logoUrl: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=300&q=80",
-      bannerUrl: "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1200&q=80",
+      bannerUrl: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
       googleSheetUrl: "",
       yapeEnabled: true,
       yapePhone: "987654321",
-      yapeName: "Mi Tienda Express",
-      yapeQrUrl: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=500&q=80"
+      yapeName: "MegaTienda Express",
+      yapeQrUrl: ""
     },
     products: [
       {
-        id: "g1",
-        sku: "GEN-01",
-        name: "Lámpara LED Minimalista Recargable",
-        category: "Hogar & Novedades",
+        id: "gen-01",
+        sku: "LMP-01",
+        name: "Lámpara Proyector LED Sunset Golden Hour",
+        category: "Más Vendidos",
         price: 45.00,
-        desc: "Lámpara táctil con 3 niveles de brillo, luz cálida y batería de 12 horas.",
+        desc: "Crea ambientes cálidos estilo TikTok / Instagram. Cabezal giratorio 180° de aluminio y lente de cristal óptico de alta transmisión.",
         img: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=500&q=80",
-        sizes: [],
-        colors: ["Blanco", "Negro", "Madera"],
+        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        sizes: ["Estándar USB"],
+        colors: ["Sunset Red", "Rainbow Prism"],
+        promo: true,
+        available: true
+      },
+      {
+        id: "gen-02",
+        sku: "ORG-02",
+        name: "Organizador Multifuncional Plegable 3 Niveles",
+        category: "Hogar & Varios",
+        price: 65.00,
+        desc: "Estructura de acero al carbono con ruedas 360° silenciosas. Soporta hasta 45kg y se pliega en 5 segundos sin herramientas.",
+        img: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "",
+        sizes: ["3 Niveles", "5 Niveles (+S/ 25)"],
+        colors: ["Blanco Nórdico", "Negro Mate"],
+        promo: false,
+        available: true
+      },
+      {
+        id: "gen-03",
+        sku: "BOT-03",
+        name: "Botella Térmica 1L Doble Pared Frío/Calor",
+        category: "Accesorios",
+        price: 39.00,
+        desc: "Acero inoxidable 304 libre de BPA. Mantiene agua helada por 24 horas y bebidas calientes por 12 horas. Tapa hermética antiderrame.",
+        img: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=500&q=80",
+        videoUrl: "",
+        sizes: ["750 ml", "1000 ml (+S/ 8)"],
+        colors: ["Negro Grafito", "Azul Océano", "Rosa Pastel"],
         promo: true,
         available: true
       }
     ]
   }
 };
+
 // ============================================================================
 // 1.1 CONFIGURACIÓN DE RUBROS & CATEGORÍAS ESTILO WHATSAPP BUSINESS
 // ============================================================================
 const NICHE_DATA = {
-  tech: {
-    key: "tech",
-    label: "Tecnología, Software & Licencias",
-    tagline: "Software original, licencias digitales garantizadas y accesorios tech 💻⚡",
-    suggestedCategories: ["Software & Licencias", "Suscripciones Digitales", "Antivirus & Seguridad", "Audio & Gadgets", "Accesorios"],
-    defaultDeliveryTime: "Entrega Inmediata",
-    defaultDeliveryCost: 0.0,
-    isDigitalFriendly: true,
+  sneakers: {
+    key: "sneakers",
+    label: "Zapatillas & Calzado",
+    tagline: "Zapatillas exclusivas 100% originales, streetwear y envíos a todo el Perú 👟🔥",
+    suggestedCategories: ["Urbano & Streetwear", "Deportivas & Running", "Edición Limitada", "Botines & Casual"],
+    variantLabels: {
+      size: "Talla (EUR / US)",
+      color: "Color / Modelo"
+    },
+    defaultDeliveryTime: "Envíos en 24-48h",
+    defaultDeliveryCost: 10.0,
+    isDigitalFriendly: false,
     hasDineIn: false,
     pills: {
-      time: "⚡ Entrega Inmediata",
-      cost: "💻 Envío Digital Gratis"
+      time: "📦 Envíos 24-48h",
+      cost: "🛵 Delivery Lima y Provincias"
     }
   },
-  food: {
-    key: "food",
-    label: "Gastronomía & Restaurante",
-    tagline: "Hamburguesas artesanales smash, alitas crujientes y papas rústicas 🍔🔥",
-    suggestedCategories: ["Hamburguesas", "Combos & Promos", "Alitas & Snacks", "Bebidas", "Postres"],
-    defaultDeliveryTime: "25-35 min",
-    defaultDeliveryCost: 5.0,
+  beauty: {
+    key: "beauty",
+    label: "Perfumes & Belleza",
+    tagline: "Perfumería fina de diseñador, decants originales y cosmética árabe ✨🇵🇪",
+    suggestedCategories: ["Perfumes Dama", "Perfumes Caballero", "Perfumes Árabes", "Decants (5ml / 10ml)", "Skincare & Maquillaje"],
+    variantLabels: {
+      size: "Presentación / Mililitros",
+      color: "Aroma / Familia"
+    },
+    defaultDeliveryTime: "Envíos en 24h",
+    defaultDeliveryCost: 8.0,
     isDigitalFriendly: false,
-    hasDineIn: true,
+    hasDineIn: false,
     pills: {
-      time: "⏱️ 25-35 min",
-      cost: "🛵 Delivery S/ 5.00"
+      time: "✨ Envíos en 24h",
+      cost: "🛵 Delivery Seguro"
+    }
+  },
+  watches: {
+    key: "watches",
+    label: "Relojes, Joyas & Accesorios",
+    tagline: "Relojería de precisión, automáticos, smartwatches y joyería fina ⌚✨",
+    suggestedCategories: ["Relojes Automáticos", "Relojes Deportivos", "Smartwatches", "Cadenas & Pulseras", "Lentes de Sol"],
+    variantLabels: {
+      size: "Modelo / Tamaño de Caja",
+      color: "Color / Correa"
+    },
+    defaultDeliveryTime: "Envíos en 24-48h",
+    defaultDeliveryCost: 10.0,
+    isDigitalFriendly: false,
+    hasDineIn: false,
+    pills: {
+      time: "⏱️ Envíos 24-48h",
+      cost: "💎 Envío Asegurado"
     }
   },
   fashion: {
     key: "fashion",
-    label: "Moda & Calzado",
-    tagline: "Tendencias exclusivas, vestidos de fiesta, blusas y calzado en tendencia ✨👗",
-    suggestedCategories: ["Vestidos", "Blusas & Tops", "Pantalones & Jeans", "Calzado", "Accesorios"],
+    label: "Ropa, Pantalones & Moda",
+    tagline: "Pantalones cargo, jeans wide leg, casacas y outfits en tendencia 👖✨",
+    suggestedCategories: ["Pantalones & Jeans", "Polos & Poleras", "Vestidos & Conjuntos", "Casacas", "Ofertas"],
+    variantLabels: {
+      size: "Talla (S, M, L o 28, 30, 32)",
+      color: "Color / Tela"
+    },
     defaultDeliveryTime: "Envíos en 24-48h",
     defaultDeliveryCost: 8.0,
     isDigitalFriendly: false,
@@ -381,32 +610,58 @@ const NICHE_DATA = {
       cost: "🛵 Envíos a todo el país"
     }
   },
-  beauty: {
-    key: "beauty",
-    label: "Belleza & Cosmética",
-    tagline: "Maquillaje importado original, sérums coreanos y cuidado facial 💄✨",
-    suggestedCategories: ["Skincare", "Labios", "Ojos & Paletas", "Perfumería", "Cuidado Capilar"],
-    defaultDeliveryTime: "Envíos en 24-48h",
-    defaultDeliveryCost: 7.0,
+  food: {
+    key: "food",
+    label: "Postres, Tortas & Comida",
+    tagline: "Tortas artesanales, postres en vaso y boxes temáticos para regalar 🍰🧁",
+    suggestedCategories: ["Postres & Tortas", "Boxes de Regalo", "Hamburguesas & Alitas", "Bebidas", "Combos"],
+    variantLabels: {
+      size: "Tamaño / Porciones",
+      color: "Sabor / Relleno"
+    },
+    defaultDeliveryTime: "30-45 min",
+    defaultDeliveryCost: 6.0,
     isDigitalFriendly: false,
+    hasDineIn: true,
+    pills: {
+      time: "⏱️ 30-45 min",
+      cost: "🛵 Delivery Directo"
+    }
+  },
+  tech: {
+    key: "tech",
+    label: "Tecnología & Gadgets",
+    tagline: "Software original, licencias digitales garantizadas y gadgets tech 💻⚡",
+    suggestedCategories: ["Software & Licencias", "Suscripciones Digitales", "Audio & Gadgets", "Accesorios", "Cables & Cargas"],
+    variantLabels: {
+      size: "Variantes / Licencia",
+      color: "Color / Tipo"
+    },
+    defaultDeliveryTime: "Entrega Inmediata",
+    defaultDeliveryCost: 0.0,
+    isDigitalFriendly: true,
     hasDineIn: false,
     pills: {
-      time: "✨ Envíos 24-48h",
-      cost: "📦 Envíos a todo el país"
+      time: "⚡ Entrega Inmediata",
+      cost: "💻 Envío Digital Gratis"
     }
   },
   general: {
     key: "general",
-    label: "Tienda General",
-    tagline: "Tus productos favoritos con envíos rápidos y atención directa por WhatsApp 🛍️",
-    suggestedCategories: ["Destacados", "Ofertas", "Nuevos Ingresos", "Hogar", "Varios"],
-    defaultDeliveryTime: "Envíos hoy",
-    defaultDeliveryCost: 6.0,
+    label: "Tienda General / Todo Rubro",
+    tagline: "Tus productos favoritos en tendencia con envíos directos y pago contraentrega o Yape 🛍️✨",
+    suggestedCategories: ["Más Vendidos", "Nuevos Ingresos", "Promociones", "Hogar & Varios", "Accesorios"],
+    variantLabels: {
+      size: "Variantes / Opciones",
+      color: "Color / Modelo"
+    },
+    defaultDeliveryTime: "Envíos hoy mismo",
+    defaultDeliveryCost: 7.0,
     isDigitalFriendly: false,
     hasDineIn: false,
     pills: {
-      time: "⏱️ Envíos hoy",
-      cost: "🛵 Delivery disponible"
+      time: "⏱️ Envíos hoy mismo",
+      cost: "🛵 Delivery Disponible"
     }
   }
 };
@@ -415,9 +670,9 @@ const NICHE_DATA = {
 // 2. ESTADO GLOBAL REACTIVO (APPSTATE)
 // ============================================================================
 const AppState = {
-  activePreset: "food",
-  shopConfig: { ...BUSINESS_PRESETS.food.config },
-  products: [...BUSINESS_PRESETS.food.products],
+  activePreset: "sneakers",
+  shopConfig: { ...BUSINESS_PRESETS.sneakers.config },
+  products: [...BUSINESS_PRESETS.sneakers.products],
   categories: [], // Entidad de primer nivel: { id, name, icon }
   cart: {}, // { [cartKey]: { product, quantity, note, selectedSize, selectedColor } }
   
@@ -536,11 +791,67 @@ const AppState = {
         if (addrInp) addrInp.value = client.address || "";
       }
 
-      // 3. Determinar el modo inicial según usuario
+      // 3. Cargar catálogo comprimido LZ-String o Google Sheets si viene en URL
+      const cParam = urlParams.get("c");
+      if (cParam && typeof LZString !== "undefined") {
+        try {
+          const jsonStr = LZString.decompressFromEncodedURIComponent(cParam);
+          if (jsonStr) {
+            const data = JSON.parse(jsonStr);
+            if (data && data.cfg) {
+              this.shopConfig = {
+                name: data.cfg.n || "Tienda Online",
+                tagline: data.cfg.t || "",
+                phone: data.cfg.p || "",
+                currency: data.cfg.c || "S/",
+                deliveryCost: Number(data.cfg.dc ?? 0),
+                deliveryTime: data.cfg.dt || "24-48h",
+                isOpen: data.cfg.io !== false,
+                logoUrl: data.cfg.l || "",
+                bannerUrl: data.cfg.b || "",
+                yapePhone: data.cfg.yp || "",
+                yapeName: data.cfg.yn || "",
+                yapeQrUrl: data.cfg.yq || "",
+                yapeEnabled: !!data.cfg.ye,
+                googleSheetUrl: ""
+              };
+              if (data.cfg.np && BUSINESS_PRESETS[data.cfg.np]) this.activePreset = data.cfg.np;
+              if (Array.isArray(data.cats)) this.categories = data.cats;
+              if (Array.isArray(data.prods)) {
+                this.products = data.prods.map(p => ({
+                  id: p.id || ("p_" + Math.random().toString(36).substr(2, 6)),
+                  sku: p.sku || "",
+                  name: p.n || "Producto",
+                  category: p.cat || "General",
+                  price: Number(p.pr || 0),
+                  desc: p.d || "",
+                  img: p.img || "",
+                  videoUrl: p.vid || "",
+                  sizes: p.sz || [],
+                  colors: p.co || [],
+                  promo: !!p.pro,
+                  available: true
+                }));
+              }
+              this.isCustomerOnlyMode = true;
+            }
+          }
+        } catch (err) {
+          console.warn("Error desempaquetando catalogo c=:", err);
+        }
+      }
+
+      const sheetParam = urlParams.get("sheet");
+      if (sheetParam) {
+        this.shopConfig.googleSheetUrl = sheetParam;
+        this.isCustomerOnlyMode = true;
+      }
+
+      // 4. Determinar el modo inicial según usuario
       const prodParam = urlParams.get("p");
       const modeParam = urlParams.get("mode");
 
-      if (prodParam || modeParam === "shop" || mesaParam) {
+      if (prodParam || modeParam === "shop" || mesaParam || cParam || sheetParam) {
         // MODO USUARIO FINAL (El comprador que ve el catálogo, compra y paga)
         this.isCustomerOnlyMode = true;
         ViewController.showCustomerPreview();
@@ -1227,6 +1538,7 @@ const OnboardingWizard = {
       const prodName = document.getElementById("apple-prod-name")?.value.trim();
       const prodPrice = parseFloat(document.getElementById("apple-prod-price")?.value);
       const prodCat = document.getElementById("apple-prod-cat")?.value.trim();
+      const prodVideo = document.getElementById("apple-prod-video")?.value.trim();
       const previewImg = document.getElementById("apple-prod-img");
 
       if (prodName && !isNaN(prodPrice)) {
@@ -1245,6 +1557,7 @@ const OnboardingWizard = {
           sizes: [],
           colors: [],
           img: prodImg,
+          videoUrl: prodVideo || "",
           promo: true,
           available: true
         };
@@ -1327,7 +1640,7 @@ const OnboardingWizard = {
         "apple-reg-name", "apple-reg-contact", "apple-reg-pin",
         "apple-store-name", "apple-store-tagline", "apple-store-phone",
         "apple-yape-phone", "apple-yape-titular",
-        "apple-prod-name", "apple-prod-price", "apple-prod-cat"
+        "apple-prod-name", "apple-prod-price", "apple-prod-cat", "apple-prod-video"
       ];
       inputs.forEach(id => {
         const el = document.getElementById(id);
@@ -1386,6 +1699,19 @@ const YapeQRZoom = {
 // ============================================================================
 const StudioController = {
   currentProductPhoto: "",
+  currentProductVideo: "",
+
+  updateVariantInputLabels() {
+    const nicheInfo = NICHE_DATA[AppState.activePreset] || NICHE_DATA.general;
+    const sizesLabel = document.getElementById("editor-sizes-label");
+    const colorsLabel = document.getElementById("editor-colors-label");
+    if (sizesLabel && nicheInfo.variantLabels?.size) {
+      sizesLabel.textContent = `${nicheInfo.variantLabels.size} (separadas por coma)`;
+    }
+    if (colorsLabel && nicheInfo.variantLabels?.color) {
+      colorsLabel.textContent = `${nicheInfo.variantLabels.color} (opcional)`;
+    }
+  },
 
   renderAll() {
     this.renderVisualCard();
@@ -1393,6 +1719,7 @@ const StudioController = {
     this.renderCategoryFilters();
     this.renderProductsList();
     this.populateSettingsTab();
+    this.updateVariantInputLabels();
   },
 
   renderTopStatus() {
@@ -1919,6 +2246,15 @@ const StudioController = {
     document.getElementById("editor-available-check").checked = true;
     document.getElementById("editor-promo-check").checked = false;
     this.currentProductPhoto = "";
+    this.currentProductVideo = "";
+
+    const videoUrlInput = document.getElementById("editor-video-url-input");
+    if (videoUrlInput) videoUrlInput.value = "";
+    const videoPreviewWrap = document.getElementById("editor-video-preview-wrap");
+    if (videoPreviewWrap) videoPreviewWrap.classList.add("hidden");
+    const videoPreview = document.getElementById("editor-video-preview");
+    if (videoPreview) { videoPreview.pause(); videoPreview.src = ""; }
+    this.updateVariantInputLabels();
 
     const previewImg = document.getElementById("editor-photo-preview");
     const placeholder = document.getElementById("editor-photo-placeholder");
@@ -1958,6 +2294,26 @@ const StudioController = {
     document.getElementById("editor-promo-check").checked = !!p.promo;
 
     this.currentProductPhoto = p.img || "";
+    this.currentProductVideo = p.videoUrl || "";
+
+    const videoUrlInput = document.getElementById("editor-video-url-input");
+    const videoPreviewWrap = document.getElementById("editor-video-preview-wrap");
+    const videoPreview = document.getElementById("editor-video-preview");
+
+    if (videoUrlInput) videoUrlInput.value = p.videoUrl || "";
+    if (p.videoUrl && videoPreviewWrap && videoPreview) {
+      if (p.videoUrl.endsWith(".mp4") || p.videoUrl.endsWith(".webm") || p.videoUrl.startsWith("blob:") || p.videoUrl.startsWith("data:")) {
+        videoPreview.src = p.videoUrl;
+        videoPreview.classList.remove("hidden");
+      } else {
+        videoPreview.classList.add("hidden");
+      }
+      videoPreviewWrap.classList.remove("hidden");
+    } else if (videoPreviewWrap) {
+      videoPreviewWrap.classList.add("hidden");
+    }
+
+    this.updateVariantInputLabels();
 
     const previewImg = document.getElementById("editor-photo-preview");
     const placeholder = document.getElementById("editor-photo-placeholder");
@@ -2007,6 +2363,70 @@ const StudioController = {
     }
   },
 
+  async handleProductVideoUpload(file) {
+    if (!file) return;
+    if (file.size > 30 * 1024 * 1024) {
+      alert("El video supera los 30MB para almacenamiento local. Te sugerimos recortar el clip o pegar el enlace directo de Reels/TikTok/YouTube.");
+      return;
+    }
+    try {
+      Toast.show("Guardando clip de video...", "🎥");
+      const key = "vid_" + Date.now();
+      await MediaStore.saveMedia(key, file);
+      const localUrl = URL.createObjectURL(file);
+      this.currentProductVideo = localUrl;
+
+      const previewWrap = document.getElementById("editor-video-preview-wrap");
+      const previewVideo = document.getElementById("editor-video-preview");
+      const urlInput = document.getElementById("editor-video-url-input");
+
+      if (previewVideo) {
+        previewVideo.src = localUrl;
+        previewVideo.classList.remove("hidden");
+      }
+      if (previewWrap) previewWrap.classList.remove("hidden");
+      if (urlInput) urlInput.value = "";
+
+      Toast.show("¡Video guardado en tu celular!", "✅");
+    } catch (err) {
+      alert("Error al cargar video: " + err.message);
+    }
+  },
+
+  handleProductVideoUrlChange(url) {
+    this.currentProductVideo = url.trim();
+    const previewWrap = document.getElementById("editor-video-preview-wrap");
+    const previewVideo = document.getElementById("editor-video-preview");
+    if (this.currentProductVideo && previewWrap && previewVideo) {
+      if (this.currentProductVideo.endsWith(".mp4") || this.currentProductVideo.endsWith(".webm") || this.currentProductVideo.startsWith("blob:") || this.currentProductVideo.startsWith("data:")) {
+        previewVideo.src = this.currentProductVideo;
+        previewVideo.classList.remove("hidden");
+      } else {
+        previewVideo.classList.add("hidden");
+      }
+      previewWrap.classList.remove("hidden");
+    } else if (previewWrap) {
+      previewWrap.classList.add("hidden");
+    }
+  },
+
+  removeProductVideo() {
+    this.currentProductVideo = "";
+    const videoUrlInput = document.getElementById("editor-video-url-input");
+    const videoFileInput = document.getElementById("editor-video-file-input");
+    const previewWrap = document.getElementById("editor-video-preview-wrap");
+    const previewVideo = document.getElementById("editor-video-preview");
+
+    if (videoUrlInput) videoUrlInput.value = "";
+    if (videoFileInput) videoFileInput.value = "";
+    if (previewVideo) {
+      previewVideo.pause();
+      previewVideo.src = "";
+    }
+    if (previewWrap) previewWrap.classList.add("hidden");
+    Toast.show("Video removido", "ℹ️");
+  },
+
   saveProduct(e) {
     e.preventDefault();
     const id = document.getElementById("editor-product-id").value;
@@ -2040,19 +2460,22 @@ const StudioController = {
     const sizes = sizesStr ? sizesStr.split(",").map(s => s.trim()).filter(Boolean) : [];
     const colors = colorsStr ? colorsStr.split(",").map(c => c.trim()).filter(Boolean) : [];
 
+    const videoUrlInput = document.getElementById("editor-video-url-input");
+    const videoUrl = this.currentProductVideo || (videoUrlInput ? videoUrlInput.value.trim() : "");
+
     if (id) {
       const idx = AppState.products.findIndex(p => p.id === id);
       if (idx !== -1) {
         AppState.products[idx] = {
           ...AppState.products[idx],
-          name, price, category, sku, desc, sizes, colors, img, promo, available
+          name, price, category, sku, desc, sizes, colors, img, videoUrl, promo, available
         };
       }
     } else {
       const newProd = {
         id: "p_" + Date.now(),
         sku: sku || `COD-${AppState.products.length + 1}`,
-        name, price, category, desc, sizes, colors, img, promo, available
+        name, price, category, sku, desc, sizes, colors, img, videoUrl, promo, available
       };
       AppState.products.unshift(newProd);
     }
@@ -2338,6 +2761,11 @@ const CustomerUI = {
     const found = (AppState.categories || []).find(c => c.name.toLowerCase() === catName.toLowerCase());
     if (found && found.icon) return found.icon;
     const c = catName.toLowerCase();
+    if (c.includes("zapatilla") || c.includes("sneaker") || c.includes("running") || c.includes("calzado")) return "👟";
+    if (c.includes("perfume") || c.includes("decant") || c.includes("aroma") || c.includes("fragancia")) return "✨";
+    if (c.includes("reloj") || c.includes("crono") || c.includes("watch") || c.includes("joya")) return "⌚";
+    if (c.includes("pantalon") || c.includes("jean") || c.includes("cargo") || c.includes("ropa")) return "👖";
+    if (c.includes("postre") || c.includes("torta") || c.includes("dulce") || c.includes("cake")) return "🍰";
     if (c.includes("hamburguesa") || c.includes("burger")) return "🍔";
     if (c.includes("combo") || c.includes("promo")) return "⭐";
     if (c.includes("alita") || c.includes("snack") || c.includes("pollo")) return "🍗";
@@ -2468,6 +2896,7 @@ const CustomerUI = {
                   <div class="product-img-wrapper" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')">
                     <img src="${p.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80'}" 
                          alt="${escapeHtml(p.name)}" class="product-card-img" loading="lazy">
+                    ${p.videoUrl ? `<span class="badge-video-flag">🎥 Video</span>` : ""}
                     ${p.promo ? `<span class="badge-promo-flag">PROMO</span>` : ""}
                     ${!isAvailable ? `<span class="badge-out-of-stock">AGOTADO</span>` : ""}
                   </div>
@@ -2568,6 +2997,58 @@ const CustomerUI = {
     if (qtyValEl) qtyValEl.textContent = AppState.modalQuantity;
     if (noteInput) noteInput.value = "";
 
+    // Adaptar etiquetas dinámicas de variantes según rubro
+    const nicheInfo = NICHE_DATA[AppState.activePreset] || NICHE_DATA.general;
+    const sizesLabelEl = document.getElementById("detail-sizes-label");
+    const colorsLabelEl = document.getElementById("detail-colors-label");
+    if (sizesLabelEl && nicheInfo.variantLabels?.size) {
+      sizesLabelEl.textContent = `Elige tu ${nicheInfo.variantLabels.size}:`;
+    }
+    if (colorsLabelEl && nicheInfo.variantLabels?.color) {
+      colorsLabelEl.textContent = `Elige tu ${nicheInfo.variantLabels.color}:`;
+    }
+
+    // Configurar Conmutador Foto / Video
+    const switcher = document.getElementById("detail-media-switcher");
+    const photoBtn = document.getElementById("detail-switch-photo-btn");
+    const videoBtn = document.getElementById("detail-switch-video-btn");
+    const photoWrap = document.getElementById("detail-photo-wrap");
+    const videoWrap = document.getElementById("detail-video-wrap");
+
+    CustomerUI.resetModalVideo();
+
+    if (product.videoUrl) {
+      if (switcher) switcher.classList.remove("hidden");
+      if (photoBtn) photoBtn.classList.add("active");
+      if (videoBtn) videoBtn.classList.remove("active");
+      if (photoWrap) photoWrap.classList.remove("hidden");
+      if (videoWrap) videoWrap.classList.add("hidden");
+
+      if (photoBtn) {
+        photoBtn.onclick = () => {
+          photoBtn.classList.add("active");
+          if (videoBtn) videoBtn.classList.remove("active");
+          if (photoWrap) photoWrap.classList.remove("hidden");
+          if (videoWrap) videoWrap.classList.add("hidden");
+          CustomerUI.resetModalVideo();
+        };
+      }
+
+      if (videoBtn) {
+        videoBtn.onclick = () => {
+          videoBtn.classList.add("active");
+          if (photoBtn) photoBtn.classList.remove("active");
+          if (photoWrap) photoWrap.classList.add("hidden");
+          if (videoWrap) videoWrap.classList.remove("hidden");
+          CustomerUI.renderModalVideo(product.videoUrl);
+        };
+      }
+    } else {
+      if (switcher) switcher.classList.add("hidden");
+      if (photoWrap) photoWrap.classList.remove("hidden");
+      if (videoWrap) videoWrap.classList.add("hidden");
+    }
+
     // Selector de tallas
     if (product.sizes && product.sizes.length > 0 && sizesGroup && sizesRow) {
       sizesGroup.classList.remove("hidden");
@@ -2642,7 +3123,64 @@ const CustomerUI = {
   closeProductModal() {
     const modal = document.getElementById("product-detail-modal");
     if (modal) modal.classList.add("hidden");
+    CustomerUI.resetModalVideo();
     AppState.selectedProductModal = null;
+  },
+
+  resetModalVideo() {
+    const videoEl = document.getElementById("detail-product-video");
+    const embedEl = document.getElementById("detail-video-embed");
+    const actionEl = document.getElementById("detail-video-action");
+    if (videoEl) {
+      videoEl.pause();
+      videoEl.src = "";
+      videoEl.classList.add("hidden");
+    }
+    if (embedEl) {
+      embedEl.innerHTML = "";
+      embedEl.classList.add("hidden");
+    }
+    if (actionEl) actionEl.classList.add("hidden");
+  },
+
+  renderModalVideo(url) {
+    this.resetModalVideo();
+    if (!url) return;
+
+    const videoEl = document.getElementById("detail-product-video");
+    const embedEl = document.getElementById("detail-video-embed");
+    const actionEl = document.getElementById("detail-video-action");
+    const extBtn = document.getElementById("detail-video-ext-btn");
+
+    const cleanUrl = url.trim();
+
+    // YouTube Shorts o YouTube normal
+    const ytMatch = cleanUrl.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (ytMatch && ytMatch[1]) {
+      const id = ytMatch[1];
+      if (embedEl) {
+        embedEl.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&mute=1&playsinline=1&loop=1&playlist=${id}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+        embedEl.classList.remove("hidden");
+      }
+      return;
+    }
+
+    // TikTok o Instagram Reels
+    if (cleanUrl.includes("tiktok.com") || cleanUrl.includes("instagram.com")) {
+      if (actionEl && extBtn) {
+        extBtn.href = cleanUrl;
+        extBtn.textContent = cleanUrl.includes("tiktok") ? "▶️ Ver Video en TikTok" : "▶️ Ver Video en Instagram Reels";
+        actionEl.classList.remove("hidden");
+      }
+      return;
+    }
+
+    // Video directo (.mp4, .webm, blob:, data:)
+    if (videoEl) {
+      videoEl.src = cleanUrl;
+      videoEl.classList.remove("hidden");
+      videoEl.play().catch(() => {});
+    }
   },
 
   updateCartBar() {
@@ -3179,16 +3717,21 @@ const QRGenerator = {
     }
 
     let qr;
-    try {
-      // Nivel H: 30% de redundancia/corrección de errores, óptimo para logo central
-      qr = qrcode(0, "H");
-      qr.addData(text);
-      qr.make();
-    } catch (e) {
-      console.warn("Error generando QR en nivel H, reintentando en nivel Q:", e);
+    const levels = ["M", "L"];
+    for (const lvl of levels) {
       try {
-        qr = qrcode(0, "Q");
+        qr = qrcode(0, lvl);
         qr.addData(text);
+        qr.make();
+        break;
+      } catch (e) {
+        // reintentar con menor redundancia si la cadena es muy larga
+      }
+    }
+    if (!qr) {
+      try {
+        qr = qrcode(0, "L");
+        qr.addData(window.location.origin + window.location.pathname + "?mode=shop");
         qr.make();
       } catch (err) {
         console.error("Error definitivo generando QR:", err);
@@ -3259,6 +3802,51 @@ const QRGenerator = {
     if (this.isTableMode) {
       const tableVal = document.getElementById("qr-table-number")?.value.trim() || "Mesa 1";
       return `${baseUrl}?mesa=${encodeURIComponent(tableVal)}`;
+    }
+    if (AppState.shopConfig.googleSheetUrl) {
+      return `${baseUrl}?mode=shop&sheet=${encodeURIComponent(AppState.shopConfig.googleSheetUrl)}`;
+    }
+    if (typeof LZString !== "undefined") {
+      try {
+        const payload = {
+          cfg: {
+            n: AppState.shopConfig.name,
+            t: AppState.shopConfig.tagline,
+            p: AppState.shopConfig.phone,
+            c: AppState.shopConfig.currency,
+            dc: AppState.shopConfig.deliveryCost,
+            dt: AppState.shopConfig.deliveryTime,
+            io: AppState.shopConfig.isOpen,
+            l: AppState.shopConfig.logoUrl,
+            b: AppState.shopConfig.bannerUrl,
+            yp: AppState.shopConfig.yapePhone,
+            yn: AppState.shopConfig.yapeName,
+            yq: AppState.shopConfig.yapeQrUrl,
+            ye: AppState.shopConfig.yapeEnabled,
+            np: AppState.activePreset
+          },
+          cats: AppState.categories,
+          prods: AppState.products
+            .filter(p => p.available !== false)
+            .map(p => ({
+              id: p.id,
+              sku: p.sku || "",
+              n: p.name,
+              cat: p.category,
+              pr: p.price,
+              d: p.desc || "",
+              img: p.img && !p.img.startsWith("blob:") ? p.img : "",
+              vid: p.videoUrl && !p.videoUrl.startsWith("blob:") ? p.videoUrl : "",
+              sz: p.sizes || [],
+              co: p.colors || [],
+              pro: !!p.promo
+            }))
+        };
+        const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(payload));
+        return `${baseUrl}?mode=shop&c=${compressed}`;
+      } catch (err) {
+        console.warn("Error comprimiendo catalogo para URL:", err);
+      }
     }
     return `${baseUrl}?mode=shop`;
   },
@@ -3586,6 +4174,32 @@ document.addEventListener("DOMContentLoaded", () => {
     editorToggleUrlBtn.addEventListener("click", () => {
       editorUrlInput.classList.toggle("hidden");
       if (!editorUrlInput.classList.contains("hidden")) editorUrlInput.focus();
+    });
+  }
+
+  // 10.1 Subida de Video en el Editor de Producto
+  const editorTriggerVideoBtn = document.getElementById("editor-trigger-video-btn");
+  const editorVideoFileInput = document.getElementById("editor-video-file-input");
+  const editorVideoUrlInput = document.getElementById("editor-video-url-input");
+  const editorRemoveVideoBtn = document.getElementById("editor-remove-video-btn");
+
+  if (editorTriggerVideoBtn && editorVideoFileInput) {
+    editorTriggerVideoBtn.addEventListener("click", () => editorVideoFileInput.click());
+  }
+  if (editorVideoFileInput) {
+    editorVideoFileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) StudioController.handleProductVideoUpload(file);
+    });
+  }
+  if (editorVideoUrlInput) {
+    editorVideoUrlInput.addEventListener("input", (e) => {
+      StudioController.handleProductVideoUrlChange(e.target.value);
+    });
+  }
+  if (editorRemoveVideoBtn) {
+    editorRemoveVideoBtn.addEventListener("click", () => {
+      StudioController.removeProductVideo();
     });
   }
 

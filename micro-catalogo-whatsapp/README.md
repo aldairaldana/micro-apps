@@ -6,6 +6,19 @@
 
 ## 🌟 Características Principales
 
+### 0. 🇵🇪 Versión 1.2 — Edición Emprendedores Perú (Fotos, Videos & Multi-Rubro)
+* **🎥 Soporte de Video Orgánico Estilo Reels/TikTok:** Cada producto permite subir videos cortos desde el celular (almacenados localmente con `MediaStore` sobre IndexedDB) o pegar enlaces de Instagram Reels, TikTok, YouTube Shorts o archivos `.mp4`. La tarjeta muestra un badge flotante `🎥 Video` y el modal de compra incluye un conmutador fluido **Foto / Video**.
+* **🇵🇪 7 Rubros Comerciales con Opciones Dinámicas:**
+  1. 👟 **Zapatillas & Calzado:** Talla (EUR / US) y Color / Modelo.
+  2. ✨ **Perfumes & Belleza:** Presentación / Mililitros (Decants 10ml, Frascos) y Aroma / Familia.
+  3. ⌚ **Relojes & Joyas:** Modelo / Tamaño de Caja y Color / Correa.
+  4. 👖 **Ropa & Pantalones:** Talla (S, M, L o 28, 30, 32) y Color / Tela.
+  5. 🍰 **Postres & Comida:** Tamaño / Porciones y Sabor / Relleno.
+  6. 💻 **Tecnología & Gadgets:** Variantes / Licencia y Edición / Tipo.
+  7. 🛍️ **Tienda General / Todo Rubro:** Opciones y Modelo.
+* **🌐 Compartición 100% Gratuita sin Servidor (LZ-String):** Al generar el enlace o el QR, todo el catálogo se comprime en la URL (`?mode=shop&c=...`), permitiendo que cualquier cliente en otro celular lo abra al instante sin que el comerciante pague un solo sol en hosting o bases de datos.
+* **📦 MediaStore en IndexedDB:** Almacenamiento local de fotos de alta fidelidad y videos cortos en el teléfono del vendedor superando el límite de 5 MB de localStorage.
+
 ### 1. 🪄 Onboarding Guiado Estilo Apple (Pasos 0 al 5)
 * **Flujo Integral Obligatorio de Configuración:**
   * **Paso 0 · Invitación Oficial:** Bienvenida interactiva tipo pase VIP para iniciar el alta del negocio.

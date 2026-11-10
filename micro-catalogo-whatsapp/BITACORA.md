@@ -7,6 +7,34 @@
 
 ---
 
+## 🚀 Versión 1.2 — Edición Emprendedores Perú: Videos, Multi-Rubro y Compartición Gratuita (Noviembre 2026)
+
+### 1. Reproductor de Video + Foto Orgánico (Estilo Reels / TikTok)
+- **Soporte Híbrido en Editor y Onboarding:** Entrada dual para subir clips cortos desde galería/cámara o enlazar videos externos (Instagram Reels, TikTok, YouTube Shorts, o video directo `.mp4`/`.webm`).
+- **Badge Flotante en Catálogo:** Los productos con video muestran automáticamente la píldora `🎥 Video` con efecto glassmorphism en la esquina superior del producto.
+- **Conmutador Foto / Video en Modal de Detalle:** Pestañas interactivas para alternar entre fotografía en alta resolución y reproductor `<video controls playsinline muted loop>` o `<iframe>` embebido responsivo de YouTube Shorts, así como botones directos de redirección para Reels y TikTok.
+
+### 2. 7 Rubros Comerciales y Variantes Dinámicas Adaptativas
+- **Ampliación de `BUSINESS_PRESETS` y `NICHE_DATA`:** Plantillas listas con precios en Soles (S/), categorías auténticas y variantes reales para:
+  - 👟 **Zapatillas & Calzado (sneakers):** "Talla (EUR / US)" y "Color / Modelo".
+  - ✨ **Perfumes & Belleza (beauty):** "Presentación / Mililitros" (Decants 10ml, Frascos) y "Aroma / Familia".
+  - ⌚ **Relojes & Joyas (watches):** "Modelo / Tamaño de Caja" y "Color / Correa".
+  - 👖 **Ropa & Moda (fashion):** "Talla (S, M, L o 28, 30, 32)" y "Color / Tela".
+  - 🍰 **Postres & Comida (food):** "Tamaño / Porciones" y "Sabor / Relleno".
+  - 💻 **Tecnología & Gadgets (tech):** "Variantes / Licencia" y "Color / Tipo".
+  - 🛍️ **Tienda General (general):** "Opciones" y "Modelo".
+- **Etiquetas Dinámicas en Tiempo Real:** El editor `#studio-product-form` y el modal de compra `#product-detail-modal` actualizan sus rótulos contextuales (`#editor-sizes-label`, `#editor-colors-label`, `#detail-sizes-label`, `#detail-colors-label`) automáticamente según el rubro comercial activo.
+
+### 3. Compartición Universal Gratuita sin Servidor (LZ-String & IndexedDB)
+- **Compresión de Catálogo en URL:** Integración de la librería `lz-string` (1.5.0) para serializar y comprimir el catálogo completo en el parámetro `?mode=shop&c=...`. Cualquier comprador abre el link en su navegador y visualiza los productos y configuración del negocio inmediatamente con S/ 0.00 en infraestructura.
+- **Sincronización con Google Sheets:** Compatibilidad con parámetro `?mode=shop&sheet=...` para cargar catálogos desde hojas de cálculo publicadas como CSV.
+- **Almacenamiento Local `MediaStore` (IndexedDB):** Wrapper asíncrono para guardar clips de video locales y fotos de alta resolución en el navegador del vendedor sin riesgo de sobrepasar la cuota de `localStorage`.
+
+### 4. Generación de QR Real Adaptativo
+- Selección inteligente de nivel de corrección de error (`M` y `L`) en `QRGenerator.renderStoreQR()` para garantizar la generación de códigos QR de alta densidad que contengan la URL comprimida del catálogo completo o la hoja de cálculo.
+
+---
+
 ## 🚀 Versión 1.1 — Corrección Integral, Seguridad y Optimización (Noviembre 2026)
 
 ### 1. Código QR 100% Real y Escaneable
