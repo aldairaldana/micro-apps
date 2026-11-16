@@ -678,27 +678,26 @@
                 <input type="text" id="editor-name-input" class="input-modern" placeholder="Ej: Changan CS55 Plus / Adobe Creative Cloud / Zapatillas Dunk" required>
               </div>
 
-              <div class="form-grid-2">
-                <div class="editor-field-group">
-                  <label for="editor-price-input">Precio y Moneda *</label>
-                  <div class="editor-price-row">
-                    <select id="editor-currency-select" class="input-modern editor-currency-select" title="Moneda">
-                      <option value="S/">S/ (Soles)</option>
-                      <option value="US$">US$ (Dólares)</option>
-                    </select>
-                    <input type="number" id="editor-price-input" step="0.01" min="0" class="input-modern price-highlight" placeholder="0.00" required>
-                  </div>
+              <div class="editor-field-group">
+                <label for="editor-price-input">Precio y Moneda *</label>
+                <div class="editor-price-row">
+                  <select id="editor-currency-select" class="input-modern editor-currency-select" title="Moneda">
+                    <option value="S/">S/ (Soles)</option>
+                    <option value="US$">US$ (Dólares)</option>
+                  </select>
+                  <input type="number" id="editor-price-input" step="0.01" min="0" class="input-modern price-highlight" placeholder="0.00" required>
                 </div>
-                <div class="editor-field-group">
-                  <div class="label-with-action">
-                    <label for="editor-category-input">Categoría *</label>
-                    <button type="button" id="editor-quick-add-cat-btn" class="btn-text-link">+ Nueva</button>
-                  </div>
-                  <!-- Chips rápidos de categorías existentes para 1 solo toque -->
-                  <div class="editor-cat-pills-row" id="editor-cat-pills-row"></div>
-                  <input type="text" id="editor-category-input" class="input-modern" placeholder="Ej: Hamburguesas, Vestidos, Software..." list="categories-datalist" required>
-                  <datalist id="categories-datalist"></datalist>
+              </div>
+
+              <div class="editor-field-group">
+                <div class="label-with-action">
+                  <label for="editor-category-input">Categoría *</label>
+                  <button type="button" id="editor-quick-add-cat-btn" class="btn-text-link">+ Nueva</button>
                 </div>
+                <!-- Chips rápidos de categorías existentes para 1 solo toque -->
+                <div class="editor-cat-pills-row" id="editor-cat-pills-row"></div>
+                <input type="text" id="editor-category-input" class="input-modern" placeholder="Ej: Hamburguesas, Vestidos, Software..." list="categories-datalist" required>
+                <datalist id="categories-datalist"></datalist>
               </div>
 
               <!-- SKU y Descripción -->

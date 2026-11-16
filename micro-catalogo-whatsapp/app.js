@@ -2039,7 +2039,7 @@ const StudioController = {
     const countEl = document.getElementById("editor-photos-count");
     if (!strip) return;
     const count = this.currentProductImages.length;
-    if (countEl) countEl.textContent = `(${count}/6 fotos)`;
+    if (countEl) countEl.textContent = String(count);
 
     strip.innerHTML = this.currentProductImages.map((url, idx) => `
       <div class="photo-thumb-slot" style="position: relative; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-subtle); flex-shrink: 0;">

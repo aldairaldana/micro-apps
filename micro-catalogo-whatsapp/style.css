@@ -5468,3 +5468,105 @@ img {
   resize: vertical;
   line-height: 1.35;
 }
+
+
+/* ===================================================================
+   REPARACIONES DE DESBORDAMIENTO & RESPONSIVE MÓVIL 349px
+   =================================================================== */
+.product-editor-card,
+.editor-field-group,
+.editor-price-row,
+.video-input-dual-row {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.input-modern,
+.textarea-modern,
+.editor-price-row input,
+.video-input-dual-row .input-modern {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.apple-prod-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.apple-prod-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.apple-price-chip {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .form-grid-2,
+  .editor-dynamic-specs-container {
+    grid-template-columns: 1fr;
+  }
+  .schema-field-full {
+    grid-column: span 1;
+  }
+  .products-action-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .search-box-wrap {
+    width: 100%;
+  }
+  .toolbar-buttons-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 8px;
+  }
+  .btn-manage-categories,
+  .btn-create-product {
+    width: 100%;
+    justify-content: center;
+    padding: 9px 10px;
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .apple-studio-topbar {
+    padding: calc(10px + var(--safe-top)) 10px 10px 10px;
+    gap: 6px;
+  }
+  .apple-studio-brand {
+    gap: 7px;
+    min-width: 0;
+  }
+  .apple-brand-title {
+    font-size: 0.92rem;
+  }
+  .apple-brand-sub {
+    font-size: 0.64rem;
+  }
+  .apple-topbar-actions {
+    gap: 5px;
+    flex-shrink: 0;
+  }
+  .apple-status-pill {
+    padding: 5px 8px;
+    font-size: 0.7rem;
+  }
+  .apple-btn-preview {
+    padding: 5px 9px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+}
