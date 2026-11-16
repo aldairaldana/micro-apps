@@ -872,6 +872,186 @@ const AppState = {
   shopConfig: { ...BUSINESS_PRESETS.sneakers.config },
   products: [...BUSINESS_PRESETS.sneakers.products],
   isViewingRemoteCatalog: false,
+  storesList: [],
+  currentStoreId: null,
+
+  initStores() {
+    try {
+      const saved = localStorage.getItem("tiendazap_stores");
+      if (saved) {
+        this.storesList = JSON.parse(saved);
+      }
+    } catch (e) {
+      this.storesList = [];
+    }
+    if (!Array.isArray(this.storesList) || this.storesList.length === 0) {
+      const currentStore = {
+        id: "store_" + (this.shopConfig.storeSlug || "principal"),
+        name: this.shopConfig.name || "Mi Tienda",
+        slug: this.shopConfig.storeSlug || "mi-tienda",
+        preset: this.activePreset || "apparel",
+        phone: this.shopConfig.phone || "",
+        currency: this.shopConfig.currency || "S/",
+        config: { ...this.shopConfig },
+        products: [...this.products],
+        categories: [...this.categories],
+        createdAt: Date.now()
+      };
+      this.storesList = [currentStore];
+      this.saveStoresList();
+    }
+  },
+
+  saveStoresList() {
+    this.safeSetItem("tiendazap_stores", JSON.stringify(this.storesList || []));
+  },
+
+  saveCurrentStoreState() {
+    if (!this.storesList) this.initStores();
+    const currentSlug = this.getStoreSlug();
+    const idx = this.storesList.findIndex(s => s.slug === currentSlug || (this.currentStoreId && s.id === this.currentStoreId));
+    const storeData = {
+      id: this.currentStoreId || ("store_" + currentSlug),
+      name: this.shopConfig.name,
+      slug: currentSlug,
+      preset: this.activePreset,
+      phone: this.shopConfig.phone,
+      currency: this.shopConfig.currency,
+      config: { ...this.shopConfig },
+      products: [...this.products],
+      categories: [...this.categories],
+      updatedAt: Date.now()
+    };
+    if (idx >= 0) {
+      this.storesList[idx] = storeData;
+    } else {
+      this.storesList.push(storeData);
+    }
+    this.saveStoresList();
+  },
+
+  switchStore(storeId) {
+    if (!this.storesList) this.initStores();
+    this.saveCurrentStoreState();
+    const target = this.storesList.find(s => s.id === storeId || s.slug === storeId);
+    if (!target) return false;
+
+    this.currentStoreId = target.id;
+    this.activePreset = target.preset || "apparel";
+    this.shopConfig = { ...target.config };
+    this.products = [...(target.products || [])];
+    this.categories = [...(target.categories || [])];
+    this.saveConfig();
+    this.saveProducts();
+    this.saveCategories();
+    StudioController.renderAll();
+    Toast.show(`Cambiaste a la tienda "${target.name}"`, "🏪");
+    return true;
+  },
+
+  createNewStore({ name, preset, phone, currency, yapePhone }) {
+    if (!this.storesList) this.initStores();
+    this.saveCurrentStoreState();
+
+    const cleanName = (name || "").trim() || "Nueva Tienda";
+    const slug = slugifyStoreName(cleanName) || ("tienda-" + Date.now().toString(36));
+    const storeId = "store_" + Date.now();
+    const initialConfig = {
+      name: cleanName,
+      storeSlug: slug,
+      tagline: `Catálogo oficial de ${cleanName}`,
+      phone: phone || "",
+      currency: currency || (preset === "vehicles" ? "US$" : "S/"),
+      deliveryCost: (preset === "digital" || preset === "vehicles") ? 0 : 5,
+      deliveryTime: preset === "digital" ? "Inmediato" : "24-48h",
+      isOpen: true,
+      logoUrl: "",
+      bannerUrl: "",
+      yapePhone: yapePhone || "",
+      yapeName: "",
+      yapeQrUrl: "",
+      yapeEnabled: !!yapePhone,
+      googleSheetUrl: ""
+    };
+
+    const presetMap = {
+      apparel: "fashion",
+      digital: "tech",
+      vehicles: "vehicles",
+      properties: "general",
+      burger: "food",
+      watches: "watches",
+      general: "general",
+      sneakers: "sneakers",
+      tech: "tech",
+      fashion: "fashion",
+      food: "food"
+    };
+    const mappedPreset = presetMap[preset] || (BUSINESS_PRESETS[preset] ? preset : "general");
+    const starterProducts = (BUSINESS_PRESETS[mappedPreset] && BUSINESS_PRESETS[mappedPreset].products)
+      ? [...BUSINESS_PRESETS[mappedPreset].products]
+      : [...BUSINESS_PRESETS.general.products];
+    const starterCategories = (NICHE_DATA[preset]?.suggestedCategories || NICHE_DATA[mappedPreset]?.suggestedCategories || NICHE_DATA.general.suggestedCategories || ["General"]).map((catName, idx) => ({
+      id: "cat_" + (idx + 1),
+      name: catName,
+      icon: CustomerUI.getCategoryIcon(catName)
+    }));
+
+    const newStore = {
+      id: storeId,
+      name: cleanName,
+      slug: slug,
+      preset: preset,
+      phone: phone,
+      currency: initialConfig.currency,
+      config: initialConfig,
+      products: starterProducts,
+      categories: starterCategories,
+      createdAt: Date.now()
+    };
+
+    this.storesList.push(newStore);
+    this.saveStoresList();
+
+    this.currentStoreId = storeId;
+    this.activePreset = preset;
+    this.shopConfig = initialConfig;
+    this.products = starterProducts;
+    this.categories = starterCategories;
+    this.saveConfig();
+    this.saveProducts();
+    this.saveCategories();
+
+    StudioController.renderAll();
+    return newStore;
+  },
+
+  deleteStore(storeId) {
+    if (!this.storesList) this.initStores();
+    if (this.storesList.length <= 1) {
+      Toast.show("Debes tener al menos una tienda activa", "⚠️");
+      return false;
+    }
+    const target = this.storesList.find(s => s.id === storeId || s.slug === storeId);
+    if (!target) return false;
+
+    if (!confirm(`¿Eliminar la tienda "${target.name}"? Esta acción no se puede deshacer.`)) {
+      return false;
+    }
+
+    this.storesList = this.storesList.filter(s => s.id !== target.id);
+    this.saveStoresList();
+
+    if (this.currentStoreId === target.id || this.getStoreSlug() === target.slug) {
+      const nextStore = this.storesList[0];
+      this.switchStore(nextStore.id);
+    } else {
+      StudioController.renderStoresTab();
+    }
+
+    Toast.show(`Tienda "${target.name}" eliminada`, "🗑️");
+    return true;
+  },
   catalogViewMode: localStorage.getItem('tiendazap_view_mode') || 'grid',
 
   getStoreSlug() {
@@ -1141,6 +1321,9 @@ const AppState = {
       }
 
       // 4. Si tiene Google Sheets configurado, sincronizar
+      if (!this.isViewingRemoteCatalog) {
+        this.initStores();
+      }
       if (this.shopConfig.googleSheetUrl) {
         this.fetchGoogleSheetData(this.shopConfig.googleSheetUrl, false);
       }
@@ -1613,351 +1796,71 @@ const ViewController = {
 // 5. ASISTENTE DESDE CERO ESTILO APPLE (APPLE INVITATION & ONBOARDING)
 // ============================================================================
 const OnboardingWizard = {
-  currentStep: 0, // 0: Invitación Oficial, 1: Registro Propietario, 2: Identidad & Logo, 3: WhatsApp & Yape, 4: Primer Producto, 5: Lanzamiento Apple Card
-
   init() {
-    this.populateFields();
-    this.renderStep();
+    this.bindQuickSetup();
   },
 
-  goToStep(stepIndex) {
-    this.currentStep = Math.max(0, Math.min(5, stepIndex));
-    this.populateFields();
-    this.renderStep();
-  },
-
-  populateFields() {
-    const shop = AppState.shopConfig;
-    const merchant = AppState.merchant || { name: "", contact: "", pin: "" };
-
-    // Paso 1: Registro del Comerciante
-    const regName = document.getElementById("apple-reg-name");
-    const regContact = document.getElementById("apple-reg-contact");
-    const regPin = document.getElementById("apple-reg-pin");
-    if (regName) regName.value = merchant.name || "";
-    if (regContact) regContact.value = merchant.contact || "";
-    if (regPin) regPin.value = merchant.pin || "";
-
-    // Paso 2: Marca, Logo y Enlace Web
-    const storeName = document.getElementById("apple-store-name");
-    const storeSlug = document.getElementById("apple-store-slug");
-    const slugPreview = document.getElementById("apple-slug-preview");
-    const storeTag = document.getElementById("apple-store-tagline");
-
-    if (storeSlug) storeSlug.value = AppState.getStoreSlug();
-    if (slugPreview) slugPreview.textContent = `${APP_BRAND.domainHint}/${AppState.getStoreSlug()}`;
-    const logoImg = document.getElementById("apple-logo-img");
-    const logoPlaceholder = document.getElementById("apple-logo-placeholder");
-
-    if (storeName) storeName.value = shop.name || "";
-    if (storeTag) storeTag.value = shop.tagline || "";
-
-    if (logoImg && logoPlaceholder) {
-      if (shop.logoUrl) {
-        logoImg.src = shop.logoUrl;
-        logoImg.classList.remove("hidden");
-        logoPlaceholder.classList.add("hidden");
-      } else {
-        logoImg.classList.add("hidden");
-        logoPlaceholder.classList.remove("hidden");
-      }
-    }
-
-    // Segmentos de rubro
-    document.querySelectorAll("#apple-niche-grid .apple-segment-pill").forEach(btn => {
-      btn.classList.toggle("active", btn.getAttribute("data-niche") === AppState.activePreset);
-    });
-
-    // Paso 3: WhatsApp y Yape
-    const storePhone = document.getElementById("apple-store-phone");
-    const currSel = document.getElementById("apple-currency-select");
-    const yapePhone = document.getElementById("apple-yape-phone");
-    const yapeTitular = document.getElementById("apple-yape-titular");
-    const qrImg = document.getElementById("apple-qr-img");
-    const qrPlaceholder = document.getElementById("apple-qr-placeholder");
-
-    if (storePhone) storePhone.value = (shop.phone || "").replace(/^51/, "");
-    if (currSel) currSel.value = shop.currency || "S/";
-    if (yapePhone) yapePhone.value = shop.yapePhone || (shop.phone || "").replace(/^51/, "");
-    if (yapeTitular) yapeTitular.value = shop.yapeName || merchant.name || shop.name || "";
-
-    if (qrImg && qrPlaceholder) {
-      if (shop.yapeQrUrl) {
-        qrImg.src = shop.yapeQrUrl;
-        qrImg.classList.remove("hidden");
-        qrPlaceholder.classList.add("hidden");
-      } else {
-        qrImg.classList.add("hidden");
-        qrPlaceholder.classList.remove("hidden");
-      }
-    }
-
-    // Paso 4: Símbolo de Moneda
-    const currSym = document.getElementById("apple-currency-sym");
-    if (currSym) currSym.textContent = shop.currency || "S/";
-
-    // Paso 5: Apple Digital Card
-    const cardStore = document.getElementById("apple-card-store-name");
-    const cardMerchant = document.getElementById("apple-card-merchant-name");
-    const catalogLink = document.getElementById("apple-catalog-link");
-
-    if (cardStore) cardStore.textContent = shop.name || "Mi Tienda";
-    if (cardMerchant) cardMerchant.textContent = merchant.name || "Comerciante Registrado";
-    if (catalogLink) catalogLink.value = QRGenerator.getTargetUrl();
-  },
-
-  renderStep() {
-    // Mostrar u ocultar tarjetas de paso
-    for (let i = 0; i <= 5; i++) {
-      const stepCard = document.getElementById(`apple-step-${i}`);
-      if (stepCard) {
-        if (i === this.currentStep) {
-          stepCard.classList.remove("hidden");
-          stepCard.classList.add("active");
-        } else {
-          stepCard.classList.add("hidden");
-          stepCard.classList.remove("active");
-        }
-      }
-    }
-
-    // Actualizar los 6 puntos de progreso estilo Apple iOS
-    const dots = document.querySelectorAll(".apple-dots-row .apple-dot");
-    dots.forEach((dot, idx) => {
-      dot.classList.toggle("completed", idx < this.currentStep);
-      dot.classList.toggle("active", idx === this.currentStep);
-    });
-
-    const stepLabels = [
-      "Invitación Especial",
-      "Paso 1 de 5 · Registro",
-      "Paso 2 de 5 · Marca & Logo",
-      "Paso 3 de 5 · WhatsApp & Yape",
-      "Paso 4 de 5 · Primer Producto",
-      "Paso 5 de 5 · Catálogo Activo"
-    ];
-    const counter = document.getElementById("apple-step-counter");
-    if (counter) counter.textContent = stepLabels[this.currentStep] || "";
-
-    if (this.currentStep === 4) {
-      this.renderCategorySuggestions();
-    }
-
-    if (this.currentStep === 5) {
-      const catalogLink = document.getElementById("apple-catalog-link");
-      if (catalogLink) catalogLink.value = QRGenerator.getTargetUrl();
-      const cardStore = document.getElementById("apple-card-store-name");
-      const cardMerchant = document.getElementById("apple-card-merchant-name");
-      if (cardStore) cardStore.textContent = AppState.shopConfig.name || "Mi Tienda";
-      if (cardMerchant) cardMerchant.textContent = AppState.merchant?.name || "Comerciante Registrado";
-    }
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  },
-
-  renderCategorySuggestions() {
-    const container = document.getElementById("apple-cat-suggestions");
-    if (!container) return;
-    const nicheInfo = NICHE_DATA[AppState.activePreset] || NICHE_DATA.general;
-    const cats = nicheInfo.suggestedCategories || [];
-    const catInput = document.getElementById("apple-prod-cat");
-
-    container.innerHTML = cats.map(cat => `
-      <button type="button" class="apple-cat-pill ${catInput && catInput.value === cat ? 'active' : ''}">
-        ${cat}
-      </button>
-    `).join("");
-
-    container.querySelectorAll(".apple-cat-pill").forEach(pill => {
-      pill.addEventListener("click", () => {
-        if (catInput) {
-          catInput.value = pill.textContent.trim();
-          catInput.dispatchEvent(new Event("input"));
-        }
-        container.querySelectorAll(".apple-cat-pill").forEach(p => p.classList.remove("active"));
-        pill.classList.add("active");
+  bindQuickSetup() {
+    const chipsContainer = document.getElementById("quick-niche-chips");
+    const nicheHidden = document.getElementById("quick-selected-niche");
+    if (chipsContainer && nicheHidden) {
+      chipsContainer.querySelectorAll(".quick-niche-chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          chipsContainer.querySelectorAll(".quick-niche-chip").forEach(c => c.classList.remove("active"));
+          chip.classList.add("active");
+          nicheHidden.value = chip.dataset.niche || "apparel";
+        });
       });
+    }
+
+    const form = document.getElementById("quick-setup-form");
+    if (form) {
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.submitQuickSetup();
+      });
+    }
+  },
+
+  submitQuickSetup() {
+    const nameInput = document.getElementById("quick-store-name");
+    const name = nameInput ? nameInput.value.trim() : "";
+    if (!name) {
+      Toast.show("Por favor ingresa el nombre de tu tienda", "⚠️");
+      if (nameInput) nameInput.focus();
+      return;
+    }
+
+    const niche = document.getElementById("quick-selected-niche")?.value || "apparel";
+    const curr = document.getElementById("quick-store-currency")?.value || "S/";
+    const phone = document.getElementById("quick-store-phone")?.value.trim() || "";
+    const yape = document.getElementById("quick-yape-phone")?.value.trim() || "";
+
+    AppState.createNewStore({
+      name,
+      preset: niche,
+      phone,
+      currency: curr,
+      yapePhone: yape
     });
-  },
-
-  saveCurrentStepData() {
-    const shop = AppState.shopConfig;
-    const merchant = AppState.merchant;
-
-    if (this.currentStep === 1) {
-      const regName = document.getElementById("apple-reg-name")?.value.trim();
-      const regContact = document.getElementById("apple-reg-contact")?.value.trim();
-      const regPin = document.getElementById("apple-reg-pin")?.value.trim();
-      if (regName) merchant.name = regName;
-      if (regContact) merchant.contact = regContact;
-      if (regPin) merchant.pin = regPin;
-      AppState.saveMerchant();
-    } else if (this.currentStep === 2) {
-      const nameVal = document.getElementById("apple-store-name")?.value.trim();
-      const slugVal = document.getElementById("apple-store-slug")?.value.trim();
-      const tagVal = document.getElementById("apple-store-tagline")?.value.trim();
-      if (nameVal) {
-        shop.name = nameVal;
-        shop.storeSlug = slugifyStoreName(slugVal || nameVal);
-      }
-      if (tagVal) shop.tagline = tagVal;
-    } else if (this.currentStep === 3) {
-      const rawPhone = document.getElementById("apple-store-phone")?.value.trim();
-      const curr = document.getElementById("apple-currency-select")?.value;
-      const yapeP = document.getElementById("apple-yape-phone")?.value.trim();
-      const yapeT = document.getElementById("apple-yape-titular")?.value.trim();
-
-      if (rawPhone) {
-        const cleanPhone = rawPhone.replace(/[^0-9]/g, "");
-        shop.phone = cleanPhone.startsWith("51") ? cleanPhone : `51${cleanPhone}`;
-      }
-      if (curr) shop.currency = curr;
-      if (yapeP) shop.yapePhone = yapeP;
-      if (yapeT) shop.yapeName = yapeT;
-    } else if (this.currentStep === 4) {
-      const prodName = document.getElementById("apple-prod-name")?.value.trim();
-      const prodPrice = parseFloat(document.getElementById("apple-prod-price")?.value);
-      const prodCat = document.getElementById("apple-prod-cat")?.value.trim();
-      const prodVideo = document.getElementById("apple-prod-video")?.value.trim();
-      const prodType = document.getElementById("apple-prod-type")?.value || "item";
-      const prodCurrency = document.getElementById("apple-prod-currency")?.value || AppState.shopConfig.currency || "S/";
-      const prodDesc = document.getElementById("apple-prod-desc")?.value.trim() || "";
-      const previewImg = document.getElementById("apple-prod-img");
-
-      if (prodName && !isNaN(prodPrice)) {
-        const prodImg = (previewImg && previewImg.src && !previewImg.classList.contains("hidden"))
-          ? previewImg.src
-          : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80";
-
-        const catName = (prodCat && prodCat !== "undefined") ? prodCat : "Destacados";
-        const imagesList = (this.onboardingPhotos && this.onboardingPhotos.length > 0)
-          ? [...this.onboardingPhotos]
-          : [prodImg];
-
-        const newP = {
-          id: "p_" + Date.now(),
-          sku: "ART-01",
-          name: prodName,
-          price: prodPrice,
-          currency: prodCurrency,
-          listingType: prodType,
-          condition: prodType === "vehicle" ? "0 km - Nuevo" : (prodType === "digital" ? "Digital Original" : "Nuevo"),
-          location: "Lima, Perú",
-          category: catName,
-          desc: prodDesc,
-          sizes: [],
-          colors: [],
-          img: imagesList[0] || prodImg,
-          images: imagesList,
-          specs: [],
-          videoUrl: prodVideo || "",
-          promo: true,
-          available: true
-        };
-        AppState.products.unshift(newP);
-        AppState.saveProducts();
-        if (!AppState.categories.some(c => c.name.toLowerCase() === catName.toLowerCase())) {
-          AppState.addCategory(catName);
-        }
-      }
-    }
-
-    AppState.saveConfig();
-    StudioController.renderVisualCard();
-    CustomerUI.renderStoreHeader();
-  },
-
-  finishOnboarding() {
-    this.saveCurrentStepData();
-
-    // Si no creó ningún producto, aseguramos catálogo demostrativo según rubro
-    if (AppState.products.length === 0) {
-      const preset = BUSINESS_PRESETS[AppState.activePreset] || BUSINESS_PRESETS.food;
-      AppState.products = [...preset.products];
-      AppState.saveProducts();
-    }
-    AppState.initCategories();
 
     localStorage.setItem("tiendazap_onboarding_done", "true");
-    AppState.saveConfig();
-    StudioController.renderAll();
-    CustomerUI.renderStoreHeader();
-    this.goToStep(5);
-    Toast.show("Catálogo configurado con éxito", "✨");
+    ViewController.showStudio();
+    Toast.show(`¡Bienvenido a ${name}! Tienda lista para vender`, "🎉");
   },
 
   skip() {
     localStorage.setItem("tiendazap_onboarding_done", "true");
     if (!AppState.shopConfig.name) {
-      AppState.applyPreset("food");
+      AppState.applyPreset("apparel");
     }
-    Toast.show("Tienda demo cargada. Puedes personalizar todo en el Studio", "✨");
     ViewController.showStudio();
   },
 
   resetFromScratch() {
-    if (confirm("¿Deseas reiniciar la configuración de tu tienda y comenzar de cero con la Invitación Oficial?")) {
-      localStorage.removeItem("tiendazap_onboarding_done");
-      localStorage.removeItem("tiendazap_merchant");
-      localStorage.removeItem("tiendazap_config");
-      localStorage.removeItem("tiendazap_products");
-      localStorage.removeItem("tiendazap_categories");
-      localStorage.removeItem("tiendazap_preset");
-      localStorage.removeItem("tiendazap_cart");
-      localStorage.removeItem("tiendazap_client");
-      sessionStorage.removeItem("tiendazap_pin_unlocked");
-
-      AppState.merchant = { name: "", contact: "", pin: "" };
-      AppState.shopConfig = {
-        name: "",
-        tagline: "",
-        phone: "",
-        currency: "S/",
-        deliveryCost: 5.0,
-        deliveryTime: "25-35 min",
-        isOpen: true,
-        logoUrl: "",
-        bannerUrl: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80",
-        googleSheetUrl: "",
-        yapeEnabled: true,
-        yapePhone: "",
-        yapeName: "",
-        yapeQrUrl: ""
-      };
-      AppState.products = [];
-      AppState.categories = [];
-      AppState.cart = {};
-
-      // Limpiar inputs
-      const inputs = [
-        "apple-reg-name", "apple-reg-contact", "apple-reg-pin",
-        "apple-store-name", "apple-store-tagline", "apple-store-phone",
-        "apple-yape-phone", "apple-yape-titular",
-        "apple-prod-name", "apple-prod-price", "apple-prod-cat", "apple-prod-video", "apple-store-slug"
-      ];
-      inputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = "";
-      });
-
-      const logoImg = document.getElementById("apple-logo-img");
-      const logoPlc = document.getElementById("apple-logo-placeholder");
-      if (logoImg) { logoImg.src = ""; logoImg.classList.add("hidden"); }
-      if (logoPlc) logoPlc.classList.remove("hidden");
-
-      const qrImg = document.getElementById("apple-qr-img");
-      const qrPlc = document.getElementById("apple-qr-placeholder");
-      if (qrImg) { qrImg.src = ""; qrImg.classList.add("hidden"); }
-      if (qrPlc) qrPlc.classList.remove("hidden");
-
-      const prodImg = document.getElementById("apple-prod-img");
-      const prodPlc = document.getElementById("apple-prod-placeholder");
-      if (prodImg) { prodImg.src = ""; prodImg.classList.add("hidden"); }
-      if (prodPlc) prodPlc.classList.remove("hidden");
-
-      this.currentStep = 0;
-      ViewController.showOnboarding(0);
-      Toast.show("Tienda reiniciada de cero", "🔄");
+    if (confirm("¿Deseas reiniciar y comenzar de cero?")) {
+      localStorage.clear();
+      window.location.reload();
     }
   }
 };
@@ -2112,6 +2015,14 @@ const StudioController = {
     this.renderProductsList();
     this.populateSettingsTab();
     this.updateVariantInputLabels();
+    this.renderStoresTab();
+
+    const nameDisplay = document.getElementById("studio-store-name-display");
+    if (nameDisplay) nameDisplay.textContent = AppState.shopConfig.name || "Mi Tienda";
+    const miniLogo = document.getElementById("admin-logo-preview");
+    if (miniLogo && AppState.shopConfig.logoUrl) miniLogo.src = AppState.shopConfig.logoUrl;
+    const settingsLogo = document.getElementById("admin-logo-preview-settings");
+    if (settingsLogo && AppState.shopConfig.logoUrl) settingsLogo.src = AppState.shopConfig.logoUrl;
   },
 
   renderTopStatus() {
@@ -2228,17 +2139,81 @@ const StudioController = {
   },
 
   switchStudioTab(tabKey) {
-    document.querySelectorAll(".studio-tab-btn").forEach(btn => {
+    document.querySelectorAll(".studio-tab-btn, .studio-bottom-nav-btn").forEach(btn => {
       btn.classList.toggle("active", btn.getAttribute("data-tab") === tabKey);
     });
 
     const viewProducts = document.getElementById("view-products");
+    const viewStores = document.getElementById("view-stores");
     const viewSettings = document.getElementById("view-settings");
     const viewCloud = document.getElementById("view-cloud");
 
     if (viewProducts) viewProducts.classList.toggle("hidden", tabKey !== "products");
+    if (viewStores) viewStores.classList.toggle("hidden", tabKey !== "stores");
     if (viewSettings) viewSettings.classList.toggle("hidden", tabKey !== "settings");
     if (viewCloud) viewCloud.classList.toggle("hidden", tabKey !== "cloud");
+
+    if (tabKey === "stores") {
+      this.renderStoresTab();
+    } else if (tabKey === "products") {
+      this.renderProductsList();
+      this.renderCategoryFilters();
+    }
+  },
+
+  renderStoresTab() {
+    const container = document.getElementById("studio-stores-list");
+    if (!container) return;
+
+    if (!AppState.storesList) AppState.initStores();
+    const currentSlug = AppState.getStoreSlug();
+
+    container.innerHTML = AppState.storesList.map(store => {
+      const isActive = store.slug === currentSlug || store.id === AppState.currentStoreId;
+      const prodCount = Array.isArray(store.products) ? store.products.length : 0;
+      const logoUrl = store.config?.logoUrl || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=120&q=80";
+
+      return `
+        <div class="store-item-card ${isActive ? "active-store" : ""}">
+          <div class="store-item-top">
+            <div class="store-item-info">
+              <img src="${logoUrl}" alt="${escapeHtml(store.name)}" class="store-item-logo">
+              <div>
+                <h4 class="store-item-name">${escapeHtml(store.name)}</h4>
+                <p class="store-item-meta">${escapeHtml(store.preset || "general")} • ${prodCount} productos • ${store.currency || "S/"}</p>
+              </div>
+            </div>
+            ${isActive ? '<span class="store-active-badge">● Activa</span>' : ''}
+          </div>
+
+          <div class="store-item-actions">
+            ${isActive 
+              ? '<button type="button" class="btn-secondary-compact" style="flex:1;" disabled>Administrando actualmente</button>'
+              : `<button type="button" class="btn-primary-compact btn-switch-store" data-store-id="${store.id}" style="flex:1;">Cambiar a esta tienda</button>`
+            }
+            ${AppState.storesList.length > 1
+              ? `<button type="button" class="btn-secondary-compact btn-delete-store" data-store-id="${store.id}" style="color:var(--accent-red);" title="Eliminar tienda">🗑️</button>`
+              : ''
+            }
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    container.querySelectorAll(".btn-switch-store").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const sId = btn.getAttribute("data-store-id");
+        AppState.switchStore(sId);
+        this.renderStoresTab();
+      });
+    });
+
+    container.querySelectorAll(".btn-delete-store").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const sId = btn.getAttribute("data-store-id");
+        AppState.deleteStore(sId);
+      });
+    });
   },
 
   getCategories() {
@@ -2644,7 +2619,7 @@ const StudioController = {
 
     const typeHidden = document.getElementById("editor-listing-type");
     if (typeHidden) typeHidden.value = "item";
-    const typePills = document.querySelectorAll("#editor-listing-type-pills .type-pill");
+    const typePills = document.querySelectorAll("#editor-listing-type-pills .listing-pill, #editor-listing-type-pills .type-pill");
     typePills.forEach(p => p.classList.toggle("active", p.dataset.type === "item"));
 
     const currSelect = document.getElementById("editor-currency-select");
@@ -2679,8 +2654,9 @@ const StudioController = {
     this.renderEditorCategoryChips("");
 
     if (title) title.textContent = "Añadir Nuevo Producto";
+    const modal = document.getElementById("studio-product-modal");
+    if (modal) modal.classList.remove("hidden");
     editor.classList.remove("hidden");
-    editor.scrollIntoView({ behavior: "smooth", block: "start" });
   },
 
   async openEditProduct(productId) {
@@ -2743,7 +2719,7 @@ const StudioController = {
 
     const typeHidden = document.getElementById("editor-listing-type");
     if (typeHidden) typeHidden.value = this.currentListingType;
-    const typePills = document.querySelectorAll("#editor-listing-type-pills .type-pill");
+    const typePills = document.querySelectorAll("#editor-listing-type-pills .listing-pill, #editor-listing-type-pills .type-pill");
     typePills.forEach(pill => pill.classList.toggle("active", pill.dataset.type === this.currentListingType));
 
     const currSelect = document.getElementById("editor-currency-select");
@@ -2759,11 +2735,14 @@ const StudioController = {
     this.renderEditorCategoryChips(p.category);
 
     if (title) title.textContent = "Editar Producto";
+    const modal = document.getElementById("studio-product-modal");
+    if (modal) modal.classList.remove("hidden");
     editor.classList.remove("hidden");
-    editor.scrollIntoView({ behavior: "smooth", block: "start" });
   },
 
   closeProductEditor() {
+    const modal = document.getElementById("studio-product-modal");
+    if (modal) modal.classList.add("hidden");
     const editor = document.getElementById("studio-product-editor");
     if (editor) editor.classList.add("hidden");
   },
@@ -3135,9 +3114,12 @@ const CustomerUI = {
     }
 
     if (deliveryCostPill) {
-      const isTech = AppState.activePreset === "tech";
-      if (isTech && Number(shop.deliveryCost || 0) === 0) {
-        deliveryCostPill.innerHTML = `<span class="pill-icon">💻</span> Envío Digital Gratis`;
+      const isDigital = AppState.activePreset === "digital" || AppState.activePreset === "tech" || AppState.products.every(p => p.listingType === "digital");
+      const isVehicle = AppState.activePreset === "vehicles" || AppState.products.every(p => p.listingType === "vehicle");
+      if (isDigital) {
+        deliveryCostPill.innerHTML = `<span class="pill-icon">⚡</span> Entrega Digital Inmediata`;
+      } else if (isVehicle) {
+        deliveryCostPill.innerHTML = `<span class="pill-icon">📍</span> Showroom / Trato Directo`;
       } else if (Number(shop.deliveryCost || 0) === 0) {
         deliveryCostPill.innerHTML = `<span class="pill-icon">✨</span> Envío Sin Costo`;
       } else {
@@ -3246,15 +3228,17 @@ const CustomerUI = {
   },
 
   getCategories() {
-    const list = AppState.getCategoriesList();
+    const list = AppState.getCategoriesList() || [];
     return [
       { name: "all", label: "Todos", count: AppState.products.length, icon: "✨" },
-      ...list.filter(c => c.count > 0).map(c => ({
-        ...c,
-        name: c.name,
-        label: c.label || c.name || "General",
-        icon: c.icon || CustomerUI.getCategoryIcon(c.name)
-      }))
+      ...list
+        .filter(c => c && c.name && c.name.toLowerCase() !== "undefined" && c.count > 0)
+        .map(c => ({
+          ...c,
+          name: c.name.trim(),
+          label: (c.label && c.label.toLowerCase() !== "undefined") ? c.label.trim() : c.name.trim(),
+          icon: c.icon || CustomerUI.getCategoryIcon(c.name)
+        }))
     ];
   },
 
@@ -4764,6 +4748,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (closeEditorBtn) closeEditorBtn.addEventListener("click", () => StudioController.closeProductEditor());
   if (editorCancelBtn) editorCancelBtn.addEventListener("click", () => StudioController.closeProductEditor());
   if (studioProductForm) studioProductForm.addEventListener("submit", (e) => StudioController.saveProduct(e));
+  const saveProductBtn = document.getElementById("save-product-btn");
+  if (saveProductBtn) saveProductBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    StudioController.saveProduct(e);
+  });
 
   // 9.1 Gestor de Categorías (Modal y Paleta de Emojis)
   const studioManageCategoriesBtn = document.getElementById("studio-manage-categories-btn");
@@ -5663,7 +5652,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Studio: Selector de Tipo de Publicación
-  const studioTypePills = document.querySelectorAll("#editor-listing-type-pills .type-pill");
+  const studioTypePills = document.querySelectorAll("#editor-listing-type-pills .listing-pill, #editor-listing-type-pills .type-pill");
   const studioTypeInput = document.getElementById("editor-listing-type");
   studioTypePills.forEach(pill => {
     pill.addEventListener("click", () => {
@@ -5690,4 +5679,130 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (studioWizardBtn) studioWizardBtn.addEventListener("click", () => ViewController.showOnboarding(1));
   if (studioResetBtn) studioResetBtn.addEventListener("click", () => OnboardingWizard.resetFromScratch());
+
+  // ==========================================
+  // REDISEÑO LIMPIO: NUEVOS EVENT LISTENERS
+  // ==========================================
+  // Onboarding Rápido
+  const quickChipsContainer = document.getElementById("quick-niche-chips");
+  const quickNicheHidden = document.getElementById("quick-selected-niche");
+  if (quickChipsContainer && quickNicheHidden) {
+    quickChipsContainer.querySelectorAll(".quick-niche-chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        quickChipsContainer.querySelectorAll(".quick-niche-chip").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        quickNicheHidden.value = chip.dataset.niche || "apparel";
+      });
+    });
+  }
+
+  const quickSetupForm = document.getElementById("quick-setup-form");
+  if (quickSetupForm) {
+    quickSetupForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      OnboardingWizard.submitQuickSetup();
+    });
+  }
+  const btnQuickCreateStore = document.getElementById("btn-quick-create-store");
+  if (btnQuickCreateStore) {
+    btnQuickCreateStore.addEventListener("click", (e) => {
+      e.preventDefault();
+      OnboardingWizard.submitQuickSetup();
+    });
+  }
+
+  // Store Switcher Trigger -> Tab Tiendas
+  const storeSwitcherTrigger = document.getElementById("store-switcher-trigger");
+  if (storeSwitcherTrigger) {
+    storeSwitcherTrigger.addEventListener("click", () => {
+      StudioController.switchStudioTab("stores");
+    });
+  }
+
+  // Studio Edit Store Btn -> Tab Ajustes
+  const studioEditStoreBtn = document.getElementById("studio-edit-store-btn");
+  if (studioEditStoreBtn) {
+    studioEditStoreBtn.addEventListener("click", () => {
+      StudioController.switchStudioTab("settings");
+    });
+  }
+
+  // Navegación Inferior Móvil Fija (3 Pestañas)
+  document.querySelectorAll(".studio-bottom-nav-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const tabKey = btn.getAttribute("data-tab");
+      StudioController.switchStudioTab(tabKey);
+    });
+  });
+
+  // Modal Crear Tienda
+  const btnOpenCreateStore = document.getElementById("btn-open-create-store-modal");
+  const createStoreModal = document.getElementById("create-store-modal");
+  const closeCreateStoreModalBtn = document.getElementById("close-create-store-modal-btn");
+  const cancelCreateStoreModalBtn = document.getElementById("cancel-create-store-modal-btn");
+  const submitCreateStoreModalBtn = document.getElementById("submit-create-store-modal-btn");
+
+  if (btnOpenCreateStore && createStoreModal) {
+    btnOpenCreateStore.addEventListener("click", () => {
+      createStoreModal.classList.remove("hidden");
+    });
+  }
+  const hideCreateStoreModal = () => {
+    if (createStoreModal) createStoreModal.classList.add("hidden");
+  };
+  if (closeCreateStoreModalBtn) closeCreateStoreModalBtn.addEventListener("click", hideCreateStoreModal);
+  if (cancelCreateStoreModalBtn) cancelCreateStoreModalBtn.addEventListener("click", hideCreateStoreModal);
+
+  // Modal Niche Chips
+  const modalNicheChips = document.getElementById("modal-store-niche-chips");
+  const modalSelectedNiche = document.getElementById("modal-store-selected-niche");
+  if (modalNicheChips && modalSelectedNiche) {
+    modalNicheChips.querySelectorAll(".quick-niche-chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        modalNicheChips.querySelectorAll(".quick-niche-chip").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        modalSelectedNiche.value = chip.dataset.niche || "apparel";
+      });
+    });
+  }
+
+  if (submitCreateStoreModalBtn) {
+    submitCreateStoreModalBtn.addEventListener("click", () => {
+      const nameInput = document.getElementById("modal-new-store-name");
+      const name = nameInput ? nameInput.value.trim() : "";
+      if (!name) {
+        Toast.show("Ingresa el nombre de la nueva tienda", "⚠️");
+        if (nameInput) nameInput.focus();
+        return;
+      }
+      const preset = modalSelectedNiche?.value || "apparel";
+      const currency = document.getElementById("modal-new-store-currency")?.value || "S/";
+      const phone = document.getElementById("modal-new-store-phone")?.value.trim() || "";
+      const yape = document.getElementById("modal-new-store-yape")?.value.trim() || "";
+
+      AppState.createNewStore({ name, preset, phone, currency, yapePhone: yape });
+      hideCreateStoreModal();
+      StudioController.switchStudioTab("products");
+      Toast.show(`¡Tienda "${name}" creada con éxito!`, "🎉");
+    });
+  }
+
+  // Backdrop click on product editor modal
+  const productModal = document.getElementById("studio-product-modal");
+  if (productModal) {
+    productModal.addEventListener("click", (e) => {
+      if (e.target === productModal) {
+        StudioController.closeProductEditor();
+      }
+    });
+  }
+
+  // Exportar al objeto global window para depuración y tests
+  window.AppState = AppState;
+  window.ViewController = ViewController;
+  window.StudioController = StudioController;
+  window.CustomerUI = CustomerUI;
+  window.CartController = CartController;
+  window.OnboardingWizard = OnboardingWizard;
+
 });

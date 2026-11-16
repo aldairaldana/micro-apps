@@ -48,424 +48,76 @@
          (Para EL CLIENTE: Dueño del negocio que crea su catálogo)
          =============================================================== -->
     <div id="onboarding-screen" class="view-screen onboarding-fullscreen active">
-      <!-- Fondo Atmosférico Estilo Apple (Mesh Ambient Lighting) -->
-      <div class="apple-ambient-glow" aria-hidden="true">
+      <div class="apple-ambient-glow" aria-hidden="true" style="pointer-events: none;">
         <div class="apple-glow-orb-1"></div>
         <div class="apple-glow-orb-2"></div>
       </div>
 
-      <div class="apple-onboarding-wrapper">
-        
-        <!-- Header Minimalista Estilo Apple -->
-        <header class="apple-header">
-          <div class="apple-brand-box">
-            <svg class="apple-brand-symbol" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-            </svg>
-            <span class="apple-brand-text">TiendaZap <span class="apple-brand-subtext">Studio</span></span>
-          </div>
-        </header>
-
-        <!-- Indicador Segmentado de Pasos Estilo iOS Sheet -->
-        <div class="apple-progress-container" aria-label="Progreso del asistente">
-          <div class="apple-dots-row">
-            <span class="apple-dot active" data-step="0"></span>
-            <span class="apple-dot" data-step="1"></span>
-            <span class="apple-dot" data-step="2"></span>
-            <span class="apple-dot" data-step="3"></span>
-            <span class="apple-dot" data-step="4"></span>
-            <span class="apple-dot" data-step="5"></span>
-          </div>
-          <span class="apple-step-counter" id="apple-step-counter">Invitación Especial</span>
-        </div>
-
-        <!-- ===============================================================
-             PASO 0: LA INVITACIÓN OFICIAL (APPLE SPECIAL EVENT PASS)
-             =============================================================== -->
-        <section class="apple-step-card active" id="apple-step-0">
-          <div class="apple-card-glow-border"></div>
-          <div class="apple-invite-badge">INVITACIÓN ESPECIAL · COMERCIANTE</div>
-          
-          <div class="apple-hero-text-block">
-            <h1 class="apple-title-greeting">Hola.<br><span class="apple-title-sub">Te damos la bienvenida.</span></h1>
-            <p class="apple-subtext">Has sido invitado a crear tu catálogo digital con estándar de diseño Apple. Una vitrina concebida para vender por WhatsApp con la máxima elegancia, rapidez y cobros directos por Yape.</p>
-          </div>
-
-          <!-- Pase Digital de Invitación -->
-          <div class="apple-invite-pass">
-            <div class="apple-pass-header">
-              <div class="apple-chip-icon">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <rect x="2" y="5" width="20" height="14" rx="3"/>
-                  <line x1="2" y1="10" x2="22" y2="10"/>
-                </svg>
-              </div>
-              <span class="apple-pass-serial">ACCESO PRIVADO · 2026</span>
-            </div>
-            <div class="apple-pass-body">
-              <div class="apple-pass-meta-row">
-                <span class="apple-meta-label">TITULAR</span>
-                <span class="apple-meta-val">Nuevo Comerciante</span>
-              </div>
-              <div class="apple-pass-meta-row">
-                <span class="apple-meta-label">CANAL</span>
-                <span class="apple-meta-val">WhatsApp Direct & Yape QR</span>
-              </div>
-              <div class="apple-pass-meta-row">
-                <span class="apple-meta-label">COMISIÓN</span>
-                <span class="apple-meta-val highlight-green">0% — Venta 100% Directa</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="apple-card-actions">
-            <button type="button" id="apple-accept-invite-btn" class="apple-btn-primary">
-              <span>Aceptar Invitación y Registrarme</span>
-            </button>
-          </div>
-        </section>
-
-        <!-- ===============================================================
-             PASO 1: REGISTRO DEL COMERCIANTE (TU CUENTA PRIVADA)
-             =============================================================== -->
-        <section class="apple-step-card hidden" id="apple-step-1">
-          <div class="apple-step-header">
-            <span class="apple-step-eyebrow">PASO 1 DE 5 · REGISTRO</span>
-            <h2 class="apple-step-title">Tu cuenta de comerciante.</h2>
-            <p class="apple-step-desc">Establece tus datos de propietario para gestionar tu vitrina y proteger tu acceso administrativo.</p>
-          </div>
-
-          <div class="apple-form-stack">
-            <div class="apple-input-group">
-              <input type="text" id="apple-reg-name" required placeholder=" " class="apple-floating-input" autocomplete="name">
-              <label for="apple-reg-name" class="apple-floating-label">Nombre y Apellido del Propietario *</label>
-            </div>
-
-            <div class="apple-input-group">
-              <input type="text" id="apple-reg-contact" required placeholder=" " class="apple-floating-input" autocomplete="email">
-              <label for="apple-reg-contact" class="apple-floating-label">Correo Electrónico o Celular Personal *</label>
-            </div>
-
-            <div class="apple-input-group">
-              <input type="password" id="apple-reg-pin" maxlength="6" placeholder=" " class="apple-floating-input" inputmode="numeric">
-              <label for="apple-reg-pin" class="apple-floating-label">PIN de Seguridad (4 a 6 dígitos)</label>
-              <span class="apple-field-hint">Protege la edición de precios y productos en tu teléfono.</span>
-            </div>
-          </div>
-
-          <div class="apple-card-actions row-split">
-            <button type="button" id="apple-prev-1-btn" class="apple-btn-secondary">
-              <span>Atrás</span>
-            </button>
-            <button type="button" id="apple-next-1-btn" class="apple-btn-primary">
-              <span>Continuar a Identidad de Marca</span>
-            </button>
-          </div>
-        </section>
-
-        <!-- ===============================================================
-             PASO 2: IDENTIDAD VISUAL & LOGO (ESTILO APPLE ID)
-             =============================================================== -->
-        <section class="apple-step-card hidden" id="apple-step-2">
-          <div class="apple-step-header">
-            <span class="apple-step-eyebrow">PASO 2 DE 5 · MARCA</span>
-            <h2 class="apple-step-title">El rostro de tu negocio.</h2>
-            <p class="apple-step-desc">Sube el logo de tu empresa y define el rubro al que te dedicas.</p>
-          </div>
-
-          <!-- Uploader Circular Apple ID -->
-          <div class="apple-avatar-section">
-            <div class="apple-circle-avatar" id="apple-logo-circle" title="Toca para subir tu logo">
-              <img id="apple-logo-img" class="apple-avatar-preview hidden" src="" alt="Logo">
-              <div id="apple-logo-placeholder" class="apple-avatar-placeholder">
-                <svg class="apple-camera-svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                  <circle cx="12" cy="13" r="4"/>
-                </svg>
-                <span class="apple-avatar-upload-text">DAME TU LOGO</span>
-              </div>
-              <div class="apple-badge-camera">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M12 5v14M5 12h14"/>
-                </svg>
-              </div>
-            </div>
-            <input type="file" id="apple-logo-file-input" accept="image/*" class="hidden">
-            <span class="apple-avatar-hint">Toca el círculo para subir tu logo o fotografía de marca</span>
-          </div>
-
-          <div class="apple-form-stack">
-            <div class="apple-input-group">
-              <input type="text" id="apple-store-name" required placeholder=" " class="apple-floating-input">
-              <label for="apple-store-name" class="apple-floating-label">Nombre Comercial de la Empresa *</label>
-            </div>
-
-            <div class="apple-slug-preview-box">
-              <div class="apple-slug-display">
-                <span class="apple-slug-icon">🔒</span>
-                <span class="apple-slug-text">Tu dirección web oficial:</span>
-                <strong class="apple-slug-url" id="apple-slug-preview">tiendazap.pages.dev/tienda</strong>
-              </div>
-              <div class="apple-input-group" style="margin-top: 6px;">
-                <input type="text" id="apple-store-slug" placeholder=" " class="apple-floating-input" style="font-family: monospace; font-size: 0.82rem;">
-                <label for="apple-store-slug" class="apple-floating-label">Personalizar enlace (ej: flores-vanesa)</label>
-              </div>
-            </div>
-
-            <div class="apple-field-block">
-              <label class="apple-static-label">Rubro o Giro Comercial</label>
-              <div class="apple-segmented-grid" id="apple-niche-grid">
-                <button type="button" class="apple-segment-pill active" data-niche="sneakers">👟 Zapatillas & Calzado</button>
-                <button type="button" class="apple-segment-pill" data-niche="beauty">✨ Perfumes & Belleza</button>
-                <button type="button" class="apple-segment-pill" data-niche="watches">⌚ Relojes & Joyas</button>
-                <button type="button" class="apple-segment-pill" data-niche="fashion">👖 Ropa & Moda</button>
-                <button type="button" class="apple-segment-pill" data-niche="food">🍰 Postres & Comida</button>
-                <button type="button" class="apple-segment-pill" data-niche="tech">💻 Tecnología & Gadgets</button>
-                <button type="button" class="apple-segment-pill" data-niche="general">🛍️ Tienda General</button>
-              </div>
-            </div>
-
-            <div class="apple-input-group">
-              <input type="text" id="apple-store-tagline" placeholder=" " class="apple-floating-input">
-              <label for="apple-store-tagline" class="apple-floating-label">Eslogan o promesa corta de la tienda</label>
-            </div>
-          </div>
-
-          <div class="apple-card-actions row-split">
-            <button type="button" id="apple-prev-2-btn" class="apple-btn-secondary">
-              <span>Atrás</span>
-            </button>
-            <button type="button" id="apple-next-2-btn" class="apple-btn-primary">
-              <span>Continuar a WhatsApp</span>
-            </button>
-          </div>
-        </section>
-
-        <!-- ===============================================================
-             PASO 3: CANALES DE PAGO & WHATSAPP (CONEXIÓN YAPE)
-             =============================================================== -->
-        <section class="apple-step-card hidden" id="apple-step-3">
-          <div class="apple-step-header">
-            <span class="apple-step-eyebrow">PASO 3 DE 5 · PAGOS Y PEDIDOS</span>
-            <h2 class="apple-step-title">WhatsApp y Cobros Yape.</h2>
-            <p class="apple-step-desc">Configura dónde recibirás las órdenes de compra y el código QR de Yape para pagos directos.</p>
-          </div>
-
-          <div class="apple-form-stack">
-            <div class="apple-phone-card">
-              <span class="apple-phone-prefix">🇵🇪 +51</span>
-              <div class="apple-input-group flush">
-                <input type="tel" id="apple-store-phone" required placeholder=" " class="apple-floating-input phone-inner">
-                <label for="apple-store-phone" class="apple-floating-label">Número Oficial de WhatsApp *</label>
-              </div>
-            </div>
-
-            <div class="apple-input-group">
-              <select id="apple-currency-select" class="apple-floating-select">
-                <option value="S/">S/ Soles Peruanos (PEN)</option>
-                <option value="$">$ Dólares Americanos (USD)</option>
-                <option value="MXN$">MXN$ Pesos Mexicanos</option>
-                <option value="COP$">COP$ Pesos Colombianos</option>
-                <option value="€">€ Euros</option>
-              </select>
-              <label class="apple-select-label">Símbolo de Moneda Comercial</label>
-            </div>
-
-            <!-- Módulo Frosted Yape / Plin -->
-            <div class="apple-frosted-payment-box">
-              <div class="apple-box-title-row">
-                <div class="apple-box-title">
-                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="5" y="2" width="14" height="20" rx="3"/>
-                    <line x1="12" y1="18" x2="12.01" y2="18"/>
-                  </svg>
-                  <span>Módulo Yape / Plin</span>
-                </div>
-                <span class="apple-pill-tag">Cobro Inmediato</span>
-              </div>
-
-              <div class="apple-input-group">
-                <input type="tel" id="apple-yape-phone" placeholder=" " class="apple-floating-input">
-                <label for="apple-yape-phone" class="apple-floating-label">Número de Celular para Yape/Plin</label>
-              </div>
-
-              <div class="apple-input-group">
-                <input type="text" id="apple-yape-titular" placeholder=" " class="apple-floating-input">
-                <label for="apple-yape-titular" class="apple-floating-label">Nombre del Titular de la Cuenta</label>
-              </div>
-
-              <!-- Dropzone QR Apple -->
-              <div class="apple-qr-dropzone" id="apple-qr-dropzone" title="Toca para subir tu QR de Yape">
-                <img id="apple-qr-img" class="apple-qr-preview-img hidden" src="" alt="QR Yape">
-                <div id="apple-qr-placeholder" class="apple-qr-placeholder-content">
-                  <svg class="apple-qr-svg" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.6">
-                    <rect x="3" y="3" width="7" height="7"/>
-                    <rect x="14" y="3" width="7" height="7"/>
-                    <rect x="14" y="14" width="7" height="7"/>
-                    <rect x="3" y="14" width="7" height="7"/>
-                  </svg>
-                  <span class="apple-qr-text-primary">Adjuntar Captura de tu Código QR de Yape</span>
-                  <span class="apple-qr-text-sub">Tus compradores escanearán y enviarán su comprobante</span>
-                </div>
-                <input type="file" id="apple-qr-file-input" accept="image/*" class="hidden">
-              </div>
-            </div>
-          </div>
-
-          <div class="apple-card-actions row-split">
-            <button type="button" id="apple-prev-3-btn" class="apple-btn-secondary">
-              <span>Atrás</span>
-            </button>
-            <button type="button" id="apple-next-3-btn" class="apple-btn-primary">
-              <span>Continuar a Primer Producto</span>
-            </button>
-          </div>
-        </section>
-
-        <!-- ===============================================================
-             PASO 4: CREA TU CATÁLOGO (TU PRIMER PRODUCTO)
-             =============================================================== -->
-        <section class="apple-step-card hidden" id="apple-step-4">
-          <div class="apple-step-header">
-            <span class="apple-step-eyebrow">PASO 4 DE 5 · CATÁLOGO</span>
-            <h2 class="apple-step-title">Inaugura tu vitrina.</h2>
-            <p class="apple-step-desc">Publica tu primer artículo para que tus clientes puedan empezar a comprar.</p>
-          </div>
-
-          <div class="apple-form-stack">
-            <!-- Selector de Tipo de Publicación en Onboarding -->
-            <div class="apple-field-block">
-              <label class="apple-block-label">Tipo de Publicación</label>
-              <div class="apple-type-selector-pills" id="apple-type-selector">
-                <button type="button" class="apple-type-pill active" data-type="item">🛍️ Físico</button>
-                <button type="button" class="apple-type-pill" data-type="digital">⚡ Digital / Licencia</button>
-                <button type="button" class="apple-type-pill" data-type="vehicle">🚗 Vehículo</button>
-              </div>
-              <input type="hidden" id="apple-prod-type" value="item">
-            </div>
-
-            <!-- Dropzone Foto de Producto con soporte multifoto -->
-            <div class="apple-product-dropzone" id="apple-prod-dropzone" title="Toca para subir la foto del producto">
-              <img id="apple-prod-img" class="apple-prod-preview-img hidden" src="" alt="Producto">
-              <div id="apple-prod-placeholder" class="apple-prod-placeholder-content">
-                <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6">
-                  <rect x="3" y="3" width="18" height="18" rx="3"/>
-                  <circle cx="8.5" cy="8.5" r="1.5"/>
-                  <polyline points="21 15 16 10 5 21"/>
-                </svg>
-                <span class="apple-prod-upload-title">Fotografías del Producto</span>
-                <span class="apple-prod-upload-sub">Sube hasta 6 fotos desde tu galería o cámara</span>
-              </div>
-              <input type="file" id="apple-prod-file-input" accept="image/*" multiple class="hidden">
-            </div>
-            <div class="apple-multi-thumbs-strip hidden" id="apple-multi-thumbs-strip"></div>
-
-            <div class="apple-input-group">
-              <input type="text" id="apple-prod-name" required placeholder=" " class="apple-floating-input">
-              <label for="apple-prod-name" class="apple-floating-label">Nombre del Producto / Vehículo / Licencia *</label>
-            </div>
-
-            <div class="apple-grid-2">
-              <div class="apple-input-group">
-                <div class="apple-price-with-currency-row">
-                  <select id="apple-prod-currency" class="apple-currency-select-inline" title="Moneda">
-                    <option value="S/">S/</option>
-                    <option value="US$">US$</option>
-                  </select>
-                  <input type="number" id="apple-prod-price" step="0.50" required placeholder=" " class="apple-floating-input apple-price-font">
-                </div>
-                <label for="apple-prod-price" class="apple-floating-label">Precio *</label>
-              </div>
-
-              <div class="apple-input-group">
-                <input type="text" id="apple-prod-cat" placeholder=" " class="apple-floating-input">
-                <label for="apple-prod-cat" class="apple-floating-label">Categoría *</label>
-              </div>
-            </div>
-
-            <div class="apple-input-group">
-              <textarea id="apple-prod-desc" rows="3" class="apple-floating-input apple-textarea" placeholder=" "></textarea>
-              <label for="apple-prod-desc" class="apple-floating-label">Describe los detalles principales (ej. Incluye funciones con IA, activación con tu correo, garantía... o Año, Km, Motor si es un auto)</label>
-            </div>
-
-            <div class="apple-input-group">
-              <input type="url" id="apple-prod-video" placeholder=" " class="apple-floating-input">
-              <label for="apple-prod-video" class="apple-floating-label">🎥 Video del Producto (Opcional: Reel, TikTok, Shorts o .mp4)</label>
-            </div>
-
-            <!-- Sugerencias de Categorías según Rubro -->
-            <div class="apple-suggestions-box">
-              <span class="apple-suggestions-label">Sugerencias rápidas para tu rubro:</span>
-              <div class="apple-suggestions-pills" id="apple-cat-suggestions"></div>
-            </div>
-          </div>
-
-          <div class="apple-card-actions row-split">
-            <button type="button" id="apple-prev-4-btn" class="apple-btn-secondary">
-              <span>Atrás</span>
-            </button>
-            <button type="button" id="apple-finish-btn" class="apple-btn-primary highlight-white">
-              <span>Publicar Catálogo Digital</span>
-            </button>
-          </div>
-        </section>
-
-        <!-- ===============================================================
-             PASO 5: TU CATÁLOGO ESTÁ EN LÍNEA (APPLE CARD PASS)
-             =============================================================== -->
-        <section class="apple-step-card hidden" id="apple-step-5">
-          <div class="apple-step-header text-center">
-            <div class="apple-success-badge">
+      <div class="quick-onboarding-wrapper">
+        <div class="quick-onboarding-card">
+          <div class="quick-onboarding-header">
+            <div class="quick-brand-badge">
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="20 6 9 17 4 12"/>
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
               </svg>
+              <span>TiendaZap Studio</span>
             </div>
-            <span class="apple-step-eyebrow">CONFIGURACIÓN COMPLETADA</span>
-            <h2 class="apple-step-title">Tu catálogo está en línea.</h2>
-            <p class="apple-step-desc">Tus compradores ya pueden ver tus productos, ordenar y enviarte el comprobante de pago directo a WhatsApp.</p>
+            <h1 class="quick-brand-title">Crea tu tienda en 30 segundos</h1>
+            <p class="quick-brand-desc">Publica tu catálogo con fotos, precios y especificaciones. Recibe pedidos directos en tu WhatsApp sin intermediarios ni comisiones.</p>
           </div>
 
-          <!-- Apple Card Digital Presentation -->
-          <div class="apple-digital-card">
-            <div class="apple-card-top-row">
-              <div class="apple-card-brand">
-                <span class="apple-card-logo-dot"></span>
-                <span id="apple-card-store-name" class="apple-card-store-name">Mi Tienda</span>
+          <form id="quick-setup-form" class="quick-setup-form" onsubmit="return false;">
+            <!-- Nombre de la tienda -->
+            <div class="editor-field-group">
+              <label for="quick-store-name" class="field-label-sm">Nombre de tu tienda o marca *</label>
+              <input type="text" id="quick-store-name" class="input-modern" required placeholder="Ej: Don Licencias, Nova Motors, Moda Lima...">
+            </div>
+
+            <!-- Rubro del negocio -->
+            <div class="editor-field-group">
+              <label class="field-label-sm">¿Qué rubro vendes principalmente? *</label>
+              <div class="quick-niche-chips" id="quick-niche-chips">
+                <button type="button" class="quick-niche-chip active" data-niche="apparel">🛍️ Ropa / Zapatillas</button>
+                <button type="button" class="quick-niche-chip" data-niche="digital">⚡ Software / Licencias</button>
+                <button type="button" class="quick-niche-chip" data-niche="vehicles">🚗 Vehículos / Autos</button>
+                <button type="button" class="quick-niche-chip" data-niche="properties">🏠 Inmuebles / Alquiler</button>
+                <button type="button" class="quick-niche-chip" data-niche="burger">🍔 Comida / Restaurante</button>
+                <button type="button" class="quick-niche-chip" data-niche="watches">⌚ Relojes / Joyas</button>
+                <button type="button" class="quick-niche-chip" data-niche="general">📦 Comercio General</button>
               </div>
-              <span class="apple-card-status">EN VIVO</span>
+              <input type="hidden" id="quick-selected-niche" value="apparel">
             </div>
-            <div class="apple-card-middle">
-              <span class="apple-card-merchant-label">PROPIETARIO</span>
-              <span id="apple-card-merchant-name" class="apple-card-merchant-name">Comerciante Registrado</span>
-            </div>
-            <div class="apple-card-bottom-row">
-              <span class="apple-card-powered">POWERED BY TIENDAZAP</span>
-              <span class="apple-card-year">2026</span>
-            </div>
-          </div>
 
-          <!-- Caja de Enlace Exclusivo -->
-          <div class="apple-link-box">
-            <span class="apple-link-label">ENLACE EXCLUSIVO PARA TUS COMPRADORES</span>
-            <div class="apple-link-row">
-              <input type="text" id="apple-catalog-link" readonly class="apple-link-input" value="">
-              <button type="button" id="apple-copy-link-btn" class="apple-btn-copy" title="Copiar enlace">
-                <span>Copiar</span>
-              </button>
+            <!-- Fila Moneda & WhatsApp -->
+            <div class="form-grid-2">
+              <div class="editor-field-group">
+                <label for="quick-store-currency" class="field-label-sm">Moneda *</label>
+                <select id="quick-store-currency" class="input-modern">
+                  <option value="S/">Soles (S/)</option>
+                  <option value="US$">Dólares (US$)</option>
+                </select>
+              </div>
+              <div class="editor-field-group">
+                <label for="quick-store-phone" class="field-label-sm">WhatsApp para pedidos *</label>
+                <input type="tel" id="quick-store-phone" class="input-modern" required placeholder="Ej: 987654321">
+              </div>
             </div>
-            <span class="apple-link-hint">Comparte este enlace en tus estados de WhatsApp, biografía de TikTok o chats.</span>
-          </div>
 
-          <div class="apple-card-actions">
-            <button type="button" id="apple-open-customer-btn" class="apple-btn-primary">
-              <span>Abrir Catálogo como Comprador Final</span>
+            <!-- Yape opcional -->
+            <div class="editor-field-group">
+              <label for="quick-yape-phone" class="field-label-sm">Número Yape / Plin <span class="quick-optional">(Opcional)</span></label>
+              <input type="tel" id="quick-yape-phone" class="input-modern" placeholder="Ej: 987654321 (para transferencias directas)">
+            </div>
+
+            <!-- Botón Submit -->
+            <button type="submit" id="btn-quick-create-store" class="btn-primary quick-submit-btn">
+              <span>Crear mi tienda</span>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7"></path>
+              </svg>
             </button>
-            <button type="button" id="apple-open-studio-btn" class="apple-btn-secondary">
-              <span>Ir al Panel de Control de mi Tienda</span>
-            </button>
-          </div>
-        </section>
-
+          </form>
+        </div>
       </div>
     </div>
 
@@ -475,104 +127,49 @@
     <div id="admin-studio-view" class="view-screen hidden">
 
       <!-- Header Superior del Administrador (Estilo Apple Studio) -->
-      <header class="apple-studio-topbar">
-        <div class="apple-studio-brand">
-          <svg class="apple-brand-symbol" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-          </svg>
-          <div class="apple-brand-col">
-            <span class="apple-brand-title">TiendaZap <span class="apple-pro-tag">STUDIO</span></span>
-            <span class="apple-brand-sub" id="studio-merchant-tag">Panel Propietario</span>
+      <!-- Cabecera Compacta del Administrador (< 120px de alto) -->
+      <header class="studio-compact-header">
+        <div class="studio-header-top-row">
+          <div class="studio-store-pill-dropdown" id="store-switcher-trigger" title="Cambiar o ver tiendas">
+            <img id="admin-logo-preview" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=120&q=80" alt="Logo" class="studio-mini-logo">
+            <span class="studio-header-store-name" id="studio-store-name-display">Mi Tienda</span>
+            <svg class="dropdown-arrow-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+
+          <div class="studio-header-right-actions">
+            <!-- Switch Tienda Abierta / Cerrada -->
+            <button type="button" id="toggle-store-status-btn" class="apple-status-pill open" title="Estado de la vitrina">
+              <span class="apple-status-dot"></span>
+              <span id="quick-status-label">Abierto</span>
+            </button>
+
+            <!-- Botón Ver Tienda de Clientes -->
+            <button type="button" id="open-preview-btn" class="studio-btn-preview" title="Ver catálogo como cliente">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              <span>Ver tienda</span>
+            </button>
           </div>
         </div>
 
-        <div class="apple-topbar-actions">
-          <!-- Switch Tienda Abierta / Cerrada -->
-          <button type="button" id="toggle-store-status-btn" class="apple-status-pill open" title="Estado de la vitrina">
-            <span class="apple-status-dot"></span>
-            <span id="quick-status-label">Abierto</span>
+        <!-- Barra compacta de acciones rápidas (Copiar enlace | QR | Editar tienda) -->
+        <div class="studio-compact-actions-row">
+          <button type="button" id="studio-copy-link-btn" class="studio-pill-action-btn" title="Copiar enlace del catálogo para clientes">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            <span>Copiar enlace</span>
           </button>
-
-          <!-- Botón Ver Catálogo como Comprador -->
-          <button type="button" id="open-preview-btn" class="apple-btn-preview" title="Ver catálogo de tus clientes">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-            <span>Ver Catálogo</span>
+          <button type="button" id="studio-open-qr-btn" class="studio-pill-action-btn" title="Ver código QR para imprimir o mostrar">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Código QR</span>
+          </button>
+          <button type="button" id="studio-edit-store-btn" class="studio-pill-action-btn" title="Editar fotos, nombre y datos de la tienda">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <span>Editar tienda</span>
           </button>
         </div>
       </header>
-
-      <!-- Portada & Perfil Visual de la Tienda (Interactiva para cambiar fotos con 1 clic) -->
-      <section class="store-visual-editor-card">
-        <!-- Portada / Banner -->
-        <div class="banner-edit-container" id="banner-edit-container">
-          <img id="admin-banner-preview" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80" alt="Portada de tu tienda" class="admin-banner-img">
-          <div class="banner-overlay-gradient"></div>
-          
-          <button type="button" id="change-banner-btn" class="photo-change-badge banner-badge" title="Cambiar Foto de Portada">
-            <span class="camera-icon">📷</span>
-            <span>Cambiar Portada</span>
-          </button>
-          <input type="file" id="banner-file-input" accept="image/*" class="hidden">
-        </div>
-
-        <!-- Avatar & Datos Rápidos -->
-        <div class="store-identity-row">
-          <div class="avatar-edit-container" id="avatar-edit-container">
-            <img id="admin-logo-preview" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80" alt="Logo de tu tienda" class="admin-logo-img">
-            <button type="button" id="change-logo-btn" class="photo-change-badge avatar-badge" title="Cambiar Logo">
-              <span>📷</span>
-            </button>
-            <input type="file" id="logo-file-input" accept="image/*" class="hidden">
-          </div>
-
-          <div class="identity-info-box">
-            <div class="title-edit-wrapper">
-              <input type="text" id="live-store-name" class="inline-edit-name" value="" placeholder="Nombre comercial de tu tienda">
-              <span class="edit-hint-icon">✏️</span>
-            </div>
-            <input type="text" id="live-store-tagline" class="inline-edit-tagline" value="" placeholder="Eslogan o descripción de tu catálogo">
-          </div>
-        </div>
-
-        <!-- Barra de Acciones Rápidas (Compartir Link / Ver QR / Asistente / Iniciar de 0) -->
-        <div class="studio-quick-links-bar">
-          <button type="button" id="studio-open-wizard-btn" class="quick-link-btn highlight" style="background: rgba(37, 211, 102, 0.15); border-color: #25D366; color: #25D366;">
-            <span>🪄 Asistente Paso a Paso</span>
-          </button>
-          <button type="button" id="studio-copy-link-btn" class="quick-link-btn">
-            <span>🔗 Enlace de Clientes</span>
-          </button>
-          <button type="button" id="studio-share-btn" class="quick-link-btn" title="Compartir catálogo">
-            <span>📤 Compartir</span>
-          </button>
-          <button type="button" id="studio-open-qr-btn" class="quick-link-btn">
-            <span>🔲 Código QR</span>
-          </button>
-          <button type="button" id="studio-reset-btn" class="quick-link-btn" style="color: var(--accent-red); border-color: rgba(239, 68, 68, 0.3);" title="Reiniciar de cero como nueva">
-            <span>🔄 Iniciar de 0</span>
-          </button>
-        </div>
-      </section>
-
-      <!-- Selector de Pestañas Principales del Studio -->
-      <nav class="studio-tabs-nav" aria-label="Secciones del Administrador">
-        <button type="button" class="studio-tab-btn active" data-tab="products" id="tab-nav-products">
-          <span class="tab-icon">📦</span>
-          <span>Productos & Precios</span>
-          <span class="tab-badge" id="studio-products-badge">0</span>
-        </button>
-        <button type="button" class="studio-tab-btn" data-tab="settings" id="tab-nav-settings">
-          <span class="tab-icon">⚙️</span>
-          <span>Ajustes & Delivery</span>
-        </button>
-        <button type="button" class="studio-tab-btn" data-tab="cloud" id="tab-nav-cloud">
-          <span class="tab-icon">💾</span>
-          <span>Nube & Respaldo</span>
-        </button>
-      </nav>
 
       <!-- CONTENIDO DE LAS PESTAÑAS DEL STUDIO -->
       <main class="studio-main-body">
@@ -599,7 +196,7 @@
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
-                <span>+ Añadir Producto</span>
+                <span>Nuevo producto</span>
               </button>
             </div>
           </div>
@@ -608,13 +205,15 @@
           <div class="category-filters-track" id="studio-categories-track"></div>
 
           <!-- Formulario Flotante de Crear / Editar Producto -->
-          <div id="studio-product-editor" class="product-editor-card hidden">
-            <div class="editor-card-header">
-              <h3 id="editor-form-title">Añadir Nuevo Producto</h3>
-              <button type="button" id="close-editor-btn" class="close-card-btn" title="Cerrar">✕</button>
-            </div>
-            <form id="studio-product-form" class="editor-card-form">
-              <input type="hidden" id="editor-product-id">
+          <div id="studio-product-modal" class="modal-overlay hidden" aria-hidden="true">
+            <div id="studio-product-editor" class="product-editor-modal-card">
+              <div class="editor-modal-header">
+                <h3 id="editor-form-title">Añadir Nuevo Producto</h3>
+                <button type="button" id="close-editor-btn" class="editor-close-btn" title="Cerrar modal">✕</button>
+              </div>
+              <form id="studio-product-form" class="editor-modal-body">
+                <input type="hidden" id="editor-product-id">
+            
 
               <!-- Selector de Tipo de Publicación (Estilo FB Marketplace) -->
               <div class="editor-field-group">
@@ -745,11 +344,12 @@
                 </label>
               </div>
 
-              <div class="editor-actions-footer">
+              
+              <div class="editor-modal-footer">
                 <button type="button" id="editor-cancel-btn" class="btn-cancel-edit">Cancelar</button>
-                <button type="submit" id="save-product-btn" class="btn-save-product">Guardar Producto</button>
+                <button type="submit" id="save-product-btn" form="studio-product-form" class="btn-save-product">Guardar Producto</button>
               </div>
-            </form>
+            </div>
           </div>
 
           <!-- Lista de Productos en Tarjetas Apple -->
@@ -763,11 +363,68 @@
           </div>
         </div>
 
-        <!-- =============================================================
-             PESTAÑA 2: AJUSTES & DELIVERY
+                <!-- =============================================================
+             PESTAÑA 2: GESTOR MULTI-TIENDA (TIENDAS)
+             ============================================================= -->
+        <div id="view-stores" class="studio-tab-view hidden">
+          <div class="stores-tab-header">
+            <div>
+              <h2 class="stores-tab-title">Tus Tiendas</h2>
+              <p class="stores-tab-subtitle">Administra diferentes negocios y catálogos desde el mismo celular.</p>
+            </div>
+            <button type="button" id="btn-open-create-store-modal" class="btn-primary-compact">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>Nueva tienda</span>
+            </button>
+          </div>
+
+          <div id="studio-stores-list" class="stores-list-container">
+            <!-- Renderizado dinámicamente -->
+          </div>
+        </div>
+
+<!-- =============================================================
+             PESTAÑA 3: AJUSTES & DELIVERY
              ============================================================= -->
         <div id="view-settings" class="studio-tab-view hidden">
           <form id="studio-settings-form">
+            <!-- Card de Identidad Visual y Diseño de la Tienda -->
+            <section class="settings-section-card">
+              <h3 class="section-card-title">Identidad y Portada de tu Tienda</h3>
+              <p class="section-card-desc">Personaliza la foto de portada, tu logo o avatar, y el nombre comercial visible para tus compradores.</p>
+
+              <!-- Banner / Portada -->
+              <div class="settings-banner-preview-box">
+                <img id="admin-banner-preview" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80" alt="Portada de tu tienda" class="settings-banner-img">
+                <button type="button" id="change-banner-btn" class="btn-secondary-compact change-banner-btn">
+                  <span>📷 Cambiar Portada</span>
+                </button>
+                <input type="file" id="banner-file-input" accept="image/*" class="hidden">
+              </div>
+
+              <!-- Avatar & Nombre -->
+              <div class="settings-identity-grid">
+                <div class="settings-logo-wrap">
+                  <img id="admin-logo-preview-settings" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80" alt="Logo" class="settings-logo-img">
+                  <button type="button" id="change-logo-btn" class="btn-secondary-compact change-logo-btn">
+                    <span>📷 Cambiar Logo</span>
+                  </button>
+                  <input type="file" id="logo-file-input" accept="image/*" class="hidden">
+                </div>
+
+                <div class="settings-names-col">
+                  <div class="editor-field-group">
+                    <label for="live-store-name" class="field-label-sm">Nombre comercial *</label>
+                    <input type="text" id="live-store-name" class="input-modern" placeholder="Nombre comercial de tu tienda">
+                  </div>
+                  <div class="editor-field-group">
+                    <label for="live-store-tagline" class="field-label-sm">Eslogan o descripción breve</label>
+                    <input type="text" id="live-store-tagline" class="input-modern" placeholder="Eslogan de tu catálogo">
+                  </div>
+                </div>
+              </div>
+            </section>
+
             <!-- Card de Rubro Comercial WhatsApp Business -->
             <section class="settings-section-card">
               <h3 class="section-card-title">Rubro Comercial WhatsApp Business</h3>
@@ -974,6 +631,21 @@
         </div>
 
       </main>
+      <!-- Navegación Inferior Fija Tipo App Móvil (3 Pestañas: Productos | Tiendas | Ajustes) -->
+      <nav class="studio-bottom-nav" aria-label="Navegación principal">
+        <button type="button" class="studio-bottom-nav-btn active" data-tab="products" id="tab-nav-products">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          <span>Productos</span>
+        </button>
+        <button type="button" class="studio-bottom-nav-btn" data-tab="stores" id="tab-nav-stores">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Tiendas</span>
+        </button>
+        <button type="button" class="studio-bottom-nav-btn" data-tab="settings" id="tab-nav-settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          <span>Ajustes</span>
+        </button>
+      </nav>
 
     </div>
 
@@ -1194,7 +866,7 @@
             <!-- Nota Adicional del Producto -->
             <div class="editor-field-group" style="margin-top: 10px;">
               <label for="modal-product-note" style="font-size: 0.74rem; color: var(--text-muted); font-weight: 600;">
-                Notas adicionales (ej: dedicatoria, requerimiento especial, etc.)
+                Indicaciones especiales (opcional)
               </label>
               <input type="text" id="modal-product-note" class="input-modern" placeholder="Opcional: Detalles para tu pedido...">
             </div>
@@ -1624,5 +1296,54 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
   <script src="app.js?v=20261109-v27"></script>
+    <!-- Modal Crear Nueva Tienda -->
+    <div id="create-store-modal" class="modal-overlay hidden" aria-hidden="true">
+      <div class="product-editor-modal-card create-store-card">
+        <div class="editor-modal-header">
+          <h3>Crear nueva tienda</h3>
+          <button type="button" id="close-create-store-modal-btn" class="editor-close-btn" aria-label="Cerrar">✕</button>
+        </div>
+        <form id="create-store-form" class="editor-modal-body" onsubmit="return false;">
+          <div class="editor-field-group">
+            <label for="modal-new-store-name" class="field-label-sm">Nombre de la nueva tienda *</label>
+            <input type="text" id="modal-new-store-name" class="input-modern" required placeholder="Ej: Nova Motors, Don Licencias...">
+          </div>
+          <div class="editor-field-group">
+            <label class="field-label-sm">Rubro principal *</label>
+            <div class="quick-niche-chips" id="modal-store-niche-chips">
+              <button type="button" class="quick-niche-chip active" data-niche="apparel">🛍️ Ropa / Zapatillas</button>
+              <button type="button" class="quick-niche-chip" data-niche="digital">⚡ Software / Licencias</button>
+              <button type="button" class="quick-niche-chip" data-niche="vehicles">🚗 Vehículos / Autos</button>
+              <button type="button" class="quick-niche-chip" data-niche="properties">🏠 Inmuebles / Alquiler</button>
+              <button type="button" class="quick-niche-chip" data-niche="burger">🍔 Comida / Restaurante</button>
+              <button type="button" class="quick-niche-chip" data-niche="watches">⌚ Relojes / Joyas</button>
+              <button type="button" class="quick-niche-chip" data-niche="general">📦 Comercio General</button>
+            </div>
+            <input type="hidden" id="modal-store-selected-niche" value="apparel">
+          </div>
+          <div class="form-grid-2">
+            <div class="editor-field-group">
+              <label for="modal-new-store-currency" class="field-label-sm">Moneda *</label>
+              <select id="modal-new-store-currency" class="input-modern">
+                <option value="S/">Soles (S/)</option>
+                <option value="US$">Dólares (US$)</option>
+              </select>
+            </div>
+            <div class="editor-field-group">
+              <label for="modal-new-store-phone" class="field-label-sm">WhatsApp pedidos *</label>
+              <input type="tel" id="modal-new-store-phone" class="input-modern" required placeholder="987654321">
+            </div>
+          </div>
+          <div class="editor-field-group">
+            <label for="modal-new-store-yape" class="field-label-sm">Número Yape / Plin <span class="quick-optional">(Opcional)</span></label>
+            <input type="tel" id="modal-new-store-yape" class="input-modern" placeholder="Número para transferencias">
+          </div>
+        </form>
+        <div class="editor-modal-footer">
+          <button type="button" id="cancel-create-store-modal-btn" class="btn-cancel-edit">Cancelar</button>
+          <button type="button" id="submit-create-store-modal-btn" class="btn-save-product">Crear y administrar</button>
+        </div>
+      </div>
+    </div>
 </body>
 </html>
