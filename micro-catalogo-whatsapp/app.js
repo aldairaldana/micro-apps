@@ -888,13 +888,26 @@ const AppState = {
                 googleSheetUrl: ""
               };
               if (data.cfg.np && BUSINESS_PRESETS[data.cfg.np]) this.activePreset = data.cfg.np;
-              if (Array.isArray(data.cats)) this.categories = data.cats;
+              if (Array.isArray(data.cats)) {
+                this.categories = data.cats.map((c, i) => {
+                  if (typeof c === "string") {
+                    const clean = c.trim();
+                    return clean && clean !== "undefined" ? { id: "cat_" + (i + 1), name: clean, icon: CustomerUI.getCategoryIcon(clean) } : null;
+                  }
+                  const cleanName = (c && c.name && c.name !== "undefined") ? c.name.trim() : "";
+                  return cleanName ? {
+                    id: c.id || "cat_" + (i + 1),
+                    name: cleanName,
+                    icon: c.icon || CustomerUI.getCategoryIcon(cleanName)
+                  } : null;
+                }).filter(Boolean);
+              }
               if (Array.isArray(data.prods)) {
                 this.products = data.prods.map(p => ({
                   id: p.id || ("p_" + Math.random().toString(36).substr(2, 6)),
                   sku: p.sku || "",
                   name: p.n || "Producto",
-                  category: p.cat || "General",
+                  category: (p.cat && p.cat !== "undefined") ? p.cat.trim() : "General",
                   price: Number(p.pr || 0),
                   desc: p.d || "",
                   img: p.img || "",
@@ -905,6 +918,7 @@ const AppState = {
                   available: true
                 }));
               }
+              this.initCategories();
               this.isCustomerOnlyMode = true;
             }
           }
@@ -973,20 +987,22 @@ const AppState = {
 
   initCategories() {
     const storedCats = localStorage.getItem("tiendazap_categories");
-    if (storedCats) {
+    if (storedCats && (!this.categories || this.categories.length === 0)) {
       try {
         const parsed = JSON.parse(storedCats);
         if (Array.isArray(parsed) && parsed.length > 0) {
           this.categories = parsed.map((c, i) => {
             if (typeof c === "string") {
-              return { id: "cat_" + (i + 1), name: c.trim(), icon: CustomerUI.getCategoryIcon(c) };
+              const clean = c.trim();
+              return clean && clean !== "undefined" ? { id: "cat_" + (i + 1), name: clean, icon: CustomerUI.getCategoryIcon(clean) } : null;
             }
-            return {
+            const cleanName = (c && c.name && c.name !== "undefined") ? c.name.trim() : "";
+            return cleanName ? {
               id: c.id || "cat_" + (i + 1),
-              name: (c.name || "General").trim(),
-              icon: c.icon || CustomerUI.getCategoryIcon(c.name)
-            };
-          }).filter(c => c.name);
+              name: cleanName,
+              icon: c.icon || CustomerUI.getCategoryIcon(cleanName)
+            } : null;
+          }).filter(Boolean);
         }
       } catch (e) {
         console.warn("Error leyendo categorías almacenadas:", e);
@@ -995,7 +1011,7 @@ const AppState = {
 
     // Si aún no hay categorías, sembrar desde productos existentes o presets
     if (!this.categories || this.categories.length === 0) {
-      const prodCats = [...new Set(this.products.map(p => (p.category || "").trim()).filter(Boolean))];
+      const prodCats = [...new Set(this.products.map(p => (p.category || "").trim()).filter(c => c && c !== "undefined"))];
       const nicheCats = NICHE_DATA[this.activePreset]?.suggestedCategories || NICHE_DATA.general.suggestedCategories || [];
       const combined = [...new Set([...prodCats, ...nicheCats])];
       this.categories = combined.map((name, i) => ({
@@ -1009,7 +1025,7 @@ const AppState = {
       let changed = false;
       this.products.forEach(p => {
         const cName = (p.category || "").trim();
-        if (cName && !this.categories.some(c => c.name.toLowerCase() === cName.toLowerCase())) {
+        if (cName && cName !== "undefined" && !this.categories.some(c => c.name.toLowerCase() === cName.toLowerCase())) {
           this.categories.push({
             id: "cat_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
             name: cName,
@@ -1046,13 +1062,19 @@ const AppState = {
       this.initCategories();
     }
     // Calcular conteo reactivo de productos para cada categoría registrada
-    return this.categories.map(c => {
-      const count = this.products.filter(p => (p.category || "").trim().toLowerCase() === c.name.toLowerCase()).length;
-      return {
-        ...c,
-        count
-      };
-    });
+    return (this.categories || [])
+      .filter(c => c && c.name && c.name !== "undefined" && c.name.trim() !== "")
+      .map(c => {
+        const cName = c.name.trim();
+        const count = this.products.filter(p => (p.category || "").trim().toLowerCase() === cName.toLowerCase()).length;
+        return {
+          ...c,
+          name: cName,
+          label: c.label || cName,
+          icon: c.icon || CustomerUI.getCategoryIcon(cName),
+          count
+        };
+      });
   },
 
   addCategory(rawName, rawIcon) {
@@ -2897,7 +2919,12 @@ const CustomerUI = {
     const list = AppState.getCategoriesList();
     return [
       { name: "all", label: "Todos", count: AppState.products.length, icon: "✨" },
-      ...list.filter(c => c.count > 0)
+      ...list.filter(c => c.count > 0).map(c => ({
+        ...c,
+        name: c.name,
+        label: c.label || c.name || "General",
+        icon: c.icon || CustomerUI.getCategoryIcon(c.name)
+      }))
     ];
   },
 
@@ -2908,9 +2935,9 @@ const CustomerUI = {
     const categories = this.getCategories();
     track.innerHTML = categories.map(cat => `
       <button class="cat-tab-btn ${AppState.customerCategory === cat.name ? "active" : ""}" 
-              data-category="${cat.name}" type="button">
-        <span class="cat-tab-icon">${cat.icon}</span>
-        <span>${cat.label}</span>
+              data-category="${escapeHtml(cat.name)}" type="button">
+        <span class="cat-tab-icon">${cat.icon || CustomerUI.getCategoryIcon(cat.name)}</span>
+        <span>${escapeHtml(cat.label || cat.name || "General")}</span>
         <span class="cat-tab-count">${cat.count}</span>
       </button>
     `).join("");
@@ -2933,7 +2960,7 @@ const CustomerUI = {
     let filtered = [...AppState.products];
 
     if (AppState.customerCategory !== "all") {
-      filtered = filtered.filter(p => p.category === AppState.customerCategory);
+      filtered = filtered.filter(p => (p.category || "").trim().toLowerCase() === AppState.customerCategory.trim().toLowerCase());
     }
 
     if (query) {
