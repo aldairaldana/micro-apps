@@ -112,6 +112,24 @@ const MediaStore = {
       const tx = db.transaction(this.storeName, "readwrite");
       tx.objectStore(this.storeName).delete(key);
     } catch (err) {}
+  },
+
+  async resolveVideoUrl(videoUrl) {
+    if (!videoUrl) return "";
+    const clean = String(videoUrl).trim();
+    if (clean.startsWith("idb://")) {
+      const key = clean.slice(6);
+      try {
+        const blobOrFile = await this.getMedia(key);
+        if (blobOrFile) {
+          return URL.createObjectURL(blobOrFile);
+        }
+      } catch (e) {
+        console.warn("No se pudo resolver video desde MediaStore:", e);
+      }
+      return "";
+    }
+    return clean;
   }
 };
 
@@ -146,7 +164,7 @@ const BUSINESS_PRESETS = {
         price: 489.00,
         desc: "El ícono streetwear por excelencia. Cuero premium blanco y negro, suela de goma con tracción duradera y lengüeta acolchada.",
         img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=500&q=80",
-        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        videoUrl: "",
         sizes: ["38", "39", "40", "41", "42", "43 (+S/ 30)"],
         colors: ["Black / White"],
         promo: true,
@@ -209,7 +227,7 @@ const BUSINESS_PRESETS = {
         price: 75.00,
         desc: "La bestia negra de la perfumería árabe. Salida cítrica ahumada de piña, abedul y pachulí de duración nuclear (+10 horas).",
         img: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=500&q=80",
-        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        videoUrl: "",
         sizes: ["Decant 10ml", "Frasco 105ml (+S/ 120)"],
         colors: ["Amaderado Especiado Cítrico"],
         promo: true,
@@ -272,7 +290,7 @@ const BUSINESS_PRESETS = {
         price: 120.00,
         desc: "Rosas ecuatorianas de tallo largo seleccionadas una a una, envueltas en papel coreano de lujo y lazo de satén.",
         img: "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=500&q=80",
-        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        videoUrl: "",
         sizes: ["Ramo 24 Rosas", "Ramo Gigante 50 Rosas (+S/ 110)"],
         colors: ["Rojo Pasión", "Rosa Pastel", "Blanco Puro"],
         promo: true,
@@ -300,7 +318,7 @@ const BUSINESS_PRESETS = {
         price: 890.00,
         desc: "Calibre 4R36 automático con 41 horas de reserva de marcha, fechador bilingüe, cristal Hardlex y resistencia al agua 100m.",
         img: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=500&q=80",
-        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        videoUrl: "",
         sizes: ["Caja 42.5mm"],
         colors: ["Bisel Negro / Acero", "Bisel Azul / Jubilee (+S/ 40)"],
         promo: false,
@@ -335,7 +353,7 @@ const BUSINESS_PRESETS = {
         price: 89.00,
         desc: "Denim rígido 100% algodón de 12 oz, corte amplio ultra holgado con 6 bolsillos utilitarios y cordón ajustable en tobillos.",
         img: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=500&q=80",
-        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        videoUrl: "",
         sizes: ["28", "30", "32", "34"],
         colors: ["Negro Washed", "Beige Safari", "Verde Militar"],
         promo: true,
@@ -398,7 +416,7 @@ const BUSINESS_PRESETS = {
         price: 22.00,
         desc: "Bizcochuelo súper esponjoso bañado en nuestra mezcla secreta de 3 leches, canela fina y merengue tostado al soplete.",
         img: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=500&q=80",
-        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        videoUrl: "",
         sizes: ["Porción Personal", "Molde 8 Porciones (+S/ 38)", "Molde 16 Porciones (+S/ 65)"],
         colors: ["Canela & Vainilla", "Fudge Artesanal (+S/ 5)"],
         promo: true,
@@ -461,7 +479,7 @@ const BUSINESS_PRESETS = {
         price: 49.00,
         desc: "Clave de producto original 25 caracteres para activación permanente. Soporta reinstalación y actualizaciones oficiales de por vida.",
         img: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=500&q=80",
-        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        videoUrl: "",
         sizes: ["1 PC", "3 PCs Hogar (+S/ 30)", "5 PCs Empresa (+S/ 60)"],
         colors: ["Activación Digital Inmediata"],
         promo: true,
@@ -524,7 +542,7 @@ const BUSINESS_PRESETS = {
         price: 45.00,
         desc: "Crea ambientes cálidos estilo TikTok / Instagram. Cabezal giratorio 180° de aluminio y lente de cristal óptico de alta transmisión.",
         img: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=500&q=80",
-        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        videoUrl: "",
         sizes: ["Estándar USB"],
         colors: ["Sunset Red", "Rainbow Prism"],
         promo: true,
@@ -831,8 +849,8 @@ const AppState = {
       let pathSlug = "";
       if (pathSegments.length > 0) {
         const lastSeg = pathSegments[pathSegments.length - 1];
-        if (!lastSeg.endsWith(".html") && lastSeg !== "micro-catalogo-whatsapp") {
-          pathSlug = lastSeg;
+        if (!lastSeg.endsWith(".html") && lastSeg !== "micro-catalogo-whatsapp" && lastSeg !== "tiendazap") {
+          pathSlug = decodeURIComponent(lastSeg);
         }
       }
       const tiendaParam = urlParams.get("tienda") || pathSlug;
@@ -2350,7 +2368,7 @@ const StudioController = {
     editor.scrollIntoView({ behavior: "smooth", block: "start" });
   },
 
-  openEditProduct(productId) {
+  async openEditProduct(productId) {
     const p = AppState.products.find(item => item.id === productId);
     if (!p) return;
 
@@ -2376,10 +2394,11 @@ const StudioController = {
     const videoPreviewWrap = document.getElementById("editor-video-preview-wrap");
     const videoPreview = document.getElementById("editor-video-preview");
 
-    if (videoUrlInput) videoUrlInput.value = p.videoUrl || "";
+    if (videoUrlInput) videoUrlInput.value = (p.videoUrl && !p.videoUrl.startsWith("idb://")) ? p.videoUrl : "";
+    const resolvedVideo = await MediaStore.resolveVideoUrl(p.videoUrl || "");
     if (p.videoUrl && videoPreviewWrap && videoPreview) {
-      if (p.videoUrl.endsWith(".mp4") || p.videoUrl.endsWith(".webm") || p.videoUrl.startsWith("blob:") || p.videoUrl.startsWith("data:")) {
-        videoPreview.src = p.videoUrl;
+      if (resolvedVideo && (resolvedVideo.endsWith(".mp4") || resolvedVideo.endsWith(".webm") || resolvedVideo.startsWith("blob:") || resolvedVideo.startsWith("data:"))) {
+        videoPreview.src = resolvedVideo;
         videoPreview.classList.remove("hidden");
       } else {
         videoPreview.classList.add("hidden");
@@ -2450,7 +2469,7 @@ const StudioController = {
       const key = "vid_" + Date.now();
       await MediaStore.saveMedia(key, file);
       const localUrl = URL.createObjectURL(file);
-      this.currentProductVideo = localUrl;
+      this.currentProductVideo = "idb://" + key;
 
       const previewWrap = document.getElementById("editor-video-preview-wrap");
       const previewVideo = document.getElementById("editor-video-preview");
@@ -3234,16 +3253,18 @@ const CustomerUI = {
     if (actionEl) actionEl.classList.add("hidden");
   },
 
-  renderModalVideo(url) {
+  async renderModalVideo(url) {
     this.resetModalVideo();
     if (!url) return;
+    const resolvedUrl = await MediaStore.resolveVideoUrl(url);
+    if (!resolvedUrl) return;
 
     const videoEl = document.getElementById("detail-product-video");
     const embedEl = document.getElementById("detail-video-embed");
     const actionEl = document.getElementById("detail-video-action");
     const extBtn = document.getElementById("detail-video-ext-btn");
 
-    const cleanUrl = url.trim();
+    const cleanUrl = resolvedUrl.trim();
 
     // YouTube Shorts o YouTube normal
     const ytMatch = cleanUrl.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
@@ -3579,7 +3600,7 @@ const WhatsAppOrder = {
       timeStyle: "short"
     });
 
-    const cleanStoreUrl = QRGenerator.getTargetUrl();
+    const cleanStoreUrl = QRGenerator.getCleanDisplayUrl();
     let msg = `🛍️ *Catálogo Oficial de ${shop.name}*\n`;
     msg += `🔒 *Enlace seguro:* ${cleanStoreUrl}\n\n`;
     msg += `*NUEVO PEDIDO — ${shop.name.toUpperCase()}*\n`;
@@ -3825,7 +3846,7 @@ const QRGenerator = {
     if (!qr) {
       try {
         qr = qrcode(0, "L");
-        qr.addData(window.location.origin + window.location.pathname + "?mode=shop");
+        qr.addData(this.getCleanDisplayUrl());
         qr.make();
       } catch (err) {
         console.error("Error definitivo generando QR:", err);
@@ -3891,62 +3912,92 @@ const QRGenerator = {
     ctx.fillText(isFoodOrTable ? "🍽️" : "⚡", center, center);
   },
 
-  getTargetUrl() {
+  getCleanDisplayUrl() {
     const slug = AppState.getStoreSlug();
+    const hostname = window.location.hostname;
+    const isPagesDev = hostname.endsWith("pages.dev") || hostname.includes("localhost") || hostname === "127.0.0.1";
+    const path = window.location.pathname;
+    const isRoot = isPagesDev && (path === "/" || path === "/index.html" || !path.includes("/micro-catalogo-whatsapp"));
+
+    if (isRoot) {
+      return `${window.location.origin}/${encodeURIComponent(slug)}`;
+    }
     const baseUrl = window.location.origin + window.location.pathname;
-    const cleanBase = baseUrl.replace(/\/index\.html$/i, "");
+    const cleanBase = baseUrl.replace(/\/index\.html$/i, "").replace(/\/+$/, "");
+    return `${cleanBase}?tienda=${encodeURIComponent(slug)}&mode=shop`;
+  },
+
+  buildPayload(forQR = false) {
+    const slug = AppState.getStoreSlug();
+    const filterImg = (imgUrl) => {
+      if (!imgUrl) return "";
+      if (imgUrl.startsWith("blob:") || imgUrl.startsWith("idb://")) return "";
+      if (forQR && imgUrl.startsWith("data:image/")) return "";
+      return imgUrl;
+    };
+
+    return {
+      cfg: {
+        n: AppState.shopConfig.name,
+        s: slug,
+        t: AppState.shopConfig.tagline,
+        p: AppState.shopConfig.phone,
+        c: AppState.shopConfig.currency,
+        dc: AppState.shopConfig.deliveryCost,
+        dt: AppState.shopConfig.deliveryTime,
+        io: AppState.shopConfig.isOpen,
+        l: filterImg(AppState.shopConfig.logoUrl),
+        b: filterImg(AppState.shopConfig.bannerUrl),
+        yp: AppState.shopConfig.yapePhone,
+        yn: AppState.shopConfig.yapeName,
+        yq: filterImg(AppState.shopConfig.yapeQrUrl),
+        ye: AppState.shopConfig.yapeEnabled,
+        np: AppState.activePreset
+      },
+      cats: AppState.categories,
+      prods: AppState.products
+        .filter(p => p.available !== false)
+        .map(p => ({
+          id: p.id,
+          sku: p.sku || "",
+          n: p.name,
+          cat: p.category,
+          pr: p.price,
+          d: p.desc || "",
+          img: filterImg(p.img),
+          vid: p.videoUrl && !p.videoUrl.startsWith("blob:") && !p.videoUrl.startsWith("idb://") ? p.videoUrl : "",
+          sz: p.sizes || [],
+          co: p.colors || [],
+          pro: !!p.promo
+        }))
+    };
+  },
+
+  getTargetUrl(forQR = false) {
+    const cleanStoreBase = this.getCleanDisplayUrl();
 
     if (this.isTableMode) {
       const tableVal = document.getElementById("qr-table-number")?.value.trim() || "Mesa 1";
-      return `${cleanBase}?tienda=${encodeURIComponent(slug)}&mesa=${encodeURIComponent(tableVal)}`;
+      const separator = cleanStoreBase.includes("?") ? "&" : "?";
+      return `${cleanStoreBase}${separator}mesa=${encodeURIComponent(tableVal)}`;
     }
     if (AppState.shopConfig.googleSheetUrl) {
-      return `${cleanBase}?tienda=${encodeURIComponent(slug)}&mode=shop&sheet=${encodeURIComponent(AppState.shopConfig.googleSheetUrl)}`;
+      const separator = cleanStoreBase.includes("?") ? "&" : "?";
+      return `${cleanStoreBase}${separator}sheet=${encodeURIComponent(AppState.shopConfig.googleSheetUrl)}`;
     }
     if (typeof LZString !== "undefined") {
       try {
-        const payload = {
-          cfg: {
-            n: AppState.shopConfig.name,
-            s: slug,
-            t: AppState.shopConfig.tagline,
-            p: AppState.shopConfig.phone,
-            c: AppState.shopConfig.currency,
-            dc: AppState.shopConfig.deliveryCost,
-            dt: AppState.shopConfig.deliveryTime,
-            io: AppState.shopConfig.isOpen,
-            l: AppState.shopConfig.logoUrl,
-            b: AppState.shopConfig.bannerUrl,
-            yp: AppState.shopConfig.yapePhone,
-            yn: AppState.shopConfig.yapeName,
-            yq: AppState.shopConfig.yapeQrUrl,
-            ye: AppState.shopConfig.yapeEnabled,
-            np: AppState.activePreset
-          },
-          cats: AppState.categories,
-          prods: AppState.products
-            .filter(p => p.available !== false)
-            .map(p => ({
-              id: p.id,
-              sku: p.sku || "",
-              n: p.name,
-              cat: p.category,
-              pr: p.price,
-              d: p.desc || "",
-              img: p.img && !p.img.startsWith("blob:") ? p.img : "",
-              vid: p.videoUrl && !p.videoUrl.startsWith("blob:") ? p.videoUrl : "",
-              sz: p.sizes || [],
-              co: p.colors || [],
-              pro: !!p.promo
-            }))
-        };
+        const payload = this.buildPayload(forQR);
         const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(payload));
-        return `${cleanBase}?tienda=${encodeURIComponent(slug)}&mode=shop#d=${compressed}`;
+        if (forQR && compressed.length > 2200) {
+          return cleanStoreBase;
+        }
+        return `${cleanStoreBase}#d=${compressed}`;
       } catch (err) {
         console.warn("Error comprimiendo catalogo para URL:", err);
       }
     }
-    return `${cleanBase}?tienda=${encodeURIComponent(slug)}&mode=shop`;
+    return cleanStoreBase;
   },
 
   openQRModal() {
@@ -3970,7 +4021,7 @@ const QRGenerator = {
     }
 
     if (titleEl) titleEl.textContent = AppState.shopConfig.name;
-    this.renderStoreQR(canvas, this.getTargetUrl());
+    this.renderStoreQR(canvas, this.getTargetUrl(true));
 
     if (modal) modal.classList.remove("hidden");
   },

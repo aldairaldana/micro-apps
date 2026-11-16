@@ -16,3 +16,5 @@ studio_verified.png
 # IDE
 .vscode/
 .idea/
+*.zip
+docs/
