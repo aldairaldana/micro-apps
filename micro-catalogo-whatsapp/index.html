@@ -333,7 +333,18 @@
           </div>
 
           <div class="apple-form-stack">
-            <!-- Dropzone Foto de Producto -->
+            <!-- Selector de Tipo de Publicación en Onboarding -->
+            <div class="apple-field-block">
+              <label class="apple-block-label">Tipo de Publicación</label>
+              <div class="apple-type-selector-pills" id="apple-type-selector">
+                <button type="button" class="apple-type-pill active" data-type="item">🛍️ Físico</button>
+                <button type="button" class="apple-type-pill" data-type="digital">⚡ Digital / Licencia</button>
+                <button type="button" class="apple-type-pill" data-type="vehicle">🚗 Vehículo</button>
+              </div>
+              <input type="hidden" id="apple-prod-type" value="item">
+            </div>
+
+            <!-- Dropzone Foto de Producto con soporte multifoto -->
             <div class="apple-product-dropzone" id="apple-prod-dropzone" title="Toca para subir la foto del producto">
               <img id="apple-prod-img" class="apple-prod-preview-img hidden" src="" alt="Producto">
               <div id="apple-prod-placeholder" class="apple-prod-placeholder-content">
@@ -342,27 +353,39 @@
                   <circle cx="8.5" cy="8.5" r="1.5"/>
                   <polyline points="21 15 16 10 5 21"/>
                 </svg>
-                <span class="apple-prod-upload-title">Fotografía del Producto</span>
-                <span class="apple-prod-upload-sub">Toma una foto o elígela de tu galería</span>
+                <span class="apple-prod-upload-title">Fotografías del Producto</span>
+                <span class="apple-prod-upload-sub">Sube hasta 6 fotos desde tu galería o cámara</span>
               </div>
-              <input type="file" id="apple-prod-file-input" accept="image/*" class="hidden">
+              <input type="file" id="apple-prod-file-input" accept="image/*" multiple class="hidden">
             </div>
+            <div class="apple-multi-thumbs-strip hidden" id="apple-multi-thumbs-strip"></div>
 
             <div class="apple-input-group">
               <input type="text" id="apple-prod-name" required placeholder=" " class="apple-floating-input">
-              <label for="apple-prod-name" class="apple-floating-label">Nombre del Producto *</label>
+              <label for="apple-prod-name" class="apple-floating-label">Nombre del Producto / Vehículo / Licencia *</label>
             </div>
 
             <div class="apple-grid-2">
               <div class="apple-input-group">
-                <input type="number" id="apple-prod-price" step="0.50" required placeholder=" " class="apple-floating-input apple-price-font">
-                <label for="apple-prod-price" class="apple-floating-label">Precio (<span id="apple-currency-sym">S/</span>) *</label>
+                <div class="apple-price-with-currency-row">
+                  <select id="apple-prod-currency" class="apple-currency-select-inline" title="Moneda">
+                    <option value="S/">S/</option>
+                    <option value="US$">US$</option>
+                  </select>
+                  <input type="number" id="apple-prod-price" step="0.50" required placeholder=" " class="apple-floating-input apple-price-font">
+                </div>
+                <label for="apple-prod-price" class="apple-floating-label">Precio *</label>
               </div>
 
               <div class="apple-input-group">
                 <input type="text" id="apple-prod-cat" placeholder=" " class="apple-floating-input">
                 <label for="apple-prod-cat" class="apple-floating-label">Categoría *</label>
               </div>
+            </div>
+
+            <div class="apple-input-group">
+              <textarea id="apple-prod-desc" rows="3" class="apple-floating-input apple-textarea" placeholder=" "></textarea>
+              <label for="apple-prod-desc" class="apple-floating-label">Describe los detalles principales (ej. Incluye funciones con IA, activación con tu correo, garantía... o Año, Km, Motor si es un auto)</label>
             </div>
 
             <div class="apple-input-group">
@@ -593,22 +616,47 @@
             <form id="studio-product-form" class="editor-card-form">
               <input type="hidden" id="editor-product-id">
 
-              <!-- Foto del Producto -->
-              <div class="product-photo-upload-box" id="product-photo-upload-box">
-                <img id="editor-photo-preview" src="" alt="Vista previa del producto" class="hidden">
-                <div class="photo-placeholder-content" id="editor-photo-placeholder">
-                  <span class="camera-big-icon">📷</span>
-                  <span class="photo-prompt-title">Toca para subir foto del producto</span>
-                  <span class="photo-prompt-sub">JPG, PNG o WebP desde tu galería o cámara</span>
+              <!-- Selector de Tipo de Publicación (Estilo FB Marketplace) -->
+              <div class="editor-field-group">
+                <label class="field-label-prominent">Tipo de Publicación</label>
+                <div class="listing-type-selector-pills" id="editor-listing-type-pills">
+                  <button type="button" class="listing-pill active" data-type="item">
+                    <span>🛍️ Artículo Físico</span>
+                  </button>
+                  <button type="button" class="listing-pill" data-type="vehicle">
+                    <span>🚗 Vehículo / Auto</span>
+                  </button>
+                  <button type="button" class="listing-pill" data-type="digital">
+                    <span>⚡ Digital / Licencia</span>
+                  </button>
+                  <button type="button" class="listing-pill" data-type="property">
+                    <span>🏠 Inmueble</span>
+                  </button>
                 </div>
+                <input type="hidden" id="editor-listing-type" value="item">
               </div>
-              <input type="file" id="editor-file-input" accept="image/*" class="hidden">
 
-              <div class="photo-url-fallback-row">
-                <button type="button" id="editor-trigger-file-btn" class="btn-alt-sm">Subir Foto</button>
-                <button type="button" id="editor-toggle-url-btn" class="btn-text-link">O usar enlace web (URL)</button>
+              <!-- Galería de Fotos del Producto (Hasta 6 fotos) -->
+              <div class="editor-field-group">
+                <div class="label-with-action">
+                  <label>Fotografías del Producto (<span id="editor-photos-count">0</span>/6)</label>
+                  <button type="button" id="editor-toggle-url-btn" class="btn-text-link">O usar enlace web (URL)</button>
+                </div>
+                <div class="product-photo-upload-box" id="product-photo-upload-box">
+                  <img id="editor-photo-preview" src="" alt="Vista previa del producto" class="hidden">
+                  <div class="photo-placeholder-content" id="editor-photo-placeholder">
+                    <span class="camera-big-icon">📷</span>
+                    <span class="photo-prompt-title">Toca para subir fotos (hasta 6)</span>
+                    <span class="photo-prompt-sub">JPG, PNG o WebP desde tu galería o cámara</span>
+                  </div>
+                </div>
+                <input type="file" id="editor-file-input" accept="image/*" multiple class="hidden">
+                <div class="editor-photos-strip" id="editor-photos-strip"></div>
+                <div class="photo-url-fallback-row">
+                  <button type="button" id="editor-trigger-file-btn" class="btn-alt-sm">+ Agregar Fotos</button>
+                </div>
+                <input type="url" id="editor-url-input" class="input-modern hidden" placeholder="https://ejemplo.com/foto.jpg">
               </div>
-              <input type="url" id="editor-url-input" class="input-modern hidden" placeholder="https://ejemplo.com/foto.jpg">
 
               <!-- Video del Producto (Opcional) -->
               <div class="editor-field-group">
@@ -626,14 +674,20 @@
 
               <!-- Nombre y Precio -->
               <div class="editor-field-group">
-                <label for="editor-name-input">Nombre del Producto / Servicio *</label>
-                <input type="text" id="editor-name-input" class="input-modern" placeholder="Ej: Licencia Windows 11 Pro / Adobe Cloud" required>
+                <label for="editor-name-input">Nombre del Producto / Vehículo / Servicio *</label>
+                <input type="text" id="editor-name-input" class="input-modern" placeholder="Ej: Changan CS55 Plus / Adobe Creative Cloud / Zapatillas Dunk" required>
               </div>
 
               <div class="form-grid-2">
                 <div class="editor-field-group">
-                  <label for="editor-price-input">Precio (<span id="editor-currency-symbol">S/</span>) *</label>
-                  <input type="number" id="editor-price-input" step="0.01" min="0" class="input-modern price-highlight" placeholder="0.00" required>
+                  <label for="editor-price-input">Precio y Moneda *</label>
+                  <div class="editor-price-row">
+                    <select id="editor-currency-select" class="input-modern editor-currency-select" title="Moneda">
+                      <option value="S/">S/ (Soles)</option>
+                      <option value="US$">US$ (Dólares)</option>
+                    </select>
+                    <input type="number" id="editor-price-input" step="0.01" min="0" class="input-modern price-highlight" placeholder="0.00" required>
+                  </div>
                 </div>
                 <div class="editor-field-group">
                   <div class="label-with-action">
@@ -658,7 +712,18 @@
                 <textarea id="editor-desc-input" class="textarea-modern" rows="2" placeholder="Características, garantía, instrucciones de activación o entrega..."></textarea>
               </div>
 
-              <div class="form-grid-2">
+              <!-- Ficha Técnica Dinámica por Categoría (MARKETPLACE_SCHEMAS) -->
+              <div class="editor-field-group" id="editor-specs-section">
+                <div class="specs-section-header">
+                  <span class="specs-section-tag" id="editor-specs-type-tag">Ficha Técnica</span>
+                  <small style="color: var(--text-muted); font-size: 0.72rem;">Campos específicos para tu publicación</small>
+                </div>
+                <div class="editor-dynamic-specs-container" id="editor-dynamic-specs-container">
+                  <!-- Se inyecta según listingType -->
+                </div>
+              </div>
+
+              <div class="form-grid-2" id="editor-variants-section">
                 <div class="editor-field-group">
                   <label for="editor-sizes-input" id="editor-sizes-label">Variantes / Opciones (separadas por coma)</label>
                   <input type="text" id="editor-sizes-input" class="input-modern" placeholder="Ej: 1 PC, 3 PCs, 5 PCs">
@@ -986,10 +1051,16 @@
 
         <!-- Barra Sticky de Búsqueda y Categorías del Cliente -->
         <section class="sticky-nav-section" id="sticky-nav">
-          <div class="search-input-wrapper">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="customer-search-input" class="product-search-input" placeholder="Buscar productos...">
-            <button id="customer-clear-search-btn" class="clear-search-btn hidden" type="button">✕</button>
+          <div class="search-and-view-row">
+            <div class="search-input-wrapper">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="customer-search-input" class="product-search-input" placeholder="Buscar productos, marcas, autos...">
+              <button id="customer-clear-search-btn" class="clear-search-btn hidden" type="button">✕</button>
+            </div>
+            <div class="catalog-view-toggle" id="catalog-view-toggle">
+              <button type="button" id="toggle-view-grid" class="view-toggle-btn active" title="Vista Cuadrícula (2 columnas)">🔲</button>
+              <button type="button" id="toggle-view-detailed" class="view-toggle-btn" title="Vista Detallada (1 columna)">☰</button>
+            </div>
           </div>
 
           <nav class="categories-scroll-track" id="customer-categories-track" aria-label="Categorías">
@@ -1045,12 +1116,16 @@
         <button id="close-product-modal-btn" class="close-sheet-btn product-close" type="button">✕</button>
         <div class="product-modal-media-header">
           <div class="product-modal-media-switcher hidden" id="detail-media-switcher">
-            <button type="button" class="media-switch-btn active" id="detail-switch-photo-btn">📷 Foto</button>
+            <button type="button" class="media-switch-btn active" id="detail-switch-photo-btn">📷 Fotos</button>
             <button type="button" class="media-switch-btn" id="detail-switch-video-btn">🎥 Video</button>
           </div>
           <div class="product-modal-img-wrap" id="detail-photo-wrap">
             <img id="detail-product-img" src="" alt="Producto" class="detail-product-img">
+            <span class="detail-photo-badge hidden" id="detail-photo-counter">📷 1/1</span>
           </div>
+          <!-- Carrusel de Miniaturas de Galería de Fotos -->
+          <div class="detail-thumbnails-row hidden" id="detail-thumbnails-row"></div>
+
           <div class="product-modal-video-wrap hidden" id="detail-video-wrap">
             <video id="detail-product-video" controls playsinline muted loop preload="metadata" class="detail-product-video hidden"></video>
             <div id="detail-video-embed" class="detail-video-embed hidden"></div>
@@ -1062,11 +1137,22 @@
         <div class="product-modal-body">
           <div class="detail-badge-row">
             <span class="detail-category-chip" id="detail-category">Categoría</span>
+            <span class="detail-condition-badge" id="detail-condition-badge">Nuevo</span>
+            <span class="detail-location-badge hidden" id="detail-location-badge">📍 Lima</span>
             <span class="detail-badge-promo hidden" id="detail-promo-badge">PROMO</span>
           </div>
           <h2 class="detail-title" id="detail-title">Nombre del Producto</h2>
+          <div class="detail-price-highlight-row">
+            <div class="detail-price" id="detail-price">S/ 0.00</div>
+            <span class="detail-listing-badge" id="detail-listing-badge">🛍️ Artículo</span>
+          </div>
           <p class="detail-description" id="detail-desc">Descripción del producto.</p>
-          <div class="detail-price" id="detail-price">S/ 0.00</div>
+
+          <!-- Especificaciones Técnicas Estilo Marketplace -->
+          <div class="detail-specs-container hidden" id="detail-specs-container">
+            <h4 class="specs-section-title">📋 Ficha Técnica / Especificaciones</h4>
+            <div class="detail-specs-grid" id="detail-specs-grid"></div>
+          </div>
 
           <!-- Selector de Tallas si aplica -->
           <div class="detail-variants-group hidden" id="detail-sizes-group">
@@ -1080,26 +1166,43 @@
             <div class="variant-chips-row" id="detail-colors-row"></div>
           </div>
 
-          <!-- Stepper de Cantidad -->
-          <div class="detail-quantity-row">
-            <span class="detail-qty-label">Cantidad:</span>
-            <div class="quantity-stepper">
-              <button class="step-btn" id="modal-qty-minus" type="button">-</button>
-              <span class="step-val" id="modal-qty-val">1</span>
-              <button class="step-btn" id="modal-qty-plus" type="button">+</button>
+          <!-- Bloque de Consulta Rápida por WhatsApp (Para Vehículos e Inmuebles) -->
+          <div class="vehicle-inquiry-box hidden" id="vehicle-inquiry-box">
+            <span class="inquiry-box-title">Consulta directa con el anunciante:</span>
+            <div class="quick-inquiry-pills" id="quick-inquiry-pills">
+              <button type="button" class="inquiry-pill-btn" data-inquiry="👋 Hola, ¿este vehículo sigue disponible?">👋 ¿Sigue disponible?</button>
+              <button type="button" class="inquiry-pill-btn" data-inquiry="📍 Hola, ¿dónde y en qué horario se puede ver?">📍 ¿Dónde se puede ver?</button>
+              <button type="button" class="inquiry-pill-btn" data-inquiry="💵 Hola, ¿aceptas una oferta al contado?">💵 ¿Aceptas oferta al contado?</button>
             </div>
+            <button type="button" class="btn-whatsapp-inquire" id="vehicle-whatsapp-btn">
+              <span class="wa-inquire-icon">💬</span>
+              <span>Consultar / Agendar Visita por WhatsApp</span>
+            </button>
           </div>
 
-          <!-- Nota Adicional del Producto -->
-          <div class="editor-field-group" style="margin-top: 10px;">
-            <label for="modal-product-note" style="font-size: 0.74rem; color: var(--text-muted); font-weight: 600;">
-              Notas adicionales (ej: dedicatoria, salsa aparte, etc.)
-            </label>
-            <input type="text" id="modal-product-note" class="input-modern" placeholder="Opcional: Detalles para tu pedido...">
+          <!-- Acciones Estándar de Carrito (Para Artículos Físicos y Digitales) -->
+          <div id="standard-cart-actions" class="standard-cart-actions">
+            <!-- Stepper de Cantidad -->
+            <div class="detail-quantity-row">
+              <span class="detail-qty-label">Cantidad:</span>
+              <div class="quantity-stepper">
+                <button class="step-btn" id="modal-qty-minus" type="button">-</button>
+                <span class="step-val" id="modal-qty-val">1</span>
+                <button class="step-btn" id="modal-qty-plus" type="button">+</button>
+              </div>
+            </div>
+
+            <!-- Nota Adicional del Producto -->
+            <div class="editor-field-group" style="margin-top: 10px;">
+              <label for="modal-product-note" style="font-size: 0.74rem; color: var(--text-muted); font-weight: 600;">
+                Notas adicionales (ej: dedicatoria, requerimiento especial, etc.)
+              </label>
+              <input type="text" id="modal-product-note" class="input-modern" placeholder="Opcional: Detalles para tu pedido...">
+            </div>
           </div>
         </div>
 
-        <div class="product-modal-footer">
+        <div class="product-modal-footer" id="detail-modal-footer">
           <button id="modal-add-to-cart-btn" class="btn-save-product" type="button">
             <span>Agregar al Pedido • <span id="modal-button-total">S/ 0.00</span></span>
           </button>

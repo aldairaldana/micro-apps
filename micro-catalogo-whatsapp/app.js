@@ -136,7 +136,140 @@ const MediaStore = {
 // ============================================================================
 // 1. PLANTILLAS DE NEGOCIOS REALES EN PERÚ (1 CLIC)
 // ============================================================================
+// ============================================================================
+// 0. ESQUEMAS Y FICHAS TÉCNICAS MARKETPLACE (VEHÍCULOS, DIGITAL, ARTÍCULOS, INMUEBLES)
+// ============================================================================
+const MARKETPLACE_SCHEMAS = {
+  item: {
+    label: "Artículo Físico",
+    icon: "🛍️",
+    fields: [
+      { id: "brand", label: "Marca", type: "text", placeholder: "Ej: Nike, Apple, Sony, Zara" },
+      { id: "condition", label: "Condición", type: "select", options: ["Nuevo", "Usado - Como Nuevo", "Usado - Buen Estado", "Reacondicionado"] },
+      { id: "warranty", label: "Garantía", type: "text", placeholder: "Ej: 12 meses oficial de fábrica" },
+      { id: "location", label: "Ubicación / Distrito", type: "text", placeholder: "Ej: Lima / Miraflores / Envíos a todo el país" }
+    ]
+  },
+  vehicle: {
+    label: "Vehículo / Automotor",
+    icon: "🚗",
+    fields: [
+      { id: "brandModel", label: "Marca y Modelo", type: "text", placeholder: "Ej: Changan CS55 Plus, Toyota Corolla" },
+      { id: "year", label: "Año de Fabricación", type: "text", placeholder: "Ej: 2026, 2025" },
+      { id: "mileage", label: "Kilometraje (km)", type: "text", placeholder: "Ej: 0 km (Nuevo), 14,500 km" },
+      { id: "transmission", label: "Transmisión", type: "select", options: ["Automática / Secuencial", "Mecánica / Manual", "CVT / e-CVT"] },
+      { id: "fuel", label: "Combustible", type: "select", options: ["Gasolina", "Dual GNV", "Dual GLP", "Diésel", "Híbrido / Eléctrico"] },
+      { id: "engine", label: "Motor / Cilindrada", type: "text", placeholder: "Ej: 1.5L Turbo 185 HP, 1.8L Hybrid" },
+      { id: "location", label: "Ubicación / Distrito", type: "text", placeholder: "Ej: Lima / Surco / San Isidro" }
+    ]
+  },
+  digital: {
+    label: "Digital / Licencia",
+    icon: "⚡",
+    fields: [
+      { id: "duration", label: "Duración de Licencia", type: "select", options: ["1 Mes", "3 Meses", "6 Meses", "1 Año", "Permanente / Lifetime"] },
+      { id: "devices", label: "Dispositivos simultáneos", type: "select", options: ["1 Dispositivo", "2 Dispositivos", "3 a 5 Dispositivos", "Ilimitado"] },
+      { id: "activation", label: "Modalidad de Activación", type: "select", options: ["Activación con correo personal", "Clave alfanumérica original (Key)", "Perfil privado garantizado", "Invitación a equipo"] },
+      { id: "deliveryTime", label: "Tipo de Entrega", type: "text", placeholder: "Ej: Entrega inmediata en 5 min vía WhatsApp / Correo" }
+    ]
+  },
+  property: {
+    label: "Inmueble / Alquiler",
+    icon: "🏠",
+    fields: [
+      { id: "propType", label: "Tipo de Inmueble", type: "select", options: ["Departamento", "Casa", "Oficina", "Local Comercial", "Terreno / Lote"] },
+      { id: "area", label: "Área Total (m²)", type: "text", placeholder: "Ej: 85 m², 120 m²" },
+      { id: "roomsBaths", label: "Habitaciones / Baños", type: "text", placeholder: "Ej: 3 Hab • 2 Baños" },
+      { id: "modality", label: "Modalidad", type: "select", options: ["Venta", "Alquiler Mensual", "Alquiler Temporal"] },
+      { id: "location", label: "Ubicación / Distrito", type: "text", placeholder: "Ej: Miraflores, Lima" }
+    ]
+  }
+};
+
 const BUSINESS_PRESETS = {
+  vehicles: {
+    config: {
+      name: "AutoMarket Perú",
+      storeSlug: "automarket-peru",
+      tagline: "Venta de autos, camionetas SUV y vehículos seminuevos garantizados 🚗🔑",
+      phone: "51987654321",
+      currency: "US$",
+      deliveryCost: 0.0,
+      deliveryTime: "Coordinar visita",
+      isOpen: true,
+      logoUrl: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80",
+      bannerUrl: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80",
+      googleSheetUrl: "",
+      yapeEnabled: false,
+      yapePhone: "",
+      yapeName: "",
+      yapeQrUrl: ""
+    },
+    products: [
+      {
+        id: "veh-01",
+        sku: "CS55-PLUS-2026",
+        name: "Changan CS55 Plus MAX 1.5T 2026",
+        category: "Camionetas SUV",
+        price: 18490.00,
+        currency: "US$",
+        listingType: "vehicle",
+        condition: "Nuevo - 0 km",
+        location: "Lima, Surco",
+        desc: "SUV de última generación con motor Blue Core 1.5L Turbo de 185 HP, transmisión DCT 7 velocidades, sunroof panorámico, pantalla dual 10.25 pulgadas y suite de seguridad ADAS.",
+        img: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80",
+        images: [
+          "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=600&q=80"
+        ],
+        videoUrl: "",
+        sizes: ["Entrega Inmediata", "A pedido"],
+        colors: ["Gris Titanio", "Blanco Glaciar", "Negro Noche"],
+        promo: true,
+        specs: [
+          { label: "Marca y Modelo", value: "Changan CS55 Plus MAX" },
+          { label: "Año", value: "2026" },
+          { label: "Kilometraje", value: "0 km (Nuevo)" },
+          { label: "Transmisión", value: "Automática DCT 7 vel." },
+          { label: "Combustible", value: "Gasolina 95 oct" },
+          { label: "Motor", value: "1.5L Turbo 185 HP" },
+          { label: "Ubicación", value: "Surco, Lima" }
+        ]
+      },
+      {
+        id: "veh-02",
+        sku: "TOY-COROLLA-HYB",
+        name: "Toyota Corolla Hybrid 1.8 SEG 2024",
+        category: "Autos Sedán",
+        price: 19800.00,
+        currency: "US$",
+        listingType: "vehicle",
+        condition: "Usado - Como Nuevo",
+        location: "Miraflores, Lima",
+        desc: "Sedán híbrido auto-recargable impecable, récord de mantenimiento en concesionario oficial Toyota, consumo ultra económico de hasta 75 km/galón.",
+        img: "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=600&q=80",
+        images: [
+          "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=600&q=80"
+        ],
+        videoUrl: "",
+        sizes: ["Única Unidad"],
+        colors: ["Plata Metálico"],
+        promo: false,
+        specs: [
+          { label: "Marca y Modelo", value: "Toyota Corolla Hybrid SEG" },
+          { label: "Año", value: "2024" },
+          { label: "Kilometraje", value: "14,200 km" },
+          { label: "Transmisión", value: "Automática e-CVT" },
+          { label: "Combustible", value: "Híbrido (Gasolina + Eléctrico)" },
+          { label: "Motor", value: "1.8L Hybrid Synergy" },
+          { label: "Ubicación", value: "Miraflores, Lima" }
+        ]
+      }
+    ]
+  },
+
   sneakers: {
     config: {
       name: "Sneakers Lima Club",
@@ -584,6 +717,25 @@ const BUSINESS_PRESETS = {
 // 1.1 CONFIGURACIÓN DE RUBROS & CATEGORÍAS ESTILO WHATSAPP BUSINESS
 // ============================================================================
 const NICHE_DATA = {
+  vehicles: {
+    config: {
+      name: "AutoMarket Perú",
+      storeSlug: "automarket-peru",
+      tagline: "Venta de autos, camionetas SUV y vehículos seminuevos garantizados 🚗🔑",
+      phone: "51987654321",
+      currency: "US$",
+      deliveryCost: 0.0,
+      deliveryTime: "Coordinar visita",
+      isOpen: true,
+      logoUrl: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80",
+      bannerUrl: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"
+    },
+    suggestedCategories: ["Camionetas SUV", "Autos Sedán", "Motos & Scooters", "Comerciales & Carga"],
+    catalogTitle: "Catálogo de Vehículos & Camionetas",
+    catalogSubtitle: "Ficha técnica completa, fotos HD e inspección mecánica garantizada",
+    orderButtonText: "💬 Consultar por WhatsApp",
+    deliveryCostLabel: "Visita / Prueba de Manejo"
+  },
   sneakers: {
     key: "sneakers",
     label: "Zapatillas & Calzado",
@@ -720,6 +872,7 @@ const AppState = {
   shopConfig: { ...BUSINESS_PRESETS.sneakers.config },
   products: [...BUSINESS_PRESETS.sneakers.products],
   isViewingRemoteCatalog: false,
+  catalogViewMode: localStorage.getItem('tiendazap_view_mode') || 'grid',
 
   getStoreSlug() {
     return (this.shopConfig && this.shopConfig.storeSlug)
@@ -903,20 +1056,31 @@ const AppState = {
                 }).filter(Boolean);
               }
               if (Array.isArray(data.prods)) {
-                this.products = data.prods.map(p => ({
-                  id: p.id || ("p_" + Math.random().toString(36).substr(2, 6)),
-                  sku: p.sku || "",
-                  name: p.n || "Producto",
-                  category: (p.cat && p.cat !== "undefined") ? p.cat.trim() : "General",
-                  price: Number(p.pr || 0),
-                  desc: p.d || "",
-                  img: p.img || "",
-                  videoUrl: p.vid || "",
-                  sizes: p.sz || [],
-                  colors: p.co || [],
-                  promo: !!p.pro,
-                  available: true
-                }));
+                this.products = data.prods.map(p => {
+                  const imgs = (Array.isArray(p.imgs) && p.imgs.length > 0)
+                    ? p.imgs
+                    : (p.img ? [p.img] : []);
+                  return {
+                    id: p.id || ("p_" + Math.random().toString(36).substr(2, 6)),
+                    sku: p.sku || "",
+                    name: p.n || "Producto",
+                    category: (p.cat && p.cat !== "undefined") ? p.cat.trim() : "General",
+                    price: Number(p.pr || 0),
+                    currency: p.cur || data.cfg?.c || "S/",
+                    listingType: p.lt || "item",
+                    condition: p.con || "",
+                    location: p.loc || "",
+                    desc: p.d || "",
+                    img: imgs[0] || p.img || "",
+                    images: imgs,
+                    specs: Array.isArray(p.sp) ? p.sp : [],
+                    videoUrl: p.vid || "",
+                    sizes: p.sz || [],
+                    colors: p.co || [],
+                    promo: !!p.pro,
+                    available: true
+                  };
+                });
               }
               this.initCategories();
               this.isCustomerOnlyMode = true;
@@ -1655,6 +1819,9 @@ const OnboardingWizard = {
       const prodPrice = parseFloat(document.getElementById("apple-prod-price")?.value);
       const prodCat = document.getElementById("apple-prod-cat")?.value.trim();
       const prodVideo = document.getElementById("apple-prod-video")?.value.trim();
+      const prodType = document.getElementById("apple-prod-type")?.value || "item";
+      const prodCurrency = document.getElementById("apple-prod-currency")?.value || AppState.shopConfig.currency || "S/";
+      const prodDesc = document.getElementById("apple-prod-desc")?.value.trim() || "";
       const previewImg = document.getElementById("apple-prod-img");
 
       if (prodName && !isNaN(prodPrice)) {
@@ -1662,17 +1829,27 @@ const OnboardingWizard = {
           ? previewImg.src
           : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80";
 
-        const catName = prodCat || "Destacados";
+        const catName = (prodCat && prodCat !== "undefined") ? prodCat : "Destacados";
+        const imagesList = (this.onboardingPhotos && this.onboardingPhotos.length > 0)
+          ? [...this.onboardingPhotos]
+          : [prodImg];
+
         const newP = {
           id: "p_" + Date.now(),
           sku: "ART-01",
           name: prodName,
           price: prodPrice,
+          currency: prodCurrency,
+          listingType: prodType,
+          condition: prodType === "vehicle" ? "0 km - Nuevo" : (prodType === "digital" ? "Digital Original" : "Nuevo"),
+          location: "Lima, Perú",
           category: catName,
-          desc: "Producto publicado durante el registro inicial.",
+          desc: prodDesc,
           sizes: [],
           colors: [],
-          img: prodImg,
+          img: imagesList[0] || prodImg,
+          images: imagesList,
+          specs: [],
           videoUrl: prodVideo || "",
           promo: true,
           available: true
@@ -1816,6 +1993,105 @@ const YapeQRZoom = {
 const StudioController = {
   currentProductPhoto: "",
   currentProductVideo: "",
+  currentProductImages: [],
+  currentListingType: "item",
+
+  renderDynamicSpecs(listingType = "item", existingSpecs = []) {
+    const container = document.getElementById("editor-dynamic-specs-container");
+    if (!container) return;
+    const schema = MARKETPLACE_SCHEMAS[listingType] || MARKETPLACE_SCHEMAS.item;
+    const specsMap = {};
+    if (Array.isArray(existingSpecs)) {
+      existingSpecs.forEach(s => {
+        if (s && s.label) specsMap[s.label.toLowerCase()] = s.value;
+      });
+    }
+
+    container.innerHTML = `
+      <div class="schema-fields-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 10px;">
+        ${schema.fields.map(f => {
+          const val = specsMap[f.label.toLowerCase()] || "";
+          if (f.type === "select") {
+            return `
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" style="font-size: 0.8rem;">${f.label}</label>
+                <select id="spec-field-${f.id}" class="apple-input spec-input" data-spec-label="${escapeHtml(f.label)}">
+                  <option value="">Seleccionar...</option>
+                  ${f.options.map(opt => `<option value="${escapeHtml(opt)}" ${val === opt ? 'selected' : ''}>${escapeHtml(opt)}</option>`).join("")}
+                </select>
+              </div>
+            `;
+          }
+          return `
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-size: 0.8rem;">${f.label}</label>
+              <input type="text" id="spec-field-${f.id}" class="apple-input spec-input" 
+                     placeholder="${escapeHtml(f.placeholder || '')}" value="${escapeHtml(val)}" data-spec-label="${escapeHtml(f.label)}">
+            </div>
+          `;
+        }).join("")}
+      </div>
+    `;
+  },
+
+  renderEditorPhotosStrip() {
+    const strip = document.getElementById("editor-photos-strip");
+    const countEl = document.getElementById("editor-photos-count");
+    if (!strip) return;
+    const count = this.currentProductImages.length;
+    if (countEl) countEl.textContent = `(${count}/6 fotos)`;
+
+    strip.innerHTML = this.currentProductImages.map((url, idx) => `
+      <div class="photo-thumb-slot" style="position: relative; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-subtle); flex-shrink: 0;">
+        <img src="${url}" alt="Foto ${idx+1}" style="width: 100%; height: 100%; object-fit: cover;">
+        <button type="button" class="btn-remove-photo" onclick="StudioController.removeEditorPhoto(${idx})"
+                style="position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.7); color: #fff; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center;">×</button>
+      </div>
+    `).join("");
+  },
+
+  removeEditorPhoto(index) {
+    if (index >= 0 && index < this.currentProductImages.length) {
+      this.currentProductImages.splice(index, 1);
+      this.currentProductPhoto = this.currentProductImages[0] || "";
+      this.renderEditorPhotosStrip();
+      const previewImg = document.getElementById("editor-photo-preview");
+      const placeholder = document.getElementById("editor-photo-placeholder");
+      if (this.currentProductPhoto && previewImg) {
+        previewImg.src = this.currentProductPhoto;
+        previewImg.classList.remove("hidden");
+        if (placeholder) placeholder.classList.add("hidden");
+      } else {
+        if (previewImg) previewImg.classList.add("hidden");
+        if (placeholder) placeholder.classList.remove("hidden");
+      }
+    }
+  },
+
+  async handleMultiPhotoUpload(files) {
+    if (!files || files.length === 0) return;
+    Toast.show("Optimizando fotos...", "⏳");
+    for (const file of Array.from(files).slice(0, 6 - this.currentProductImages.length)) {
+      try {
+        const compressed = await ImageOptimizer.compressImage(file, 800, 0.82);
+        this.currentProductImages.push(compressed);
+      } catch (e) {
+        console.warn("Error optimizando imagen:", e);
+      }
+    }
+    if (this.currentProductImages.length > 0) {
+      this.currentProductPhoto = this.currentProductImages[0];
+      const previewImg = document.getElementById("editor-photo-preview");
+      const placeholder = document.getElementById("editor-photo-placeholder");
+      if (previewImg) {
+        previewImg.src = this.currentProductPhoto;
+        previewImg.classList.remove("hidden");
+      }
+      if (placeholder) placeholder.classList.add("hidden");
+    }
+    this.renderEditorPhotosStrip();
+    Toast.show(`${this.currentProductImages.length} fotos listas`, "📸");
+  },
 
   updateVariantInputLabels() {
     const nicheInfo = NICHE_DATA[AppState.activePreset] || NICHE_DATA.general;
@@ -2363,6 +2639,23 @@ const StudioController = {
     document.getElementById("editor-promo-check").checked = false;
     this.currentProductPhoto = "";
     this.currentProductVideo = "";
+    this.currentProductImages = [];
+    this.currentListingType = "item";
+
+    const typeHidden = document.getElementById("editor-listing-type");
+    if (typeHidden) typeHidden.value = "item";
+    const typePills = document.querySelectorAll("#editor-listing-type-pills .type-pill");
+    typePills.forEach(p => p.classList.toggle("active", p.dataset.type === "item"));
+
+    const currSelect = document.getElementById("editor-currency-select");
+    if (currSelect) currSelect.value = AppState.shopConfig.currency || "S/";
+    const condInput = document.getElementById("editor-condition-input");
+    if (condInput) condInput.value = "Nuevo";
+    const locInput = document.getElementById("editor-location-input");
+    if (locInput) locInput.value = "";
+
+    this.renderDynamicSpecs("item", []);
+    this.renderEditorPhotosStrip();
 
     const videoUrlInput = document.getElementById("editor-video-url-input");
     if (videoUrlInput) videoUrlInput.value = "";
@@ -2443,6 +2736,25 @@ const StudioController = {
       if (previewImg) previewImg.classList.add("hidden");
       if (placeholder) placeholder.classList.remove("hidden");
     }
+
+    this.currentListingType = p.listingType || "item";
+    this.currentProductImages = (Array.isArray(p.images) && p.images.length > 0) ? [...p.images] : (p.img ? [p.img] : []);
+    this.currentProductPhoto = this.currentProductImages[0] || p.img || "";
+
+    const typeHidden = document.getElementById("editor-listing-type");
+    if (typeHidden) typeHidden.value = this.currentListingType;
+    const typePills = document.querySelectorAll("#editor-listing-type-pills .type-pill");
+    typePills.forEach(pill => pill.classList.toggle("active", pill.dataset.type === this.currentListingType));
+
+    const currSelect = document.getElementById("editor-currency-select");
+    if (currSelect) currSelect.value = p.currency || AppState.shopConfig.currency || "S/";
+    const condInput = document.getElementById("editor-condition-input");
+    if (condInput) condInput.value = p.condition || "";
+    const locInput = document.getElementById("editor-location-input");
+    if (locInput) locInput.value = p.location || "";
+
+    this.renderDynamicSpecs(this.currentListingType, p.specs || []);
+    this.renderEditorPhotosStrip();
 
     this.renderEditorCategoryChips(p.category);
 
@@ -2558,8 +2870,24 @@ const StudioController = {
     const promo = document.getElementById("editor-promo-check").checked;
     const available = document.getElementById("editor-available-check").checked;
 
+    const listingType = document.getElementById("editor-listing-type")?.value || "item";
+    const currency = document.getElementById("editor-currency-select")?.value || AppState.shopConfig.currency || "S/";
+    const condition = document.getElementById("editor-condition-input")?.value.trim() || "";
+    const location = document.getElementById("editor-location-input")?.value.trim() || "";
+
+    // Dynamic specs collection
+    const specs = [];
+    document.querySelectorAll("#editor-dynamic-specs-container .spec-input").forEach(input => {
+      const val = input.value.trim();
+      const label = input.getAttribute("data-spec-label") || "";
+      if (val && label) {
+        specs.push({ label, value: val });
+      }
+    });
+
     const urlVal = urlInput ? urlInput.value.trim() : "";
     const img = this.currentProductPhoto || urlVal || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80";
+    const images = this.currentProductImages.length > 0 ? [...this.currentProductImages] : (img ? [img] : []);
 
     if (!name || isNaN(price) || !category) {
       alert("Por favor completa los campos obligatorios: Nombre, Precio y Categoría.");
@@ -2585,14 +2913,16 @@ const StudioController = {
       if (idx !== -1) {
         AppState.products[idx] = {
           ...AppState.products[idx],
-          name, price, category, sku, desc, sizes, colors, img, videoUrl, promo, available
+          name, price, category, sku, desc, sizes, colors, img: images[0] || img,
+          images, listingType, currency, condition, location, specs, videoUrl, promo, available
         };
       }
     } else {
       const newProd = {
         id: "p_" + Date.now(),
         sku: sku || `COD-${AppState.products.length + 1}`,
-        name, price, category, sku, desc, sizes, colors, img, videoUrl, promo, available
+        name, price, category, sku, desc, sizes, colors, img: images[0] || img,
+        images, listingType, currency, condition, location, specs, videoUrl, promo, available
       };
       AppState.products.unshift(newProd);
     }
@@ -2993,12 +3323,12 @@ const CustomerUI = {
 
     const grouped = {};
     filtered.forEach(p => {
-      const cat = p.category || "General";
+      const cat = (p.category && p.category !== "undefined") ? p.category.trim() : "General";
       if (!grouped[cat]) grouped[cat] = [];
       grouped[cat].push(p);
     });
 
-    const currency = AppState.shopConfig.currency || "S/";
+    const defaultCurrency = AppState.shopConfig.currency || "S/";
 
     // Ordenar categorías según el orden establecido en AppState.categories
     const catOrder = (AppState.categories || []).map(c => c.name);
@@ -3011,6 +3341,7 @@ const CustomerUI = {
       return a.localeCompare(b);
     });
 
+    const isDetailed = AppState.catalogViewMode === "detailed";
     let html = "";
     sortedCats.forEach(cat => {
       const items = grouped[cat];
@@ -3023,16 +3354,31 @@ const CustomerUI = {
             <h2 class="category-section-title"><span class="cat-sec-icon">${catIcon}</span> ${escapeHtml(cat)}</h2>
             <span class="category-section-qty">${items.length} opciones</span>
           </div>
-          <div class="products-grid">
+          <div class="products-grid ${isDetailed ? 'view-detailed' : ''}">
             ${items.map(p => {
               const isAvailable = p.available !== false;
               const hasVariants = (p.sizes && p.sizes.length > 0) || (p.colors && p.colors.length > 0);
+              const isVehicleOrProperty = p.listingType === "vehicle" || p.listingType === "property";
+              const prodCurrency = p.currency || defaultCurrency;
+              const photosCount = (Array.isArray(p.images) && p.images.length > 0) ? p.images.length : (p.img ? 1 : 0);
+
+              // Quick specs pills (extraer año, km, combustible, duración o condición)
+              let quickSpecs = [];
+              if (Array.isArray(p.specs) && p.specs.length > 0) {
+                quickSpecs = p.specs.slice(0, 3).map(s => s.value);
+              } else if (p.condition || p.location) {
+                if (p.condition) quickSpecs.push(p.condition);
+                if (p.location) quickSpecs.push(p.location);
+              }
+
+              const formattedPrice = Number(p.price).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
               return `
                 <div class="product-card ${!isAvailable ? 'out-of-stock' : ''}" data-product-id="${escapeHtml(p.id)}">
                   <div class="product-img-wrapper" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')">
-                    <img src="${p.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80'}" 
+                    <img src="${p.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80'}" 
                          alt="${escapeHtml(p.name)}" class="product-card-img" loading="lazy">
+                    ${photosCount > 1 ? `<span class="badge-photo-count">📷 1/${photosCount}</span>` : ""}
                     ${p.videoUrl ? `<span class="badge-video-flag">🎥 Video</span>` : ""}
                     ${p.promo ? `<span class="badge-promo-flag">PROMO</span>` : ""}
                     ${!isAvailable ? `<span class="badge-out-of-stock">AGOTADO</span>` : ""}
@@ -3047,19 +3393,29 @@ const CustomerUI = {
                         </button>
                       </div>
                       <h3 class="product-name" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')">${escapeHtml(p.name)}</h3>
-                      <p class="product-desc">${escapeHtml(p.desc || "")}</p>
+                      ${quickSpecs.length > 0 ? `
+                        <div class="product-specs-quick-pills">
+                          ${quickSpecs.map(sp => `<span class="quick-spec-pill">${escapeHtml(sp)}</span>`).join("")}
+                        </div>
+                      ` : `
+                        <p class="product-desc">${escapeHtml(p.desc || "")}</p>
+                      `}
                     </div>
 
                     <div class="product-bottom-row">
-                      <span class="product-price">${currency} ${Number(p.price).toFixed(2)}</span>
+                      <span class="product-price">${prodCurrency} ${formattedPrice}</span>
 
                       ${!isAvailable ? `
                         <button class="add-product-btn btn-disabled" disabled type="button">
                           <span>Agotado</span>
                         </button>
+                      ` : isVehicleOrProperty ? `
+                        <button class="btn-inquire-direct" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')" type="button">
+                          <span>Ver Ficha ➔</span>
+                        </button>
                       ` : hasVariants ? `
                         <button class="add-product-btn" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')" type="button">
-                          <span>Elegir Talla / Color ➔</span>
+                          <span>${p.listingType === 'digital' ? 'Configurar ➔' : 'Elegir Talla / Color ➔'}</span>
                         </button>
                       ` : `
                         <button class="add-product-btn" onclick="CartController.addToCart('${escapeHtml(p.id)}', 1)" type="button">
@@ -3110,7 +3466,6 @@ const CustomerUI = {
     const descEl = document.getElementById("detail-desc");
     const priceEl = document.getElementById("detail-price");
     const qtyValEl = document.getElementById("modal-qty-val");
-    const btnTotalEl = document.getElementById("modal-button-total");
     const noteInput = document.getElementById("modal-product-note");
     const addBtn = document.getElementById("modal-add-to-cart-btn");
 
@@ -3119,9 +3474,68 @@ const CustomerUI = {
     const colorsGroup = document.getElementById("detail-colors-group");
     const colorsRow = document.getElementById("detail-colors-row");
 
-    const currency = AppState.shopConfig.currency || "S/";
+    const currency = product.currency || AppState.shopConfig.currency || "S/";
 
-    if (imgEl) imgEl.src = product.img || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80";
+    // 1. Fotos y Galería de Miniaturas
+    const images = (Array.isArray(product.images) && product.images.length > 0)
+      ? product.images
+      : (product.img ? [product.img] : []);
+    if (imgEl) imgEl.src = images[0] || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80";
+
+    const thumbsRow = document.getElementById("detail-thumbnails-row");
+    const photoCounter = document.getElementById("detail-photo-counter");
+    if (thumbsRow) {
+      if (images.length > 1) {
+        thumbsRow.classList.remove("hidden");
+        thumbsRow.innerHTML = images.map((src, idx) => `
+          <div class="gallery-thumb ${idx === 0 ? 'active' : ''}" data-idx="${idx}">
+            <img src="${src}" alt="Foto ${idx+1}">
+          </div>
+        `).join("");
+        thumbsRow.querySelectorAll(".gallery-thumb").forEach(thumb => {
+          thumb.onclick = () => {
+            const idx = Number(thumb.dataset.idx);
+            thumbsRow.querySelectorAll(".gallery-thumb").forEach(t => t.classList.remove("active"));
+            thumb.classList.add("active");
+            if (imgEl) imgEl.src = images[idx];
+            if (photoCounter) photoCounter.textContent = `${idx + 1}/${images.length}`;
+          };
+        });
+        if (photoCounter) {
+          photoCounter.textContent = `1/${images.length}`;
+          photoCounter.classList.remove("hidden");
+        }
+      } else {
+        thumbsRow.classList.add("hidden");
+        if (photoCounter) photoCounter.classList.add("hidden");
+      }
+    }
+
+    // 2. Badges de Marketplace (Condición, Ubicación, Tipo)
+    const condBadge = document.getElementById("detail-condition-badge");
+    const locBadge = document.getElementById("detail-location-badge");
+    const listBadge = document.getElementById("detail-listing-badge");
+    if (condBadge) {
+      if (product.condition) {
+        condBadge.textContent = product.condition;
+        condBadge.classList.remove("hidden");
+      } else {
+        condBadge.classList.add("hidden");
+      }
+    }
+    if (locBadge) {
+      if (product.location) {
+        locBadge.textContent = `📍 ${product.location}`;
+        locBadge.classList.remove("hidden");
+      } else {
+        locBadge.classList.add("hidden");
+      }
+    }
+    if (listBadge) {
+      const typeIcons = { vehicle: "🚗 Vehículo", digital: "⚡ Digital", property: "🏠 Inmueble", item: "🛍️ Artículo" };
+      listBadge.textContent = typeIcons[product.listingType] || "🛍️ Artículo";
+    }
+
     if (catEl) catEl.textContent = product.category;
     if (promoBadge) {
       if (product.promo) promoBadge.classList.remove("hidden");
@@ -3130,9 +3544,26 @@ const CustomerUI = {
     if (titleEl) {
       titleEl.innerHTML = `${escapeHtml(product.name)} ${product.sku ? `<small style="font-size:0.75rem; color:var(--accent-gold); display:block;">REF: ${escapeHtml(product.sku)}</small>` : ''}`;
     }
-    if (descEl) descEl.textContent = product.desc || "Artículo de calidad prémium.";
+    if (descEl) descEl.textContent = product.desc || "";
     if (qtyValEl) qtyValEl.textContent = AppState.modalQuantity;
     if (noteInput) noteInput.value = "";
+
+    // 3. Ficha Técnica / Especificaciones Dinámicas
+    const specsContainer = document.getElementById("detail-specs-container");
+    const specsGrid = document.getElementById("detail-specs-grid");
+    if (specsContainer && specsGrid) {
+      if (Array.isArray(product.specs) && product.specs.length > 0) {
+        specsContainer.classList.remove("hidden");
+        specsGrid.innerHTML = product.specs.map(sp => `
+          <div class="spec-item">
+            <span class="spec-label">${escapeHtml(sp.label)}</span>
+            <span class="spec-val">${escapeHtml(sp.value)}</span>
+          </div>
+        `).join("");
+      } else {
+        specsContainer.classList.add("hidden");
+      }
+    }
 
     // Adaptar etiquetas dinámicas de variantes según rubro
     const nicheInfo = NICHE_DATA[AppState.activePreset] || NICHE_DATA.general;
@@ -3228,15 +3659,73 @@ const CustomerUI = {
       colorsGroup.classList.add("hidden");
     }
 
-    if (addBtn) {
-      if (product.available === false) {
-        addBtn.disabled = true;
-        addBtn.classList.add("btn-disabled");
-        addBtn.innerHTML = `<span>Producto Agotado</span>`;
-      } else {
-        addBtn.disabled = false;
-        addBtn.classList.remove("btn-disabled");
-        addBtn.innerHTML = `<span>Agregar al Pedido • <span id="modal-button-total"></span></span>`;
+    // 4. Smart CTAs: Vehículos / Inmuebles vs Carrito Estándar
+    const isVehicleOrProperty = product.listingType === "vehicle" || product.listingType === "property";
+    const vehicleInquiryBox = document.getElementById("vehicle-inquiry-box");
+    const detailModalFooter = document.getElementById("detail-modal-footer");
+    const standardCartActions = document.getElementById("standard-cart-actions");
+
+    if (isVehicleOrProperty) {
+      if (vehicleInquiryBox) vehicleInquiryBox.classList.remove("hidden");
+      if (detailModalFooter) detailModalFooter.classList.add("hidden");
+      if (standardCartActions) standardCartActions.classList.add("hidden");
+
+      let currentInquiry = "¿Sigue disponible?";
+      const pillsContainer = document.getElementById("quick-inquiry-pills");
+      if (pillsContainer) {
+        pillsContainer.querySelectorAll(".inquiry-pill").forEach(pill => {
+          pill.onclick = () => {
+            pillsContainer.querySelectorAll(".inquiry-pill").forEach(p => p.classList.remove("active"));
+            pill.classList.add("active");
+            currentInquiry = pill.textContent.trim();
+          };
+        });
+      }
+
+      const inquiryBtn = document.getElementById("vehicle-whatsapp-btn");
+      if (inquiryBtn) {
+        inquiryBtn.onclick = () => {
+          const rawPhone = (AppState.shopConfig.phone || "").replace(/[^0-9]/g, "");
+          const cleanPhone = rawPhone.startsWith("51") ? rawPhone : `51${rawPhone}`;
+          const cleanStoreUrl = QRGenerator.getCleanDisplayUrl();
+          const prodUrl = `${cleanStoreUrl}?p=${encodeURIComponent(product.id)}`;
+          const prodCurrency = product.currency || AppState.shopConfig.currency || "US$";
+          const formattedPrice = Number(product.price).toLocaleString('es-PE', {minimumFractionDigits: 2});
+          
+          let msg = `Hola *${AppState.shopConfig.name}*, vi tu publicación en TiendaZap:
+
+`;
+          msg += `🚗 *${product.name}*
+`;
+          if (product.condition) msg += `• *Condición:* ${product.condition}
+`;
+          if (product.location) msg += `• *Ubicación:* ${product.location}
+`;
+          msg += `💰 *Precio:* ${prodCurrency} ${formattedPrice}
+`;
+          msg += `🔗 *Ver Ficha:* ${prodUrl}
+
+`;
+          msg += `${currentInquiry}`;
+
+          window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, "_blank");
+        };
+      }
+    } else {
+      if (vehicleInquiryBox) vehicleInquiryBox.classList.add("hidden");
+      if (detailModalFooter) detailModalFooter.classList.remove("hidden");
+      if (standardCartActions) standardCartActions.classList.remove("hidden");
+
+      if (addBtn) {
+        if (product.available === false) {
+          addBtn.disabled = true;
+          addBtn.classList.add("btn-disabled");
+          addBtn.innerHTML = `<span>Producto Agotado</span>`;
+        } else {
+          addBtn.disabled = false;
+          addBtn.classList.remove("btn-disabled");
+          addBtn.innerHTML = `<span>Agregar al Pedido • <span id="modal-button-total"></span></span>`;
+        }
       }
     }
 
@@ -3247,14 +3736,14 @@ const CustomerUI = {
   updateModalPrice() {
     if (!AppState.selectedProductModal) return;
     const product = AppState.selectedProductModal;
-    const currency = AppState.shopConfig.currency || "S/";
+    const currency = product.currency || AppState.shopConfig.currency || "S/";
     const unitPrice = CartController.getUnitPrice(product, AppState.modalSelectedSize, AppState.modalSelectedColor);
     const total = unitPrice * AppState.modalQuantity;
 
     const priceEl = document.getElementById("detail-price");
     const btnTotalEl = document.getElementById("modal-button-total");
-    if (priceEl) priceEl.textContent = `${currency} ${unitPrice.toFixed(2)}`;
-    if (btnTotalEl) btnTotalEl.textContent = `${currency} ${total.toFixed(2)}`;
+    if (priceEl) priceEl.textContent = `${currency} ${unitPrice.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    if (btnTotalEl) btnTotalEl.textContent = `${currency} ${total.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
   },
 
   closeProductModal() {
@@ -3437,7 +3926,23 @@ const CustomerUI = {
     const gpsBtn = document.getElementById("get-gps-location-btn");
     const clientTable = document.getElementById("client-table");
 
-    // 1. Mostrar/ocultar opciones según rubro de WhatsApp Business
+    // 0. Si todos los ítems en el carrito son digitales, forzar entrega digital gratuita
+    const isAllDigitalCart = CartController.isCartAllDigital();
+    if (isAllDigitalCart) {
+      AppState.deliveryMode = "digital";
+      if (optionDigitalLabel) {
+        optionDigitalLabel.classList.remove("hidden");
+        optionDigitalLabel.classList.add("active");
+      }
+      if (optionDeliveryLabel) optionDeliveryLabel.classList.add("hidden");
+      if (optionPickupLabel) optionPickupLabel.classList.add("hidden");
+      if (optionDineinLabel) optionDineinLabel.classList.add("hidden");
+      if (modeDigital) modeDigital.checked = true;
+      if (tableGroup) tableGroup.classList.add("hidden");
+      if (addressGroup) addressGroup.style.display = "flex";
+      if (addressLabel) addressLabel.textContent = "Correo Electrónico o WhatsApp donde recibirás tu producto digital *";
+      if (gpsBtn) gpsBtn.style.display = "none";
+    } else // 1. Mostrar/ocultar opciones según rubro de WhatsApp Business
     if (nicheInfo.isDigitalFriendly) {
       if (optionDigitalLabel) optionDigitalLabel.classList.remove("hidden");
       if (optionDineinLabel) optionDineinLabel.classList.add("hidden");
@@ -3605,7 +4110,16 @@ const CartController = {
     }, 0);
   },
 
+  isCartAllDigital() {
+    const items = this.getCartItems();
+    if (items.length === 0) return false;
+    return items.every(item => item.product && item.product.listingType === "digital");
+  },
+
   getDeliveryCost() {
+    if (this.isCartAllDigital() || AppState.deliveryMode === "digital" || AppState.deliveryMode === "pickup" || AppState.deliveryMode === "dinein") {
+      return 0.0;
+    }
     return AppState.deliveryMode === "delivery" ? Number(AppState.shopConfig.deliveryCost || 0) : 0;
   },
 
@@ -3984,19 +4498,29 @@ const QRGenerator = {
       cats: AppState.categories,
       prods: AppState.products
         .filter(p => p.available !== false)
-        .map(p => ({
-          id: p.id,
-          sku: p.sku || "",
-          n: p.name,
-          cat: p.category,
-          pr: p.price,
-          d: p.desc || "",
-          img: filterImg(p.img),
-          vid: p.videoUrl && !p.videoUrl.startsWith("blob:") && !p.videoUrl.startsWith("idb://") ? p.videoUrl : "",
-          sz: p.sizes || [],
-          co: p.colors || [],
-          pro: !!p.promo
-        }))
+        .map(p => {
+          const rawImgs = Array.isArray(p.images) && p.images.length > 0 ? p.images : (p.img ? [p.img] : []);
+          const filteredImgs = rawImgs.map(filterImg).filter(Boolean);
+          return {
+            id: p.id,
+            sku: p.sku || "",
+            n: p.name,
+            cat: (p.category && p.category !== "undefined") ? p.category.trim() : "General",
+            pr: p.price,
+            cur: p.currency || AppState.shopConfig.currency || "S/",
+            lt: p.listingType || "item",
+            con: p.condition || "",
+            loc: p.location || "",
+            d: p.desc || "",
+            img: filteredImgs[0] || filterImg(p.img),
+            imgs: filteredImgs,
+            sp: Array.isArray(p.specs) ? p.specs : [],
+            vid: p.videoUrl && !p.videoUrl.startsWith("blob:") && !p.videoUrl.startsWith("idb://") ? p.videoUrl : "",
+            sz: p.sizes || [],
+            co: p.colors || [],
+            pro: !!p.promo
+          };
+        })
     };
   },
 
@@ -4622,23 +5146,77 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("Geolocalización no disponible en este dispositivo.");
         return;
       }
-      Toast.show("Obteniendo ubicación GPS...", "🛰️");
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const lat = pos.coords.latitude.toFixed(6);
-          const lng = pos.coords.longitude.toFixed(6);
-          const coords = `${lat},${lng}`;
-          if (gpsCoordsInput) gpsCoordsInput.value = coords;
-          if (gpsStatusBadge) gpsStatusBadge.classList.remove("hidden");
-          if (clientAddressInput && !clientAddressInput.value) {
-            clientAddressInput.value = `Ubicación satelital adjunta (${coords})`;
+      const originalText = getGpsBtn.innerHTML;
+      getGpsBtn.disabled = true;
+      getGpsBtn.innerHTML = `<span>⏳ Buscando tu ubicación...</span>`;
+      Toast.show("Obteniendo coordenadas GPS...", "🛰️");
+
+      const onLocationSuccess = async (pos) => {
+        const lat = pos.coords.latitude.toFixed(6);
+        const lng = pos.coords.longitude.toFixed(6);
+        const coords = `${lat},${lng}`;
+        AppState.gpsCoords = coords;
+        if (gpsCoordsInput) gpsCoordsInput.value = coords;
+        if (gpsStatusBadge) gpsStatusBadge.classList.remove("hidden");
+
+        // Geocodificación inversa real con Nominatim OpenStreetMap
+        let addressFound = "";
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 6000);
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=es`, {
+            signal: controller.signal,
+            headers: { "Accept": "application/json" }
+          });
+          clearTimeout(timeoutId);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.address) {
+              const road = data.address.road || data.address.pedestrian || data.address.street || "";
+              const number = data.address.house_number || "";
+              const suburb = data.address.suburb || data.address.neighbourhood || data.address.city_district || "";
+              const city = data.address.city || data.address.town || data.address.county || "";
+              const parts = [road ? `${road} ${number}`.trim() : "", suburb, city].filter(Boolean);
+              if (parts.length > 0) addressFound = parts.join(", ");
+              else if (data.display_name) addressFound = data.display_name.split(",").slice(0, 3).join(",").trim();
+            }
           }
-          Toast.show("Ubicación satelital agregada", "📍");
-        },
-        (err) => {
-          alert("No se pudo obtener la ubicación: " + err.message);
-        },
-        { enableHighAccuracy: true, timeout: 8000 }
+        } catch (e) {
+          console.warn("Geocodificación inversa no disponible o timeout:", e);
+        }
+
+        if (clientAddressInput) {
+          clientAddressInput.value = addressFound || `Ubicación satelital adjunta (${coords})`;
+        }
+        getGpsBtn.disabled = false;
+        getGpsBtn.innerHTML = originalText;
+        Toast.show(addressFound ? `Dirección detectada: ${addressFound}` : "Coordenadas GPS adjuntadas", "📍");
+      };
+
+      const onLocationError = (err) => {
+        if (err.code === 1) { // PERMISSION_DENIED
+          alert("Por favor activa los permisos de ubicación en tu navegador (toca el candado 🔒 en la barra de direcciones) para enviar tu ubicación de entrega.");
+          getGpsBtn.disabled = false;
+          getGpsBtn.innerHTML = originalText;
+          return;
+        }
+        // Fallback a baja precisión si falló la alta
+        console.warn("Reintentando GPS con baja precisión...", err.message);
+        navigator.geolocation.getCurrentPosition(
+          onLocationSuccess,
+          (err2) => {
+            getGpsBtn.disabled = false;
+            getGpsBtn.innerHTML = originalText;
+            alert("No pudimos obtener tu ubicación satelital (" + err2.message + "). Por favor escribe tu dirección.");
+          },
+          { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+        );
+      };
+
+      navigator.geolocation.getCurrentPosition(
+        onLocationSuccess,
+        onLocationError,
+        { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
       );
     });
   }
@@ -5014,6 +5592,97 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (appleOpenCustomerBtn) appleOpenCustomerBtn.addEventListener("click", () => ViewController.showCustomerPreview());
   if (appleOpenStudioBtn) appleOpenStudioBtn.addEventListener("click", () => ViewController.showStudio());
+
+  // ==========================================================================
+  // ETAPA 1: EVENT LISTENERS MARKETPLACE, VISTAS Y FICHAS TÉCNICAS
+  // ==========================================================================
+  // Conmutador de vista de catálogo (Cuadrícula 2 cols vs Detallado 1 col)
+  const toggleGridBtn = document.getElementById("toggle-view-grid");
+  const toggleDetailedBtn = document.getElementById("toggle-view-detailed");
+  const setCatalogView = (mode) => {
+    AppState.catalogViewMode = mode;
+    localStorage.setItem("tiendazap_view_mode", mode);
+    if (toggleGridBtn) toggleGridBtn.classList.toggle("active", mode === "grid");
+    if (toggleDetailedBtn) toggleDetailedBtn.classList.toggle("active", mode === "detailed");
+    document.querySelectorAll("#customer-product-list .products-grid").forEach(grid => {
+      grid.classList.toggle("view-detailed", mode === "detailed");
+    });
+  };
+  if (toggleGridBtn) toggleGridBtn.addEventListener("click", () => setCatalogView("grid"));
+  if (toggleDetailedBtn) toggleDetailedBtn.addEventListener("click", () => setCatalogView("detailed"));
+  if (AppState.catalogViewMode === "detailed") {
+    setCatalogView("detailed");
+  }
+
+  // Onboarding Step 4: Selector de Tipo de Publicación
+  const appleTypeSelector = document.getElementById("apple-type-selector");
+  const appleProdTypeInput = document.getElementById("apple-prod-type");
+  if (appleTypeSelector) {
+    appleTypeSelector.querySelectorAll(".apple-type-pill").forEach(pill => {
+      pill.addEventListener("click", () => {
+        appleTypeSelector.querySelectorAll(".apple-type-pill").forEach(p => p.classList.remove("active"));
+        pill.classList.add("active");
+        if (appleProdTypeInput) appleProdTypeInput.value = pill.dataset.type || "item";
+      });
+    });
+  }
+
+  // Onboarding Step 4: Multi-foto
+  const appleMultiFileInput = document.getElementById("apple-prod-file-input");
+  const appleMultiStrip = document.getElementById("apple-multi-thumbs-strip");
+  if (appleMultiFileInput) {
+    appleMultiFileInput.addEventListener("change", async (e) => {
+      const files = Array.from(e.target.files || []).slice(0, 6);
+      if (files.length === 0) return;
+      Toast.show("Optimizando fotos...", "⏳");
+      OnboardingWizard.onboardingPhotos = [];
+      for (const file of files) {
+        try {
+          const comp = await ImageOptimizer.compressImage(file, 800, 0.82);
+          OnboardingWizard.onboardingPhotos.push(comp);
+        } catch (err) {}
+      }
+      if (OnboardingWizard.onboardingPhotos.length > 0) {
+        const preview = document.getElementById("apple-prod-img");
+        const placeholder = document.getElementById("apple-prod-placeholder");
+        if (preview) {
+          preview.src = OnboardingWizard.onboardingPhotos[0];
+          preview.classList.remove("hidden");
+        }
+        if (placeholder) placeholder.classList.add("hidden");
+        if (appleMultiStrip) {
+          appleMultiStrip.innerHTML = OnboardingWizard.onboardingPhotos.map((url, i) => `
+            <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-subtle); flex-shrink: 0;">
+              <img src="${url}" alt="Foto ${i+1}" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+          `).join("");
+        }
+      }
+      Toast.show(`${OnboardingWizard.onboardingPhotos.length} fotos cargadas`, "📸");
+    });
+  }
+
+  // Studio: Selector de Tipo de Publicación
+  const studioTypePills = document.querySelectorAll("#editor-listing-type-pills .type-pill");
+  const studioTypeInput = document.getElementById("editor-listing-type");
+  studioTypePills.forEach(pill => {
+    pill.addEventListener("click", () => {
+      studioTypePills.forEach(p => p.classList.remove("active"));
+      pill.classList.add("active");
+      const chosenType = pill.dataset.type || "item";
+      if (studioTypeInput) studioTypeInput.value = chosenType;
+      StudioController.currentListingType = chosenType;
+      StudioController.renderDynamicSpecs(chosenType, []);
+    });
+  });
+
+  // Studio: Multi-foto input
+  const studioMultiInput = document.getElementById("editor-multi-photo-input");
+  if (studioMultiInput) {
+    studioMultiInput.addEventListener("change", (e) => {
+      StudioController.handleMultiPhotoUpload(e.target.files);
+    });
+  }
 
   // Triggers en el Studio
   const studioWizardBtn = document.getElementById("studio-open-wizard-btn");
