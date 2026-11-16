@@ -716,8 +716,72 @@ const BUSINESS_PRESETS = {
 // ============================================================================
 // 1.1 CONFIGURACIÓN DE RUBROS & CATEGORÍAS ESTILO WHATSAPP BUSINESS
 // ============================================================================
+const NICHE_LABELS_ES = {
+  vehicles: "Vehículos & Motos",
+  tech: "Software & Licencias",
+  digital: "Software & Licencias",
+  sneakers: "Zapatillas & Calzado",
+  fashion: "Ropa & Moda",
+  beauty: "Perfumes & Belleza",
+  watches: "Relojes & Joyería",
+  food: "Comida & Postres",
+  general: "General & Marketplace",
+  apparel: "Ropa & Calzado",
+  properties: "Inmuebles & Alquiler",
+  burger: "Hamburguesas & Comida"
+};
+
+function getNicheLabelEs(key) {
+  if (!key) return "General";
+  return NICHE_LABELS_ES[key] || NICHE_DATA[key]?.label || "General";
+}
+
+const TYPE_CATEGORIES = {
+  digital: [
+    "Diseño & Arquitectura (Adobe / Autodesk)",
+    "Ofimática & Windows (Microsoft 365)",
+    "Inteligencia Artificial & Pro (ChatGPT / Canva / CapCut)",
+    "Streaming & Entretenimiento",
+    "Antivirus & Seguridad",
+    "Cursos & Libros Digitales",
+    "Juegos & Gift Cards"
+  ],
+  vehicle: [
+    "Camionetas & SUV",
+    "Autos Sedán & Hatchback",
+    "Pickups & 4x4",
+    "Vans & Comerciales",
+    "Motos & Scooters",
+    "Repuestos & Autopartes",
+    "Accesorios Automotrices"
+  ],
+  property: [
+    "Departamentos en Venta",
+    "Departamentos en Alquiler",
+    "Casas",
+    "Locales Comerciales",
+    "Oficinas",
+    "Terrenos & Lotes",
+    "Habitaciones"
+  ],
+  item: [
+    "Calzado & Zapatillas",
+    "Ropa & Pantalones",
+    "Relojes & Joyas",
+    "Perfumes & Decants",
+    "Celulares & Laptops",
+    "Componentes PC & GPUs",
+    "Audífonos & Gadgets",
+    "Postres & Comida",
+    "Flores & Regalos",
+    "Hogar & Muebles"
+  ]
+};
+
 const NICHE_DATA = {
   vehicles: {
+    key: "vehicles",
+    label: "Vehículos & Automotor",
     config: {
       name: "AutoMarket Perú",
       storeSlug: "automarket-peru",
@@ -725,12 +789,12 @@ const NICHE_DATA = {
       phone: "51987654321",
       currency: "US$",
       deliveryCost: 0.0,
-      deliveryTime: "Coordinar visita",
+      deliveryTime: "Trato Directo",
       isOpen: true,
       logoUrl: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80",
       bannerUrl: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"
     },
-    suggestedCategories: ["Camionetas SUV", "Autos Sedán", "Motos & Scooters", "Comerciales & Carga"],
+    suggestedCategories: ["Camionetas & SUV", "Autos Sedán & Hatchback", "Pickups & 4x4", "Vans & Comerciales", "Motos & Scooters", "Repuestos & Autopartes", "Accesorios Automotrices"],
     catalogTitle: "Catálogo de Vehículos & Camionetas",
     catalogSubtitle: "Ficha técnica completa, fotos HD e inspección mecánica garantizada",
     orderButtonText: "💬 Consultar por WhatsApp",
@@ -828,12 +892,12 @@ const NICHE_DATA = {
   },
   tech: {
     key: "tech",
-    label: "Tecnología & Gadgets",
-    tagline: "Software original, licencias digitales garantizadas y gadgets tech 💻⚡",
-    suggestedCategories: ["Software & Licencias", "Suscripciones Digitales", "Audio & Gadgets", "Accesorios", "Cables & Cargas"],
+    label: "Software, Licencias & Tech",
+    tagline: "Software original, licencias digitales garantizadas y herramientas tech 💻⚡",
+    suggestedCategories: ["Diseño & Arquitectura (Adobe / Autodesk)", "Ofimática & Windows (Microsoft 365)", "Inteligencia Artificial & Pro (ChatGPT / Canva / CapCut)", "Streaming & Entretenimiento", "Antivirus & Seguridad", "Cursos & Libros Digitales", "Juegos & Gift Cards"],
     variantLabels: {
-      size: "Variantes / Licencia",
-      color: "Color / Tipo"
+      size: "Duración / Plan (ej: 1 Mes, 6 Meses, 1 Año)",
+      color: "Dispositivos / Entrega (ej: 1 PC, 2 Dispositivos, Con tu correo)"
     },
     defaultDeliveryTime: "Entrega Inmediata",
     defaultDeliveryCost: 0.0,
@@ -841,7 +905,7 @@ const NICHE_DATA = {
     hasDineIn: false,
     pills: {
       time: "⚡ Entrega Inmediata",
-      cost: "💻 Envío Digital Gratis"
+      cost: "💻 Activación 100% Online (Envío S/ 0)"
     }
   },
   general: {
@@ -928,6 +992,80 @@ const AppState = {
       this.storesList.push(storeData);
     }
     this.saveStoresList();
+    this.safeSetItem("tiendazap_store_" + currentSlug, JSON.stringify(storeData));
+  },
+
+  syncActiveStoreToList() {
+    this.saveCurrentStoreState();
+  },
+
+  changeStoreNiche(newNiche) {
+    if (!newNiche) return;
+    this.activePreset = newNiche;
+    if (!this.shopConfig) this.shopConfig = {};
+    this.shopConfig.niche = newNiche;
+
+    // Categorías que ya tienen productos creados por el usuario
+    const categoriesWithProducts = new Set();
+    (this.products || []).forEach(p => {
+      if (p.category && p.category !== "undefined") {
+        categoriesWithProducts.add(p.category.trim().toLowerCase());
+      }
+    });
+
+    // Conservar intactas las categorías que tengan productos creados
+    const preservedCats = (this.categories || []).filter(c => {
+      const name = typeof c === "string" ? c.trim() : (c && c.name ? c.name.trim() : "");
+      return name && categoriesWithProducts.has(name.toLowerCase());
+    });
+
+    // Categorías oficiales sugeridas para el nuevo rubro
+    const newSuggested = NICHE_DATA[newNiche]?.suggestedCategories || TYPE_CATEGORIES[newNiche] || NICHE_DATA.general.suggestedCategories || [];
+    const newCatObjects = newSuggested.map((catName, idx) => ({
+      id: "cat_" + (idx + 1),
+      name: catName,
+      icon: CustomerUI.getCategoryIcon(catName)
+    }));
+
+    const existingNames = new Set(preservedCats.map(c => (typeof c === "string" ? c : c.name).toLowerCase()));
+    const mergedCategories = [...preservedCats];
+    newCatObjects.forEach(c => {
+      if (!existingNames.has(c.name.toLowerCase())) {
+        mergedCategories.push(c);
+        existingNames.add(c.name.toLowerCase());
+      }
+    });
+    this.categories = mergedCategories;
+
+    // Si el nuevo rubro es digital (tech / digital), ajustar automáticamente delivery 0
+    if (newNiche === "tech" || newNiche === "digital") {
+      this.shopConfig.deliveryCost = 0;
+      this.shopConfig.deliveryTime = "Entrega Inmediata";
+    } else if (newNiche === "vehicles") {
+      this.shopConfig.deliveryCost = 0;
+      this.shopConfig.deliveryTime = "Trato Directo";
+      if (this.shopConfig.currency !== "US$") {
+        this.shopConfig.currency = "US$";
+      }
+    }
+
+    this.saveConfig();
+    this.saveCategories();
+    this.syncActiveStoreToList();
+
+    StudioController.populateSettingsTab();
+    StudioController.updateVariantInputLabels();
+    StudioController.renderCategoryFilters();
+    CustomerUI.renderStoreHeader();
+    CustomerUI.renderCategoryTabs();
+    CustomerUI.renderProductCards();
+    StudioController.renderStoresTab();
+
+    document.querySelectorAll(".niche-card-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.getAttribute("data-niche") === newNiche);
+    });
+
+    Toast.show("Rubro y categorías de tu tienda actualizados", "✅");
   },
 
   switchStore(storeId) {
@@ -988,15 +1126,13 @@ const AppState = {
       food: "food"
     };
     const mappedPreset = presetMap[preset] || (BUSINESS_PRESETS[preset] ? preset : "general");
-    const starterProducts = (BUSINESS_PRESETS[mappedPreset] && BUSINESS_PRESETS[mappedPreset].products)
-      ? [...BUSINESS_PRESETS[mappedPreset].products]
-      : [...BUSINESS_PRESETS.general.products];
     const starterCategories = (NICHE_DATA[preset]?.suggestedCategories || NICHE_DATA[mappedPreset]?.suggestedCategories || NICHE_DATA.general.suggestedCategories || ["General"]).map((catName, idx) => ({
       id: "cat_" + (idx + 1),
       name: catName,
       icon: CustomerUI.getCategoryIcon(catName)
     }));
 
+    // Tienda limpia sin productos de relleno falso
     const newStore = {
       id: storeId,
       name: cleanName,
@@ -1005,18 +1141,19 @@ const AppState = {
       phone: phone,
       currency: initialConfig.currency,
       config: initialConfig,
-      products: starterProducts,
+      products: [],
       categories: starterCategories,
       createdAt: Date.now()
     };
 
     this.storesList.push(newStore);
     this.saveStoresList();
+    this.safeSetItem("tiendazap_store_" + slug, JSON.stringify(newStore));
 
     this.currentStoreId = storeId;
     this.activePreset = preset;
     this.shopConfig = initialConfig;
-    this.products = starterProducts;
+    this.products = [];
     this.categories = starterCategories;
     this.saveConfig();
     this.saveProducts();
@@ -1220,14 +1357,20 @@ const AppState = {
                 yapeEnabled: !!data.cfg.ye,
                 googleSheetUrl: ""
               };
-              if (data.cfg.np && BUSINESS_PRESETS[data.cfg.np]) this.activePreset = data.cfg.np;
+              if (data.cfg.np && BUSINESS_PRESETS[data.cfg.np]) {
+                this.activePreset = data.cfg.np;
+              } else if (data.prods && data.prods.some(p => p.lt === "digital" || (p.n && /licencia|adobe|office|antivirus|windows|canva|spotify|netflix/i.test(p.n)))) {
+                this.activePreset = "tech";
+                this.shopConfig.deliveryCost = 0;
+                this.shopConfig.deliveryTime = "Inmediato";
+              }
               if (Array.isArray(data.cats)) {
                 this.categories = data.cats.map((c, i) => {
                   if (typeof c === "string") {
                     const clean = c.trim();
-                    return clean && clean !== "undefined" ? { id: "cat_" + (i + 1), name: clean, icon: CustomerUI.getCategoryIcon(clean) } : null;
+                    return (clean && clean.toLowerCase() !== "undefined") ? { id: "cat_" + (i + 1), name: clean, icon: CustomerUI.getCategoryIcon(clean) } : null;
                   }
-                  const cleanName = (c && c.name && c.name !== "undefined") ? c.name.trim() : "";
+                  const cleanName = (c && c.name && c.name.toLowerCase() !== "undefined") ? c.name.trim() : "";
                   return cleanName ? {
                     id: c.id || "cat_" + (i + 1),
                     name: cleanName,
@@ -1235,19 +1378,28 @@ const AppState = {
                   } : null;
                 }).filter(Boolean);
               }
+              if (!this.categories || this.categories.length === 0) {
+                const defCats = NICHE_DATA[this.activePreset]?.suggestedCategories || ["General"];
+                this.categories = defCats.map((name, i) => ({ id: "cat_" + (i + 1), name, icon: CustomerUI.getCategoryIcon(name) }));
+              }
               if (Array.isArray(data.prods)) {
                 this.products = data.prods.map(p => {
                   const imgs = (Array.isArray(p.imgs) && p.imgs.length > 0)
                     ? p.imgs
                     : (p.img ? [p.img] : []);
+                  const rawCat = (p.cat || p.category || "").trim();
+                  const cleanCat = (!rawCat || rawCat.toLowerCase() === "undefined") 
+                    ? (this.activePreset === "tech" ? "Licencias & Software" : "General") 
+                    : rawCat;
+                  const isDig = p.lt === "digital" || (p.n && /licencia|adobe|office|antivirus|windows|canva|spotify|netflix/i.test(p.n));
                   return {
                     id: p.id || ("p_" + Math.random().toString(36).substr(2, 6)),
                     sku: p.sku || "",
                     name: p.n || "Producto",
-                    category: (p.cat && p.cat !== "undefined") ? p.cat.trim() : "General",
+                    category: cleanCat,
                     price: Number(p.pr || 0),
                     currency: p.cur || data.cfg?.c || "S/",
-                    listingType: p.lt || "item",
+                    listingType: isDig ? "digital" : (p.lt || "item"),
                     condition: p.con || "",
                     location: p.loc || "",
                     desc: p.d || "",
@@ -1279,12 +1431,54 @@ const AppState = {
 
       if (tiendaParam) {
         this.isCustomerOnlyMode = true;
-        this.shopConfig.storeSlug = slugifyStoreName(tiendaParam);
-        const matchedPreset = Object.values(BUSINESS_PRESETS).find(p => p.config && p.config.storeSlug === this.shopConfig.storeSlug);
-        if (matchedPreset && !rawCompressed) {
-          this.isViewingRemoteCatalog = true;
-          this.shopConfig = { ...matchedPreset.config };
-          this.products = [ ...matchedPreset.products ];
+        const targetSlug = slugifyStoreName(tiendaParam);
+        this.shopConfig.storeSlug = targetSlug;
+        let loaded = false;
+
+        // 1. Buscar en diccionario persistente por slug
+        if (!rawCompressed) {
+          const slugKey = "tiendazap_store_" + targetSlug;
+          const cachedStore = localStorage.getItem(slugKey);
+          if (cachedStore) {
+            try {
+              const sData = JSON.parse(cachedStore);
+              if (sData && (sData.config || sData.name)) {
+                this.shopConfig = { ...sData.config, name: sData.name || sData.config?.name || targetSlug };
+                this.products = Array.isArray(sData.products) ? [...sData.products] : [];
+                this.categories = Array.isArray(sData.categories) ? [...sData.categories] : [];
+                if (sData.preset) this.activePreset = sData.preset;
+                this.isViewingRemoteCatalog = true;
+                loaded = true;
+              }
+            } catch (e) {
+              console.warn("Error leyendo tienda de cache:", e);
+            }
+          }
+
+          // 2. Buscar en storesList
+          if (!loaded) {
+            if (!this.storesList || this.storesList.length === 0) this.initStores();
+            const match = (this.storesList || []).find(s => s.slug === targetSlug || s.id === targetSlug);
+            if (match) {
+              this.shopConfig = { ...match.config, name: match.name || match.config?.name || targetSlug };
+              this.products = Array.isArray(match.products) ? [...match.products] : [];
+              this.categories = Array.isArray(match.categories) ? [...match.categories] : [];
+              if (match.preset) this.activePreset = match.preset;
+              this.isViewingRemoteCatalog = true;
+              loaded = true;
+            }
+          }
+
+          // 3. Buscar en plantillas predefinidas
+          if (!loaded) {
+            const matchedPreset = Object.values(BUSINESS_PRESETS).find(p => p.config && p.config.storeSlug === targetSlug);
+            if (matchedPreset) {
+              this.isViewingRemoteCatalog = true;
+              this.shopConfig = { ...matchedPreset.config };
+              this.products = [ ...matchedPreset.products ];
+              loaded = true;
+            }
+          }
         }
       }
 
@@ -1408,16 +1602,36 @@ const AppState = {
     if (!this.categories || this.categories.length === 0) {
       this.initCategories();
     }
+    // Filtrar categorías con nombre inválido o 'undefined'
+    this.categories = (this.categories || []).filter(c => {
+      const n = typeof c === "string" ? c.trim() : (c && c.name ? c.name.trim() : "");
+      return n && n.toLowerCase() !== "undefined";
+    });
+
+    // Sanitizar productos y registrar cualquier categoría nueva que tengan
+    (this.products || []).forEach(p => {
+      if (!p.category || p.category === "undefined" || p.category.trim() === "") {
+        p.category = (this.activePreset === "tech" || this.activePreset === "digital") ? "Licencias & Software" : "General";
+      }
+      const catName = p.category.trim();
+      if (!this.categories.some(c => (typeof c === "string" ? c : c.name).toLowerCase() === catName.toLowerCase())) {
+        this.categories.push({
+          id: "cat_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
+          name: catName,
+          icon: CustomerUI.getCategoryIcon(catName)
+        });
+      }
+    });
+
     // Calcular conteo reactivo de productos para cada categoría registrada
     return (this.categories || [])
-      .filter(c => c && c.name && c.name !== "undefined" && c.name.trim() !== "")
       .map(c => {
-        const cName = c.name.trim();
+        const cName = (typeof c === "string" ? c : c.name).trim();
         const count = this.products.filter(p => (p.category || "").trim().toLowerCase() === cName.toLowerCase()).length;
         return {
-          ...c,
+          id: c.id || ("cat_" + cName),
           name: cName,
-          label: c.label || cName,
+          label: (c.label && c.label.toLowerCase() !== "undefined") ? c.label.trim() : cName,
           icon: c.icon || CustomerUI.getCategoryIcon(cName),
           count
         };
@@ -1748,6 +1962,8 @@ const ViewController = {
       previewView.classList.remove("active");
     }
 
+    document.body.classList.remove("has-preview-bar");
+
     StudioController.renderAll();
     window.scrollTo({ top: 0, behavior: "smooth" });
   },
@@ -1774,9 +1990,13 @@ const ViewController = {
     if (previewBar) {
       if (AppState.isCustomerOnlyMode) {
         previewBar.classList.add("hidden");
+        document.body.classList.remove("has-preview-bar");
       } else {
         previewBar.classList.remove("hidden");
+        document.body.classList.add("has-preview-bar");
       }
+    } else {
+      document.body.classList.remove("has-preview-bar");
     }
 
     CustomerUI.renderStoreHeader();
@@ -1789,6 +2009,11 @@ const ViewController = {
     if (!AppState.isCustomerOnlyMode) {
       Toast.show("Modo Vista Previa: Así ven tu tienda tus clientes", "👁️");
     }
+  },
+
+  showCustomerView() {
+    AppState.isCustomerOnlyMode = true;
+    this.showCustomerPreview();
   }
 };
 
@@ -2172,6 +2397,8 @@ const StudioController = {
       const isActive = store.slug === currentSlug || store.id === AppState.currentStoreId;
       const prodCount = Array.isArray(store.products) ? store.products.length : 0;
       const logoUrl = store.config?.logoUrl || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=120&q=80";
+      const nicheLabel = getNicheLabelEs(store.preset || store.config?.niche || "general");
+      const shortUrl = `${window.location.origin}/${encodeURIComponent(store.slug)}`;
 
       return `
         <div class="store-item-card ${isActive ? "active-store" : ""}">
@@ -2180,25 +2407,86 @@ const StudioController = {
               <img src="${logoUrl}" alt="${escapeHtml(store.name)}" class="store-item-logo">
               <div>
                 <h4 class="store-item-name">${escapeHtml(store.name)}</h4>
-                <p class="store-item-meta">${escapeHtml(store.preset || "general")} • ${prodCount} productos • ${store.currency || "S/"}</p>
+                <p class="store-item-meta">${escapeHtml(nicheLabel)} • ${prodCount} ${prodCount === 1 ? 'producto' : 'productos'} • ${store.currency || "S/"}</p>
               </div>
             </div>
             ${isActive ? '<span class="store-active-badge">● Activa</span>' : ''}
           </div>
 
-          <div class="store-item-actions">
-            ${isActive 
-              ? '<button type="button" class="btn-secondary-compact" style="flex:1;" disabled>Administrando actualmente</button>'
-              : `<button type="button" class="btn-primary-compact btn-switch-store" data-store-id="${store.id}" style="flex:1;">Cambiar a esta tienda</button>`
-            }
-            ${AppState.storesList.length > 1
-              ? `<button type="button" class="btn-secondary-compact btn-delete-store" data-store-id="${store.id}" style="color:var(--accent-red);" title="Eliminar tienda">🗑️</button>`
-              : ''
-            }
-          </div>
+          ${isActive ? `
+            <div class="store-item-actions-grid">
+              <button type="button" class="btn-primary-compact btn-store-edit-prods" style="grid-column: span 2;">
+                📦 Ver / Editar Productos (${prodCount})
+              </button>
+              <button type="button" class="btn-secondary-compact btn-store-settings">
+                ⚙️ Configurar Rubro y Datos
+              </button>
+              <button type="button" class="btn-secondary-compact btn-store-copy-link" data-url="${escapeHtml(shortUrl)}">
+                🔗 Copiar Link
+              </button>
+              <button type="button" class="btn-secondary-compact btn-store-preview" style="grid-column: span 2;">
+                👁️ Abrir Vitrina del Comprador
+              </button>
+            </div>
+          ` : `
+            <div class="store-item-actions-grid">
+              <button type="button" class="btn-primary-compact btn-switch-store" data-store-id="${store.id}" style="grid-column: span 2;">
+                ✅ Administrar esta tienda
+              </button>
+              <button type="button" class="btn-secondary-compact btn-preview-other-store" data-store-id="${store.id}">
+                👁️ Ver Vitrina
+              </button>
+              ${AppState.storesList.length > 1 ? `
+                <button type="button" class="btn-secondary-compact btn-delete-store" data-store-id="${store.id}" style="color:var(--accent-red);" title="Eliminar tienda">
+                  🗑️ Eliminar
+                </button>
+              ` : `
+                <span></span>
+              `}
+            </div>
+          `}
         </div>
       `;
     }).join("");
+
+    container.querySelectorAll(".btn-store-edit-prods").forEach(btn => {
+      btn.addEventListener("click", () => {
+        StudioController.switchStudioTab("products");
+      });
+    });
+
+    container.querySelectorAll(".btn-store-settings").forEach(btn => {
+      btn.addEventListener("click", () => {
+        StudioController.switchStudioTab("settings");
+      });
+    });
+
+    container.querySelectorAll(".btn-store-copy-link").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const url = btn.getAttribute("data-url") || QRGenerator.getCleanDisplayUrl();
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(() => {
+            Toast.show("Enlace oficial copiado", "🔗");
+          });
+        } else {
+          prompt("Enlace de tu tienda:", url);
+        }
+      });
+    });
+
+    container.querySelectorAll(".btn-store-preview").forEach(btn => {
+      btn.addEventListener("click", () => {
+        ViewController.showCustomerView();
+      });
+    });
+
+    container.querySelectorAll(".btn-preview-other-store").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const sId = btn.getAttribute("data-store-id");
+        AppState.switchStore(sId);
+        ViewController.showCustomerView();
+      });
+    });
 
     container.querySelectorAll(".btn-switch-store").forEach(btn => {
       btn.addEventListener("click", () => {
@@ -2401,24 +2689,87 @@ const StudioController = {
     }
   },
 
-  renderEditorCategoryChips() {
+  onListingTypeChange(chosenType, existingSpecs = []) {
+    this.currentListingType = chosenType || "item";
+    const typeHidden = document.getElementById("editor-listing-type");
+    if (typeHidden) typeHidden.value = this.currentListingType;
+
+    const typePills = document.querySelectorAll("#editor-listing-type-pills .listing-pill, #editor-listing-type-pills .type-pill");
+    typePills.forEach(pill => pill.classList.toggle("active", (pill.dataset.type || "item") === this.currentListingType));
+
+    // Ajustar etiquetas o visibilidad de Tallas/Colores
+    const variantsSection = document.getElementById("editor-variants-section");
+    const sizesLabel = document.getElementById("editor-sizes-label");
+    const sizesInput = document.getElementById("editor-sizes-input");
+    const colorsLabel = document.getElementById("editor-colors-label");
+    const colorsInput = document.getElementById("editor-colors-input");
+
+    if (this.currentListingType === "vehicle" || this.currentListingType === "property") {
+      if (variantsSection) variantsSection.style.display = "none";
+    } else if (this.currentListingType === "digital") {
+      if (variantsSection) variantsSection.style.display = "";
+      if (sizesLabel) sizesLabel.textContent = "Duración / Plan (ej: 1 Mes, 6 Meses, 1 Año)";
+      if (sizesInput) sizesInput.placeholder = "Ej: 1 Mes, 6 Meses, 1 Año, Permanente";
+      if (colorsLabel) colorsLabel.textContent = "Dispositivos / Entrega (ej: 1 PC, 2 Dispositivos, Con tu correo)";
+      if (colorsInput) colorsInput.placeholder = "Ej: 1 PC, 2 Dispositivos, Con tu correo";
+    } else {
+      if (variantsSection) variantsSection.style.display = "";
+      this.updateVariantInputLabels();
+    }
+
+    this.renderDynamicSpecs(this.currentListingType, existingSpecs);
+    this.renderEditorCategoryChips();
+  },
+
+  renderEditorCategoryChips(selectedCat = "") {
     const pillsRow = document.getElementById("editor-cat-pills-row");
     const dataList = document.getElementById("categories-datalist");
     const catInput = document.getElementById("editor-category-input");
-    const catList = AppState.getCategoriesList();
+    const listingType = this.currentListingType || "item";
+
+    const suggested = TYPE_CATEGORIES[listingType] || TYPE_CATEGORIES.item;
+    const catInputVal = (selectedCat || (catInput ? catInput.value : "") || "").trim();
+
+    // Actualizar placeholder del input de categoría según tipo
+    if (catInput) {
+      if (listingType === "digital") {
+        catInput.placeholder = "Ej: Diseño & Arquitectura, Ofimática, Streaming...";
+      } else if (listingType === "vehicle") {
+        catInput.placeholder = "Ej: Camionetas & SUV, Autos Sedán, Pickups...";
+      } else if (listingType === "property") {
+        catInput.placeholder = "Ej: Departamentos en Venta, Casas, Locales...";
+      } else {
+        catInput.placeholder = "Ej: Calzado & Zapatillas, Ropa, Perfumes...";
+      }
+    }
+
+    const userCategoriesWithProds = (AppState.products || [])
+      .map(p => (p.category && p.category !== "undefined") ? p.category.trim() : "")
+      .filter(Boolean);
+
+    const allOptions = [...suggested];
+    userCategoriesWithProds.forEach(c => {
+      if (!allOptions.some(item => item.toLowerCase() === c.toLowerCase())) {
+        allOptions.push(c);
+      }
+    });
 
     if (dataList) {
-      dataList.innerHTML = catList.map(c => `<option value="${c.name}">`).join("");
+      dataList.innerHTML = allOptions.map(c => `<option value="${escapeHtml(c)}">`).join("");
     }
 
     if (pillsRow) {
-      const currentVal = catInput ? (catInput.value || "").trim().toLowerCase() : "";
-      pillsRow.innerHTML = catList.map(c => `
-        <button type="button" class="editor-cat-chip ${currentVal === c.name.toLowerCase() ? "active" : ""}" data-cat="${c.name}">
-          <span>${c.icon}</span>
-          <span>${c.name}</span>
-        </button>
-      `).join("");
+      const currentLower = catInputVal.toLowerCase();
+      pillsRow.innerHTML = allOptions.map(catName => {
+        const icon = CustomerUI.getCategoryIcon(catName);
+        const isActive = currentLower === catName.toLowerCase();
+        return `
+          <button type="button" class="editor-cat-chip ${isActive ? "active" : ""}" data-cat="${escapeHtml(catName)}">
+            <span>${icon}</span>
+            <span>${escapeHtml(catName)}</span>
+          </button>
+        `;
+      }).join("");
 
       pillsRow.querySelectorAll(".editor-cat-chip").forEach(chip => {
         chip.addEventListener("click", () => {
@@ -2615,12 +2966,13 @@ const StudioController = {
     this.currentProductPhoto = "";
     this.currentProductVideo = "";
     this.currentProductImages = [];
-    this.currentListingType = "item";
-
-    const typeHidden = document.getElementById("editor-listing-type");
-    if (typeHidden) typeHidden.value = "item";
-    const typePills = document.querySelectorAll("#editor-listing-type-pills .listing-pill, #editor-listing-type-pills .type-pill");
-    typePills.forEach(p => p.classList.toggle("active", p.dataset.type === "item"));
+    let defaultType = "item";
+    if (AppState.activePreset === "tech" || AppState.activePreset === "digital") {
+      defaultType = "digital";
+    } else if (AppState.activePreset === "vehicles") {
+      defaultType = "vehicle";
+    }
+    this.currentListingType = defaultType;
 
     const currSelect = document.getElementById("editor-currency-select");
     if (currSelect) currSelect.value = AppState.shopConfig.currency || "S/";
@@ -2629,7 +2981,7 @@ const StudioController = {
     const locInput = document.getElementById("editor-location-input");
     if (locInput) locInput.value = "";
 
-    this.renderDynamicSpecs("item", []);
+    this.onListingTypeChange(this.currentListingType, []);
     this.renderEditorPhotosStrip();
 
     const videoUrlInput = document.getElementById("editor-video-url-input");
@@ -2638,7 +2990,6 @@ const StudioController = {
     if (videoPreviewWrap) videoPreviewWrap.classList.add("hidden");
     const videoPreview = document.getElementById("editor-video-preview");
     if (videoPreview) { videoPreview.pause(); videoPreview.src = ""; }
-    this.updateVariantInputLabels();
 
     const previewImg = document.getElementById("editor-photo-preview");
     const placeholder = document.getElementById("editor-photo-placeholder");
@@ -2717,11 +3068,6 @@ const StudioController = {
     this.currentProductImages = (Array.isArray(p.images) && p.images.length > 0) ? [...p.images] : (p.img ? [p.img] : []);
     this.currentProductPhoto = this.currentProductImages[0] || p.img || "";
 
-    const typeHidden = document.getElementById("editor-listing-type");
-    if (typeHidden) typeHidden.value = this.currentListingType;
-    const typePills = document.querySelectorAll("#editor-listing-type-pills .listing-pill, #editor-listing-type-pills .type-pill");
-    typePills.forEach(pill => pill.classList.toggle("active", pill.dataset.type === this.currentListingType));
-
     const currSelect = document.getElementById("editor-currency-select");
     if (currSelect) currSelect.value = p.currency || AppState.shopConfig.currency || "S/";
     const condInput = document.getElementById("editor-condition-input");
@@ -2729,9 +3075,8 @@ const StudioController = {
     const locInput = document.getElementById("editor-location-input");
     if (locInput) locInput.value = p.location || "";
 
-    this.renderDynamicSpecs(this.currentListingType, p.specs || []);
+    this.onListingTypeChange(this.currentListingType, p.specs || []);
     this.renderEditorPhotosStrip();
-
     this.renderEditorCategoryChips(p.category);
 
     if (title) title.textContent = "Editar Producto";
@@ -2754,6 +3099,15 @@ const StudioController = {
       const compressedUrl = await ImageOptimizer.compressImage(file, 700, 0.82);
       this.currentProductPhoto = compressedUrl;
 
+      if (!Array.isArray(this.currentProductImages)) this.currentProductImages = [];
+      if (!this.currentProductImages.includes(compressedUrl)) {
+        if (this.currentProductImages.length === 0) {
+          this.currentProductImages.push(compressedUrl);
+        } else {
+          this.currentProductImages[0] = compressedUrl;
+        }
+      }
+
       const previewImg = document.getElementById("editor-photo-preview");
       const placeholder = document.getElementById("editor-photo-placeholder");
       if (previewImg) {
@@ -2765,6 +3119,7 @@ const StudioController = {
       const urlInput = document.getElementById("editor-url-input");
       if (urlInput) urlInput.value = "";
 
+      this.renderEditorPhotosStrip();
       Toast.show("Foto optimizada y lista", "📸");
     } catch (err) {
       alert("Error procesando foto del producto: " + err.message);
@@ -2879,6 +3234,17 @@ const StudioController = {
     );
     if (!catExists) {
       AppState.addCategory(category);
+    }
+
+    if (AppState.activePreset !== "sneakers") {
+      const sneakerDefaultCats = ["Urbano & Streetwear", "Deportivas & Running", "Edición Limitada", "Botines & Casual"];
+      AppState.categories = (AppState.categories || []).filter(c => {
+        if (sneakerDefaultCats.includes(c.name)) {
+          return AppState.products.some(prod => prod.category === c.name);
+        }
+        return true;
+      });
+      AppState.saveCategories();
     }
 
     const sizes = sizesStr ? sizesStr.split(",").map(s => s.trim()).filter(Boolean) : [];
@@ -3106,18 +3472,24 @@ const CustomerUI = {
     }
 
     const nicheInfo = NICHE_DATA[AppState.activePreset] || NICHE_DATA.general;
+    const isDigital = AppState.activePreset === "digital" || AppState.activePreset === "tech" || AppState.shopConfig.niche === "tech" || (AppState.products.length > 0 && AppState.products.every(p => p.listingType === "digital"));
+    const isVehicle = AppState.activePreset === "vehicles" || AppState.shopConfig.niche === "vehicles" || (AppState.products.length > 0 && AppState.products.every(p => p.listingType === "vehicle"));
 
     if (deliveryTimePill) {
-      const isTech = AppState.activePreset === "tech";
-      const icon = isTech ? "⚡" : (AppState.activePreset === "fashion" || AppState.activePreset === "beauty" ? "📦" : "⏱️");
-      deliveryTimePill.innerHTML = `<span class="pill-icon">${icon}</span> ${shop.deliveryTime || nicheInfo.defaultDeliveryTime}`;
+      if (isDigital) {
+        deliveryTimePill.innerHTML = `<span class="pill-icon">⚡</span> Entrega Inmediata`;
+      } else if (isVehicle) {
+        deliveryTimePill.innerHTML = `<span class="pill-icon">⏱️</span> Coordinar Visita`;
+      } else {
+        const isFashion = AppState.activePreset === "fashion" || AppState.activePreset === "beauty";
+        const icon = isFashion ? "📦" : "⏱️";
+        deliveryTimePill.innerHTML = `<span class="pill-icon">${icon}</span> ${shop.deliveryTime || nicheInfo.defaultDeliveryTime || "24-48h"}`;
+      }
     }
 
     if (deliveryCostPill) {
-      const isDigital = AppState.activePreset === "digital" || AppState.activePreset === "tech" || AppState.products.every(p => p.listingType === "digital");
-      const isVehicle = AppState.activePreset === "vehicles" || AppState.products.every(p => p.listingType === "vehicle");
       if (isDigital) {
-        deliveryCostPill.innerHTML = `<span class="pill-icon">⚡</span> Entrega Digital Inmediata`;
+        deliveryCostPill.innerHTML = `<span class="pill-icon">💻</span> Activación 100% Online (Envío S/ 0)`;
       } else if (isVehicle) {
         deliveryCostPill.innerHTML = `<span class="pill-icon">📍</span> Showroom / Trato Directo`;
       } else if (Number(shop.deliveryCost || 0) === 0) {
@@ -3205,6 +3577,10 @@ const CustomerUI = {
     const found = (AppState.categories || []).find(c => c.name.toLowerCase() === catName.toLowerCase());
     if (found && found.icon) return found.icon;
     const c = catName.toLowerCase();
+    if (c.includes("licencia") || c.includes("software") || c.includes("digital") || c.includes("adobe") || c.includes("windows") || c.includes("office") || c.includes("antivirus") || c.includes("vpn")) return "⚡";
+    if (c.includes("streaming") || c.includes("cuenta") || c.includes("suscripcion") || c.includes("netflix") || c.includes("spotify")) return "🎬";
+    if (c.includes("auto") || c.includes("vehiculo") || c.includes("camioneta") || c.includes("suv") || c.includes("sedan") || c.includes("moto")) return "🚗";
+    if (c.includes("inmueble") || c.includes("departamento") || c.includes("terreno") || c.includes("casa")) return "🏠";
     if (c.includes("zapatilla") || c.includes("sneaker") || c.includes("running") || c.includes("calzado")) return "👟";
     if (c.includes("perfume") || c.includes("decant") || c.includes("aroma") || c.includes("fragancia")) return "✨";
     if (c.includes("reloj") || c.includes("crono") || c.includes("watch") || c.includes("joya")) return "⌚";
@@ -3228,17 +3604,29 @@ const CustomerUI = {
   },
 
   getCategories() {
+    (AppState.products || []).forEach(p => {
+      if (!p.category || p.category === "undefined" || p.category.trim() === "") {
+        p.category = "General";
+      }
+    });
+
     const list = AppState.getCategoriesList() || [];
-    return [
-      { name: "all", label: "Todos", count: AppState.products.length, icon: "✨" },
-      ...list
-        .filter(c => c && c.name && c.name.toLowerCase() !== "undefined" && c.count > 0)
-        .map(c => ({
+    const validCats = list
+      .filter(c => c && c.name && c.name.toLowerCase() !== "undefined" && c.name.trim() !== "" && c.count > 0)
+      .map(c => {
+        const cleanName = c.name.trim();
+        const cleanLabel = (c.label && c.label.toLowerCase() !== "undefined") ? c.label.trim() : cleanName;
+        return {
           ...c,
-          name: c.name.trim(),
-          label: (c.label && c.label.toLowerCase() !== "undefined") ? c.label.trim() : c.name.trim(),
-          icon: c.icon || CustomerUI.getCategoryIcon(c.name)
-        }))
+          name: cleanName,
+          label: cleanLabel || "General",
+          icon: c.icon || CustomerUI.getCategoryIcon(cleanName)
+        };
+      });
+
+    return [
+      { name: "all", label: "Todos", count: (AppState.products || []).length, icon: "✨" },
+      ...validCats
     ];
   },
 
@@ -3263,6 +3651,79 @@ const CustomerUI = {
         this.renderProductCards();
       });
     });
+  },
+
+  buildProductCardHtml(p, defaultCurrency) {
+    const isAvailable = p.available !== false;
+    const hasVariants = (p.sizes && p.sizes.length > 0) || (p.colors && p.colors.length > 0);
+    const isVehicle = p.listingType === "vehicle" || p.listingType === "property";
+    const isDigital = p.listingType === "digital" || AppState.activePreset === "tech" || AppState.activePreset === "digital" || /licencia|adobe|office|antivirus|windows|canva|spotify|netflix/i.test(p.name);
+    const prodCurrency = p.currency || defaultCurrency;
+    const photosCount = (Array.isArray(p.images) && p.images.length > 0) ? p.images.length : (p.img ? 1 : 0);
+
+    // Quick specs pills
+    let quickSpecs = [];
+    if (Array.isArray(p.specs) && p.specs.length > 0) {
+      quickSpecs = p.specs.slice(0, 3).map(s => s.value);
+    } else if (p.condition || p.location) {
+      if (p.condition) quickSpecs.push(p.condition);
+      if (p.location) quickSpecs.push(p.location);
+    }
+
+    const formattedPrice = Number(p.price).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+    return `
+      <div class="product-card ${!isAvailable ? 'out-of-stock' : ''}" data-product-id="${escapeHtml(p.id)}">
+        <div class="product-img-wrapper" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')">
+          <img src="${p.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80'}" 
+               alt="${escapeHtml(p.name)}" class="product-card-img" loading="lazy">
+          ${photosCount > 1 ? `<span class="badge-photo-count">📷 1/${photosCount}</span>` : ""}
+          ${p.videoUrl ? `<span class="badge-video-flag">🎥 Video</span>` : ""}
+          ${p.promo ? `<span class="badge-promo-flag">PROMO</span>` : ""}
+          ${!isAvailable ? `<span class="badge-out-of-stock">AGOTADO</span>` : ""}
+        </div>
+
+        <div class="product-info-wrapper">
+          <div>
+            ${p.sku ? `<div style="margin-bottom: 2px;"><span class="badge-sku">REF: ${escapeHtml(p.sku)}</span></div>` : ""}
+            <h3 class="product-name" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')">${escapeHtml(p.name)}</h3>
+            ${quickSpecs.length > 0 ? `
+              <div class="product-specs-quick-pills">
+                ${quickSpecs.map(sp => `<span class="quick-spec-pill">${escapeHtml(sp)}</span>`).join("")}
+              </div>
+            ` : `
+              <p class="product-desc">${escapeHtml(p.desc || "")}</p>
+            `}
+          </div>
+
+          <div class="product-bottom-row">
+            <span class="product-price">${prodCurrency} ${formattedPrice}</span>
+
+            ${!isAvailable ? `
+              <button class="add-product-btn btn-disabled" disabled type="button">
+                <span>Agotado</span>
+              </button>
+            ` : isVehicle ? `
+              <button class="btn-inquire-direct" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')" type="button">
+                <span>🚗 Ver ficha / Consultar</span>
+              </button>
+            ` : isDigital ? `
+              <button class="add-product-btn" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')" type="button">
+                <span>⚡ Ver planes / Comprar</span>
+              </button>
+            ` : hasVariants ? `
+              <button class="add-product-btn" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')" type="button">
+                <span>Ver opciones ➔</span>
+              </button>
+            ` : `
+              <button class="add-product-btn" onclick="CartController.addToCart('${escapeHtml(p.id)}', 1)" type="button">
+                <span>+ Agregar</span>
+              </button>
+            `}
+          </div>
+        </div>
+      </div>
+    `;
   },
 
   renderProductCards() {
@@ -3304,119 +3765,37 @@ const CustomerUI = {
     }
 
     if (emptyState) emptyState.classList.add("hidden");
-
-    const grouped = {};
-    filtered.forEach(p => {
-      const cat = (p.category && p.category !== "undefined") ? p.category.trim() : "General";
-      if (!grouped[cat]) grouped[cat] = [];
-      grouped[cat].push(p);
-    });
-
     const defaultCurrency = AppState.shopConfig.currency || "S/";
-
-    // Ordenar categorías según el orden establecido en AppState.categories
-    const catOrder = (AppState.categories || []).map(c => c.name);
-    const sortedCats = Object.keys(grouped).sort((a, b) => {
-      const idxA = catOrder.indexOf(a);
-      const idxB = catOrder.indexOf(b);
-      if (idxA !== -1 && idxB !== -1) return idxA - idxB;
-      if (idxA !== -1) return -1;
-      if (idxB !== -1) return 1;
-      return a.localeCompare(b);
-    });
-
     const isDetailed = AppState.catalogViewMode === "detailed";
-    let html = "";
-    sortedCats.forEach(cat => {
-      const items = grouped[cat];
-      const catIcon = this.getCategoryIcon(cat);
-      const slugId = `cat-${cat.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
-      html += `
-        <section class="category-section-block" id="${slugId}">
-          <div class="category-section-header">
-            <h2 class="category-section-title"><span class="cat-sec-icon">${catIcon}</span> ${escapeHtml(cat)}</h2>
-            <span class="category-section-qty">${items.length} opciones</span>
-          </div>
+    // Si está en 'Todos': catálogo continuo estilo Marketplace
+    if (AppState.customerCategory === "all") {
+      container.innerHTML = `
+        <section class="category-section-block marketplace-continuous-catalog">
           <div class="products-grid ${isDetailed ? 'view-detailed' : ''}">
-            ${items.map(p => {
-              const isAvailable = p.available !== false;
-              const hasVariants = (p.sizes && p.sizes.length > 0) || (p.colors && p.colors.length > 0);
-              const isVehicleOrProperty = p.listingType === "vehicle" || p.listingType === "property";
-              const prodCurrency = p.currency || defaultCurrency;
-              const photosCount = (Array.isArray(p.images) && p.images.length > 0) ? p.images.length : (p.img ? 1 : 0);
-
-              // Quick specs pills (extraer año, km, combustible, duración o condición)
-              let quickSpecs = [];
-              if (Array.isArray(p.specs) && p.specs.length > 0) {
-                quickSpecs = p.specs.slice(0, 3).map(s => s.value);
-              } else if (p.condition || p.location) {
-                if (p.condition) quickSpecs.push(p.condition);
-                if (p.location) quickSpecs.push(p.location);
-              }
-
-              const formattedPrice = Number(p.price).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
-              return `
-                <div class="product-card ${!isAvailable ? 'out-of-stock' : ''}" data-product-id="${escapeHtml(p.id)}">
-                  <div class="product-img-wrapper" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')">
-                    <img src="${p.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80'}" 
-                         alt="${escapeHtml(p.name)}" class="product-card-img" loading="lazy">
-                    ${photosCount > 1 ? `<span class="badge-photo-count">📷 1/${photosCount}</span>` : ""}
-                    ${p.videoUrl ? `<span class="badge-video-flag">🎥 Video</span>` : ""}
-                    ${p.promo ? `<span class="badge-promo-flag">PROMO</span>` : ""}
-                    ${!isAvailable ? `<span class="badge-out-of-stock">AGOTADO</span>` : ""}
-                  </div>
-
-                  <div class="product-info-wrapper">
-                    <div>
-                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-                        ${p.sku ? `<span class="badge-sku">REF: ${escapeHtml(p.sku)}</span>` : "<span></span>"}
-                        <button type="button" class="product-live-share-btn" onclick="CustomerUI.copyLiveProductLink('${escapeHtml(p.id)}', event)" title="Copiar enlace para el Live">
-                          <span class="live-dot"></span> Link Live
-                        </button>
-                      </div>
-                      <h3 class="product-name" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')">${escapeHtml(p.name)}</h3>
-                      ${quickSpecs.length > 0 ? `
-                        <div class="product-specs-quick-pills">
-                          ${quickSpecs.map(sp => `<span class="quick-spec-pill">${escapeHtml(sp)}</span>`).join("")}
-                        </div>
-                      ` : `
-                        <p class="product-desc">${escapeHtml(p.desc || "")}</p>
-                      `}
-                    </div>
-
-                    <div class="product-bottom-row">
-                      <span class="product-price">${prodCurrency} ${formattedPrice}</span>
-
-                      ${!isAvailable ? `
-                        <button class="add-product-btn btn-disabled" disabled type="button">
-                          <span>Agotado</span>
-                        </button>
-                      ` : isVehicleOrProperty ? `
-                        <button class="btn-inquire-direct" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')" type="button">
-                          <span>Ver Ficha ➔</span>
-                        </button>
-                      ` : hasVariants ? `
-                        <button class="add-product-btn" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')" type="button">
-                          <span>${p.listingType === 'digital' ? 'Configurar ➔' : 'Elegir Talla / Color ➔'}</span>
-                        </button>
-                      ` : `
-                        <button class="add-product-btn" onclick="CartController.addToCart('${escapeHtml(p.id)}', 1)" type="button">
-                          <span>+ Agregar</span>
-                        </button>
-                      `}
-                    </div>
-                  </div>
-                </div>
-              `;
-            }).join("")}
+            ${filtered.map(p => this.buildProductCardHtml(p, defaultCurrency)).join("")}
           </div>
         </section>
       `;
-    });
+      return;
+    }
 
-    container.innerHTML = html;
+    // Si seleccionó una categoría específica
+    const activeCatName = AppState.customerCategory;
+    const catIcon = this.getCategoryIcon(activeCatName);
+    const slugId = `cat-${activeCatName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+
+    container.innerHTML = `
+      <section class="category-section-block" id="${slugId}">
+        <div class="category-section-header">
+          <h2 class="category-section-title"><span class="cat-sec-icon">${catIcon}</span> ${escapeHtml(activeCatName)}</h2>
+          <span class="category-section-qty">${filtered.length} ${filtered.length === 1 ? 'opción' : 'opciones'}</span>
+        </div>
+        <div class="products-grid ${isDetailed ? 'view-detailed' : ''}">
+          ${filtered.map(p => this.buildProductCardHtml(p, defaultCurrency)).join("")}
+        </div>
+      </section>
+    `;
   },
 
   copyLiveProductLink(productId, e) {
@@ -3530,7 +3909,27 @@ const CustomerUI = {
     }
     if (descEl) descEl.textContent = product.desc || "";
     if (qtyValEl) qtyValEl.textContent = AppState.modalQuantity;
-    if (noteInput) noteInput.value = "";
+
+    const noteLabel = document.getElementById("modal-product-note-label");
+    const isDigitalProd = product.listingType === "digital" || AppState.activePreset === "tech" || AppState.activePreset === "digital" || /licencia|adobe|office|antivirus|windows|canva|spotify|netflix/i.test(product.name);
+    const isVehicleProd = product.listingType === "vehicle" || product.listingType === "property";
+
+    if (noteInput) {
+      noteInput.value = "";
+      if (isDigitalProd) {
+        if (noteLabel) noteLabel.textContent = "Correo o WhatsApp para entrega digital (opcional):";
+        noteInput.placeholder = "ej: tu-correo@gmail.com para enviarte el acceso";
+      } else if (isVehicleProd) {
+        if (noteLabel) noteLabel.textContent = "Consulta o disponibilidad para ver el vehículo (opcional):";
+        noteInput.placeholder = "ej: disponible el sábado por la tarde";
+      } else if (AppState.activePreset === "food") {
+        if (noteLabel) noteLabel.textContent = "Indicaciones de preparación (opcional):";
+        noteInput.placeholder = "ej: salsas aparte, sin cebolla...";
+      } else {
+        if (noteLabel) noteLabel.textContent = "Indicaciones de entrega (opcional):";
+        noteInput.placeholder = "ej: timbre 202, dejar en recepción...";
+      }
+    }
 
     // 3. Ficha Técnica / Especificaciones Dinámicas
     const specsContainer = document.getElementById("detail-specs-container");
@@ -4508,7 +4907,7 @@ const QRGenerator = {
     };
   },
 
-  getTargetUrl(forQR = false) {
+  getTargetUrl(forQR = false, portable = false) {
     const cleanStoreBase = this.getCleanDisplayUrl();
 
     if (this.isTableMode) {
@@ -4520,19 +4919,20 @@ const QRGenerator = {
       const separator = cleanStoreBase.includes("?") ? "&" : "?";
       return `${cleanStoreBase}${separator}sheet=${encodeURIComponent(AppState.shopConfig.googleSheetUrl)}`;
     }
-    if (typeof LZString !== "undefined") {
+    if (portable && typeof LZString !== "undefined") {
       try {
         const payload = this.buildPayload(forQR);
         const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(payload));
-        if (forQR && compressed.length > 2200) {
-          return cleanStoreBase;
-        }
         return `${cleanStoreBase}#d=${compressed}`;
       } catch (err) {
         console.warn("Error comprimiendo catalogo para URL:", err);
       }
     }
     return cleanStoreBase;
+  },
+
+  getPortableUrl() {
+    return this.getTargetUrl(false, true);
   },
 
   openQRModal() {
@@ -4867,6 +5267,31 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  if (editorUrlInput) {
+    editorUrlInput.addEventListener("input", (e) => {
+      const val = e.target.value.trim();
+      if (val) {
+        StudioController.currentProductPhoto = val;
+        if (!Array.isArray(StudioController.currentProductImages)) StudioController.currentProductImages = [];
+        if (!StudioController.currentProductImages.includes(val)) {
+          if (StudioController.currentProductImages.length === 0) {
+            StudioController.currentProductImages.push(val);
+          } else {
+            StudioController.currentProductImages[0] = val;
+          }
+        }
+        const previewImg = document.getElementById("editor-photo-preview");
+        const placeholder = document.getElementById("editor-photo-placeholder");
+        if (previewImg) {
+          previewImg.src = val;
+          previewImg.classList.remove("hidden");
+        }
+        if (placeholder) placeholder.classList.add("hidden");
+        StudioController.renderEditorPhotosStrip();
+      }
+    });
+  }
+
   // 10.1 Subida de Video en el Editor de Producto
   const editorTriggerVideoBtn = document.getElementById("editor-trigger-video-btn");
   const editorVideoFileInput = document.getElementById("editor-video-file-input");
@@ -4893,15 +5318,28 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 11. Pestaña Ajustes (Plantillas de Nicho y Formularios)
+  // 11. Pestaña Ajustes (Cambio de rubro de la tienda activa)
   document.querySelectorAll(".niche-card-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       const niche = btn.getAttribute("data-niche");
-      if (confirm(`¿Deseas cambiar a la plantilla de "${btn.querySelector('strong').textContent}"? Se adaptará el catálogo con fotos y categorías de este rubro.`)) {
-        AppState.applyPreset(niche);
-      }
+      if (!niche) return;
+      AppState.changeStoreNiche(niche);
     });
   });
+
+  const btnPortableLink = document.getElementById("btn-copy-portable-link");
+  if (btnPortableLink) {
+    btnPortableLink.addEventListener("click", () => {
+      const portableUrl = QRGenerator.getPortableUrl();
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(portableUrl).then(() => {
+          Toast.show("Enlace portátil con catálogo completo copiado", "📤");
+        });
+      } else {
+        prompt("Enlace portátil con datos incluidos:", portableUrl);
+      }
+    });
+  }
 
   const studioSettingsForm = document.getElementById("studio-settings-form");
   if (studioSettingsForm) {
@@ -5656,12 +6094,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const studioTypeInput = document.getElementById("editor-listing-type");
   studioTypePills.forEach(pill => {
     pill.addEventListener("click", () => {
-      studioTypePills.forEach(p => p.classList.remove("active"));
-      pill.classList.add("active");
       const chosenType = pill.dataset.type || "item";
       if (studioTypeInput) studioTypeInput.value = chosenType;
-      StudioController.currentListingType = chosenType;
-      StudioController.renderDynamicSpecs(chosenType, []);
+      StudioController.onListingTypeChange(chosenType, []);
     });
   });
 

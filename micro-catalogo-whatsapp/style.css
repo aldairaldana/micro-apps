@@ -1010,6 +1010,12 @@ img {
   gap: 8px;
 }
 
+@media (max-width: 480px) {
+  .niche-selector-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .niche-card-btn {
   display: flex;
   align-items: center;
@@ -1020,6 +1026,8 @@ img {
   padding: 10px;
   text-align: left;
   transition: all var(--transition-fast);
+  min-width: 0;
+  word-break: break-word;
 }
 
 .niche-card-btn:hover {
@@ -1402,12 +1410,16 @@ img {
 /* Barra Sticky de Navegación del Cliente */
 .sticky-nav-section {
   position: sticky;
-  top: 48px;
+  top: 0;
   z-index: 30;
-  background: rgba(9, 13, 22, 0.95);
+  background: var(--bg-deep);
   backdrop-filter: var(--glass-blur);
   padding: 10px 14px 6px 14px;
   border-bottom: 1px solid var(--border-subtle);
+}
+
+body.has-preview-bar .sticky-nav-section {
+  top: 44px;
 }
 
 .search-input-wrapper {
@@ -1686,19 +1698,35 @@ img {
 
 .product-bottom-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
   margin-top: auto;
-  padding-top: 4px;
+  padding-top: 6px;
+  width: 100%;
 }
 
-.product-price {
+.product-bottom-row .product-price {
   font-family: var(--font-heading);
-  font-size: 0.98rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: var(--text-main);
   white-space: nowrap;
+}
+
+.product-bottom-row .add-product-btn,
+.product-bottom-row .btn-inquire-direct {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .add-product-btn {
@@ -6088,6 +6116,25 @@ select option {
 .store-item-actions {
   display: flex;
   gap: 8px;
+}
+
+.store-item-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.store-item-actions-grid button {
+  min-height: 36px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  justify-content: center;
+  padding: 6px 8px;
+}
+
+.marketplace-continuous-catalog {
+  margin-top: 10px;
 }
 
 .store-active-badge {

@@ -469,8 +469,15 @@
                 <button type="button" class="niche-card-btn" data-niche="tech">
                   <span class="niche-emoji">💻</span>
                   <div class="niche-meta">
-                    <strong>Tecnología & Gadgets</strong>
-                    <span>Software, Digital, Accesorios</span>
+                    <strong>Tecnología & Licencias</strong>
+                    <span>Software, Licencias, Gadgets</span>
+                  </div>
+                </button>
+                <button type="button" class="niche-card-btn" data-niche="vehicles">
+                  <span class="niche-emoji">🚗</span>
+                  <div class="niche-meta">
+                    <strong>Vehículos & Motos</strong>
+                    <span>Autos, SUV, Motos, Repuestos</span>
                   </div>
                 </button>
                 <button type="button" class="niche-card-btn" data-niche="general">
@@ -495,6 +502,11 @@
                   <input type="text" id="settings-store-slug" class="input-modern" placeholder="flores-vanesa">
                 </div>
                 <span class="field-hint">Tus clientes verán este nombre en su enlace seguro. Solo letras minúsculas, números y guiones.</span>
+                <div style="margin-top: 8px;">
+                  <button type="button" id="btn-copy-portable-link" class="btn-secondary-compact" style="width: 100%; justify-content: center; font-size: 0.75rem;">
+                    📤 Generar enlace portátil con datos incluidos (#d=...)
+                  </button>
+                </div>
               </div>
               
               <div class="editor-field-group">
@@ -865,7 +877,7 @@
 
             <!-- Nota Adicional del Producto -->
             <div class="editor-field-group" style="margin-top: 10px;">
-              <label for="modal-product-note" style="font-size: 0.74rem; color: var(--text-muted); font-weight: 600;">
+              <label id="modal-product-note-label" for="modal-product-note" style="font-size: 0.74rem; color: var(--text-muted); font-weight: 600;">
                 Indicaciones especiales (opcional)
               </label>
               <input type="text" id="modal-product-note" class="input-modern" placeholder="Opcional: Detalles para tu pedido...">
