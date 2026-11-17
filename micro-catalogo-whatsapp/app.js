@@ -944,24 +944,66 @@ const AppState = {
   activeStudioCatalogId: "all",
   activeCustomerCatalogSlug: "",
 
+  normalizePresetKey(rawKey) {
+    if (!rawKey) return "general";
+    const map = {
+      "apparel": "fashion",
+      "ropa": "fashion",
+      "moda": "fashion",
+      "fashion": "fashion",
+      "digital": "tech",
+      "software": "tech",
+      "licencias": "tech",
+      "tech": "tech",
+      "tecnologia": "tech",
+      "vehiculos": "vehicles",
+      "vehicles": "vehicles",
+      "autos": "vehicles",
+      "sneakers": "sneakers",
+      "zapatillas": "sneakers",
+      "calzado": "sneakers",
+      "beauty": "beauty",
+      "belleza": "beauty",
+      "cosmetica": "beauty",
+      "watches": "watches",
+      "relojes": "watches",
+      "joyas": "watches",
+      "food": "food",
+      "burger": "food",
+      "comida": "food",
+      "restaurante": "food",
+      "properties": "general",
+      "inmuebles": "general",
+      "general": "general"
+    };
+    return map[String(rawKey).toLowerCase().trim()] || "general";
+  },
+
   initStores() {
     try {
       const saved = localStorage.getItem("tiendazap_stores");
       if (saved) {
         this.storesList = JSON.parse(saved);
+        if (Array.isArray(this.storesList)) {
+          this.storesList.forEach(s => {
+            s.preset = this.normalizePresetKey(s.preset || s.config?.niche);
+            if (s.config) s.config.niche = s.preset;
+          });
+        }
       }
     } catch (e) {
       this.storesList = [];
     }
     if (!Array.isArray(this.storesList) || this.storesList.length === 0) {
+      const normNiche = this.normalizePresetKey(this.activePreset || this.shopConfig.niche || "general");
       const currentStore = {
         id: "store_" + (this.shopConfig.storeSlug || "principal"),
         name: this.shopConfig.name || "Mi Tienda",
         slug: this.shopConfig.storeSlug || "mi-tienda",
-        preset: this.activePreset || "apparel",
+        preset: normNiche,
         phone: this.shopConfig.phone || "",
         currency: this.shopConfig.currency || "S/",
-        config: { ...this.shopConfig },
+        config: { ...this.shopConfig, niche: normNiche },
         products: [...this.products],
         categories: [...this.categories],
         catalogs: [...(this.catalogs && this.catalogs.length > 0 ? this.catalogs : [{ id: "cat_main", name: "Catálogo Principal", slug: "principal", isDefault: true }])],
@@ -980,14 +1022,17 @@ const AppState = {
     if (!this.storesList) this.initStores();
     const currentSlug = this.getStoreSlug();
     const idx = this.storesList.findIndex(s => s.slug === currentSlug || (this.currentStoreId && s.id === this.currentStoreId));
+    const normNiche = this.normalizePresetKey(this.activePreset || this.shopConfig.niche || "general");
+    this.activePreset = normNiche;
+    if (this.shopConfig) this.shopConfig.niche = normNiche;
     const storeData = {
       id: this.currentStoreId || ("store_" + currentSlug),
       name: this.shopConfig.name,
       slug: currentSlug,
-      preset: this.activePreset,
+      preset: normNiche,
       phone: this.shopConfig.phone,
       currency: this.shopConfig.currency,
-      config: { ...this.shopConfig },
+      config: { ...this.shopConfig, niche: normNiche },
       products: [...this.products],
       categories: [...this.categories],
       catalogs: [...(this.catalogs && this.catalogs.length > 0 ? this.catalogs : [{ id: "cat_main", name: "Catálogo Principal", slug: "principal", isDefault: true }])],
@@ -1105,8 +1150,9 @@ const AppState = {
     if (!target) return false;
 
     this.currentStoreId = target.id;
-    this.activePreset = target.preset || "apparel";
-    this.shopConfig = { ...target.config };
+    const normalizedNiche = this.normalizePresetKey(target.preset || target.config?.niche || "general");
+    this.activePreset = normalizedNiche;
+    this.shopConfig = { ...target.config, niche: normalizedNiche };
     this.products = [...(target.products || [])].map(p => this.migrateProduct(p));
     this.categories = [...(target.categories || [])];
     this.catalogs = Array.isArray(target.catalogs) && target.catalogs.length > 0
@@ -1129,14 +1175,16 @@ const AppState = {
     const cleanName = (name || "").trim() || "Nueva Tienda";
     const slug = slugifyStoreName(cleanName) || ("tienda-" + Date.now().toString(36));
     const storeId = "store_" + Date.now();
+    const normPreset = this.normalizePresetKey(preset);
+
     const initialConfig = {
       name: cleanName,
       storeSlug: slug,
       tagline: `Catálogo oficial de ${cleanName}`,
       phone: phone || "",
-      currency: currency || (preset === "vehicles" ? "US$" : "S/"),
-      deliveryCost: (preset === "digital" || preset === "vehicles") ? 0 : 5,
-      deliveryTime: preset === "digital" ? "Inmediato" : "24-48h",
+      currency: currency || (normPreset === "vehicles" ? "US$" : "S/"),
+      deliveryCost: (normPreset === "tech" || normPreset === "vehicles") ? 0 : 5,
+      deliveryTime: normPreset === "tech" ? "Inmediato" : "24-48h",
       isOpen: true,
       logoUrl: "",
       bannerUrl: "",
@@ -1144,24 +1192,11 @@ const AppState = {
       yapeName: "",
       yapeQrUrl: "",
       yapeEnabled: !!yapePhone,
-      googleSheetUrl: ""
+      googleSheetUrl: "",
+      niche: normPreset
     };
 
-    const presetMap = {
-      apparel: "fashion",
-      digital: "tech",
-      vehicles: "vehicles",
-      properties: "general",
-      burger: "food",
-      watches: "watches",
-      general: "general",
-      sneakers: "sneakers",
-      tech: "tech",
-      fashion: "fashion",
-      food: "food"
-    };
-    const mappedPreset = presetMap[preset] || (BUSINESS_PRESETS[preset] ? preset : "general");
-    const starterCategories = (NICHE_DATA[preset]?.suggestedCategories || NICHE_DATA[mappedPreset]?.suggestedCategories || NICHE_DATA.general.suggestedCategories || ["General"]).map((catName, idx) => ({
+    const starterCategories = (NICHE_DATA[normPreset]?.suggestedCategories || NICHE_DATA.general.suggestedCategories || ["General"]).map((catName, idx) => ({
       id: "cat_" + (idx + 1),
       name: catName,
       icon: CustomerUI.getCategoryIcon(catName)
@@ -1173,8 +1208,8 @@ const AppState = {
       id: storeId,
       name: cleanName,
       slug: slug,
-      preset: preset,
-      phone: phone,
+      preset: normPreset,
+      phone: phone || "",
       currency: initialConfig.currency,
       config: initialConfig,
       products: [],
@@ -1188,7 +1223,7 @@ const AppState = {
     this.safeSetItem("tiendazap_store_" + slug, JSON.stringify(newStore));
 
     this.currentStoreId = storeId;
-    this.activePreset = preset;
+    this.activePreset = normPreset;
     this.shopConfig = initialConfig;
     this.products = [];
     this.categories = starterCategories;
@@ -2594,6 +2629,52 @@ const StudioController = {
       dropdown.classList.add("hidden");
       dropdown.setAttribute("aria-hidden", "true");
     }
+  },
+
+  openCreateStoreModal() {
+    this.closeStoreDropdown();
+    const modal = document.getElementById("create-store-modal");
+    if (!modal) return;
+
+    const nameInput = document.getElementById("modal-new-store-name");
+    const phoneInput = document.getElementById("modal-new-store-phone");
+    const yapeInput = document.getElementById("modal-new-store-yape");
+    const currencySelect = document.getElementById("modal-new-store-currency");
+    const nicheInput = document.getElementById("modal-store-selected-niche");
+    const chipsContainer = document.getElementById("modal-store-niche-chips");
+
+    if (nameInput) nameInput.value = "";
+    if (phoneInput) phoneInput.value = (AppState.shopConfig && AppState.shopConfig.phone) || "";
+    if (yapeInput) yapeInput.value = "";
+    if (currencySelect) currencySelect.value = "S/";
+
+    const defaultNiche = "tech";
+    if (nicheInput) nicheInput.value = defaultNiche;
+    if (chipsContainer) {
+      chipsContainer.querySelectorAll(".niche-chip, .quick-niche-chip").forEach(chip => {
+        const chipNiche = chip.getAttribute("data-niche");
+        if (chipNiche === defaultNiche) {
+          chip.classList.add("active");
+        } else {
+          chip.classList.remove("active");
+        }
+      });
+    }
+
+    modal.classList.remove("hidden");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+    if (nameInput) {
+      setTimeout(() => nameInput.focus(), 100);
+    }
+  },
+
+  closeCreateStoreModal() {
+    const modal = document.getElementById("create-store-modal");
+    if (!modal) return;
+    modal.classList.add("hidden");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
   },
 
   renderStoreDropdown() {
@@ -7131,9 +7212,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const dropdownCreateBtn = document.getElementById("dropdown-create-store-btn");
   if (dropdownCreateBtn) {
     dropdownCreateBtn.addEventListener("click", () => {
-      StudioController.closeStoreDropdown();
-      const modal = document.getElementById("create-store-modal");
-      if (modal) modal.classList.remove("hidden");
+      StudioController.openCreateStoreModal();
     });
   }
 
@@ -7200,57 +7279,86 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Modal Crear Tienda
+  // Modal Crear Tienda: Apertura y Cierre
   const btnOpenCreateStore = document.getElementById("btn-open-create-store-modal");
-  const createStoreModal = document.getElementById("create-store-modal");
-  const closeCreateStoreModalBtn = document.getElementById("close-create-store-modal-btn");
-  const cancelCreateStoreModalBtn = document.getElementById("cancel-create-store-modal-btn");
-  const submitCreateStoreModalBtn = document.getElementById("submit-create-store-modal-btn");
+  if (btnOpenCreateStore) {
+    btnOpenCreateStore.addEventListener("click", () => StudioController.openCreateStoreModal());
+  }
 
-  if (btnOpenCreateStore && createStoreModal) {
-    btnOpenCreateStore.addEventListener("click", () => {
-      createStoreModal.classList.remove("hidden");
+  // Cerrar modal Crear Tienda (soporta IDs canónicos y alias)
+  const closeCreateStoreBtns = [
+    document.getElementById("btn-close-create-store"),
+    document.getElementById("close-create-store-modal-btn"),
+    document.getElementById("btn-cancel-create-store"),
+    document.getElementById("cancel-create-store-modal-btn")
+  ];
+  closeCreateStoreBtns.forEach(btn => {
+    if (btn) btn.addEventListener("click", () => StudioController.closeCreateStoreModal());
+  });
+
+  // Cerrar modal al hacer clic en el backdrop de #create-store-modal
+  const createStoreModal = document.getElementById("create-store-modal");
+  if (createStoreModal) {
+    createStoreModal.addEventListener("click", (e) => {
+      if (e.target === createStoreModal) {
+        StudioController.closeCreateStoreModal();
+      }
     });
   }
-  const hideCreateStoreModal = () => {
-    if (createStoreModal) createStoreModal.classList.add("hidden");
-  };
-  if (closeCreateStoreModalBtn) closeCreateStoreModalBtn.addEventListener("click", hideCreateStoreModal);
-  if (cancelCreateStoreModalBtn) cancelCreateStoreModalBtn.addEventListener("click", hideCreateStoreModal);
 
-  // Modal Niche Chips
+  // Modal Niche Chips (soporta tanto .niche-chip como .quick-niche-chip)
   const modalNicheChips = document.getElementById("modal-store-niche-chips");
   const modalSelectedNiche = document.getElementById("modal-store-selected-niche");
   if (modalNicheChips && modalSelectedNiche) {
-    modalNicheChips.querySelectorAll(".quick-niche-chip").forEach(chip => {
+    modalNicheChips.querySelectorAll(".niche-chip, .quick-niche-chip").forEach(chip => {
       chip.addEventListener("click", () => {
-        modalNicheChips.querySelectorAll(".quick-niche-chip").forEach(c => c.classList.remove("active"));
+        modalNicheChips.querySelectorAll(".niche-chip, .quick-niche-chip").forEach(c => c.classList.remove("active"));
         chip.classList.add("active");
-        modalSelectedNiche.value = chip.dataset.niche || "apparel";
+        modalSelectedNiche.value = chip.dataset.niche || "tech";
       });
     });
   }
 
-  if (submitCreateStoreModalBtn) {
-    submitCreateStoreModalBtn.addEventListener("click", () => {
-      const nameInput = document.getElementById("modal-new-store-name");
-      const name = nameInput ? nameInput.value.trim() : "";
-      if (!name) {
-        Toast.show("Ingresa el nombre de la nueva tienda", "⚠️");
-        if (nameInput) nameInput.focus();
-        return;
-      }
-      const preset = modalSelectedNiche?.value || "apparel";
-      const currency = document.getElementById("modal-new-store-currency")?.value || "S/";
-      const phone = document.getElementById("modal-new-store-phone")?.value.trim() || "";
-      const yape = document.getElementById("modal-new-store-yape")?.value.trim() || "";
+  // Confirmar creación de tienda (soporta IDs canónicos y alias)
+  const confirmCreateStoreBtns = [
+    document.getElementById("btn-confirm-create-store"),
+    document.getElementById("submit-create-store-modal-btn")
+  ];
+  confirmCreateStoreBtns.forEach(btn => {
+    if (btn) {
+      btn.addEventListener("click", () => {
+        const nameInput = document.getElementById("modal-new-store-name");
+        const name = nameInput ? nameInput.value.trim() : "";
+        if (!name) {
+          Toast.show("Ingresa el nombre de la nueva tienda", "⚠️");
+          if (nameInput) nameInput.focus();
+          return;
+        }
+        const rawPreset = modalSelectedNiche?.value || "tech";
+        const preset = AppState.normalizePresetKey(rawPreset);
+        const currency = document.getElementById("modal-new-store-currency")?.value || "S/";
+        const phone = document.getElementById("modal-new-store-phone")?.value.trim() || "";
+        const yape = document.getElementById("modal-new-store-yape")?.value.trim() || "";
 
-      AppState.createNewStore({ name, preset, phone, currency, yapePhone: yape });
-      hideCreateStoreModal();
-      StudioController.switchStudioTab("products");
-      Toast.show(`¡Tienda "${name}" creada con éxito!`, "🎉");
-    });
-  }
+        AppState.createNewStore({ name, preset, phone, currency, yapePhone: yape });
+        StudioController.closeCreateStoreModal();
+        StudioController.renderStoreDropdown();
+        StudioController.switchStudioTab("products");
+        StudioController.renderCatalogsBar();
+        StudioController.renderProductsList();
+        Toast.show("✨ Tienda «" + name + "» creada y activa", "🏪");
+      });
+    }
+  });
+
+  // Tecla Escape para cerrar modales flotantes de Studio
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      StudioController.closeCreateStoreModal();
+      StudioController.closeProductEditor();
+      StudioController.closeStoreDropdown();
+    }
+  });
 
   // Backdrop click on product editor modal
   const productModal = document.getElementById("studio-product-modal");

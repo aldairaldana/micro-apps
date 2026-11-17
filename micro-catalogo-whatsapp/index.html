@@ -514,7 +514,7 @@
                   <span>Destacar como Promoción Especial (Badge PROMO)</span>
                 </label>
               </div>
-
+              </form>
               
               <div class="editor-modal-footer">
                 <button type="button" id="editor-cancel-btn" class="btn-cancel-edit">Cancelar</button>
@@ -1358,17 +1358,15 @@
       <span class="toast-message" id="toast-message">Mensaje informativo</span>
     </div>
 
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
-  <script src="app.js?v=20261109-v27"></script>
     <!-- Modal Crear Nueva Tienda -->
     <div id="create-store-modal" class="modal-overlay hidden" aria-hidden="true">
-      <div class="product-editor-modal-card create-store-card">
+      <div class="editor-modal-card create-store-card">
         <div class="editor-modal-header">
-          <h3>Crear nueva tienda</h3>
-          <button type="button" id="close-create-store-modal-btn" class="editor-close-btn" aria-label="Cerrar">✕</button>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:1.15rem;">🏪</span>
+            <h3 style="margin:0;font-size:1.05rem;font-weight:700;color:#f8fafc;">Crear nueva tienda</h3>
+          </div>
+          <button type="button" id="btn-close-create-store" class="editor-close-btn" aria-label="Cerrar">✕</button>
         </div>
         <form id="create-store-form" class="editor-modal-body" onsubmit="return false;">
           <div class="editor-field-group">
@@ -1377,16 +1375,17 @@
           </div>
           <div class="editor-field-group">
             <label class="field-label-sm">Rubro principal *</label>
-            <div class="quick-niche-chips" id="modal-store-niche-chips">
-              <button type="button" class="quick-niche-chip active" data-niche="apparel">🛍️ Ropa / Zapatillas</button>
-              <button type="button" class="quick-niche-chip" data-niche="digital">⚡ Software / Licencias</button>
-              <button type="button" class="quick-niche-chip" data-niche="vehicles">🚗 Vehículos / Autos</button>
-              <button type="button" class="quick-niche-chip" data-niche="properties">🏠 Inmuebles / Alquiler</button>
-              <button type="button" class="quick-niche-chip" data-niche="burger">🍔 Comida / Restaurante</button>
-              <button type="button" class="quick-niche-chip" data-niche="watches">⌚ Relojes / Joyas</button>
-              <button type="button" class="quick-niche-chip" data-niche="general">📦 Comercio General</button>
+            <div class="niche-chip-selector" id="modal-store-niche-chips">
+              <button type="button" class="niche-chip active" data-niche="tech">💻 Tecnología & Licencias</button>
+              <button type="button" class="niche-chip" data-niche="vehicles">🚗 Vehículos & Autos</button>
+              <button type="button" class="niche-chip" data-niche="fashion">👗 Moda & Ropa</button>
+              <button type="button" class="niche-chip" data-niche="sneakers">👟 Zapatillas & Sneakers</button>
+              <button type="button" class="niche-chip" data-niche="beauty">💄 Belleza & Cosmética</button>
+              <button type="button" class="niche-chip" data-niche="watches">⌚ Joyas & Relojes</button>
+              <button type="button" class="niche-chip" data-niche="food">🍔 Comida & Restaurantes</button>
+              <button type="button" class="niche-chip" data-niche="general">📦 Comercio General</button>
             </div>
-            <input type="hidden" id="modal-store-selected-niche" value="apparel">
+            <input type="hidden" id="modal-store-selected-niche" value="tech">
           </div>
           <div class="form-grid-2">
             <div class="editor-field-group">
@@ -1407,11 +1406,12 @@
           </div>
         </form>
         <div class="editor-modal-footer">
-          <button type="button" id="cancel-create-store-modal-btn" class="btn-cancel-edit">Cancelar</button>
-          <button type="button" id="submit-create-store-modal-btn" class="btn-save-product">Crear y administrar</button>
+          <button type="button" id="btn-cancel-create-store" class="btn-secondary-compact">Cancelar</button>
+          <button type="button" id="btn-confirm-create-store" class="btn-save-product">Crear y administrar</button>
         </div>
       </div>
     </div>
+
     <!-- 4. MODAL LIGHTBOX PARA PANTALLA COMPLETA Y ZOOM DE FOTOS -->
     <div class="overlay lightbox-overlay hidden" id="media-lightbox-modal" aria-hidden="true">
       <button type="button" class="lightbox-close-btn" id="lightbox-close-btn" aria-label="Cerrar visor a pantalla completa">✕</button>
@@ -1419,5 +1419,11 @@
         <img id="lightbox-img" src="" alt="Foto ampliada en alta resolución" class="lightbox-img">
       </div>
     </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+  <script src="app.js?v=20261109-v28"></script>
 </body>
 </html>

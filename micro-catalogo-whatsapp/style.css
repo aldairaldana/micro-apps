@@ -7035,3 +7035,171 @@ select option {
   color: var(--text-muted);
   margin-bottom: 4px;
 }
+
+/* ==========================================================================
+   MODALES GLOBALES FLOTANTES & MODAL CREAR TIENDA (PUNTO 2 REPARACIÓN)
+   ========================================================================== */
+.modal-overlay,
+#create-store-modal,
+#studio-product-modal,
+#media-lightbox-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  background: rgba(4, 6, 12, 0.82) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  z-index: 1200 !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+#media-lightbox-modal {
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+@media (min-width: 640px) {
+  .modal-overlay,
+  #create-store-modal,
+  #studio-product-modal {
+    align-items: center !important;
+    padding: 1.5rem !important;
+  }
+}
+
+.modal-overlay.hidden,
+#create-store-modal.hidden,
+#studio-product-modal.hidden,
+#media-lightbox-modal.hidden {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Tarjeta del modal Crear Tienda */
+.create-store-card {
+  width: 100% !important;
+  max-width: 520px !important;
+  background: #0d121f !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 20px 20px 0 0 !important;
+  max-height: 90vh !important;
+  max-height: 90dvh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7) !important;
+  overflow: hidden !important;
+  animation: slideUpModal 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+@media (min-width: 640px) {
+  .create-store-card {
+    border-radius: 20px !important;
+  }
+}
+
+@keyframes slideUpModal {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.create-store-card .editor-modal-header {
+  padding: 1.1rem 1.25rem 0.9rem !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-shrink: 0 !important;
+}
+
+.create-store-card .editor-modal-body {
+  padding: 1.1rem 1.25rem 1.5rem !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+  flex: 1 1 auto !important;
+}
+
+.create-store-card .editor-modal-footer {
+  padding: 0.9rem 1.25rem 1.25rem !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  display: flex !important;
+  gap: 0.75rem !important;
+  background: #090d16 !important;
+  flex-shrink: 0 !important;
+  z-index: 10 !important;
+}
+
+/* Selector de Chips de Rubro dentro del Modal */
+.niche-chip-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.niche-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  padding: 0.45rem 0.8rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.niche-chip:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #f1f5f9;
+}
+
+.niche-chip.active {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: #10b981 !important;
+  color: #10b981 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Botón Secundario Compacto (Cancelar) */
+.btn-secondary-compact {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.btn-secondary-compact:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+}
+
+.create-store-card .btn-save-product {
+  flex: 2;
+  margin: 0;
+  justify-content: center;
+}
