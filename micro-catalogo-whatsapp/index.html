@@ -371,8 +371,14 @@
             
 
               <!-- Selector de Tipo de Publicación (Estilo FB Marketplace) -->
-              <div class="editor-field-group">
-                <label class="field-label-prominent">Tipo de Publicación</label>
+              <div class="editor-field-group" id="editor-listing-type-group">
+                <div class="editor-type-compact-bar hidden" id="editor-type-compact-bar">
+                  <div class="editor-type-active-badge" id="editor-type-active-badge">
+                    <span id="editor-type-badge-icon">⚡</span>
+                    <span id="editor-type-badge-text">Publicación Digital / Licencia</span>
+                  </div>
+                  <button type="button" class="btn-text-link" id="editor-toggle-types-btn">Cambiar tipo</button>
+                </div>
                 <div class="listing-type-selector-pills" id="editor-listing-type-pills">
                   <button type="button" class="listing-pill active" data-type="item">
                     <span>🛍️ Artículo Físico</span>
@@ -419,7 +425,7 @@
                   <input type="url" id="editor-video-url-input" class="input-modern" placeholder="Pega link de TikTok, Instagram Reel, YouTube Short o video .mp4">
                   <button type="button" id="editor-trigger-video-btn" class="btn-alt-sm">Subir Video</button>
                 </div>
-                <input type="file" id="editor-video-file-input" accept="video/mp4,video/webm,video/quicktime" class="hidden">
+                <input type="file" id="editor-video-file-input" accept="video/*" class="hidden">
                 <div id="editor-video-preview-wrap" class="editor-video-preview-wrap hidden">
                   <video id="editor-video-preview" controls playsinline muted class="editor-video-thumb"></video>
                   <button type="button" id="editor-remove-video-btn" class="btn-remove-video">✕ Quitar Video</button>
@@ -817,11 +823,17 @@
             <button type="button" class="media-switch-btn active" id="detail-switch-photo-btn">📷 Fotos</button>
             <button type="button" class="media-switch-btn" id="detail-switch-video-btn">🎥 Video</button>
           </div>
-          <div class="product-modal-img-wrap" id="detail-photo-wrap">
-            <img id="detail-product-img" src="" alt="Producto" class="detail-product-img">
-            <span class="detail-photo-badge hidden" id="detail-photo-counter">📷 1/1</span>
+          <div class="product-modal-carousel-container" id="detail-carousel-container">
+            <div class="product-modal-carousel-track" id="detail-carousel-track">
+              <div class="carousel-slide" data-index="0">
+                <img id="detail-product-img" src="" alt="Producto" class="detail-product-img" loading="eager">
+              </div>
+            </div>
+            <span class="detail-photo-badge hidden" id="detail-photo-counter">1 / 1</span>
           </div>
-          <!-- Carrusel de Miniaturas de Galería de Fotos -->
+          <!-- Puntos indicadores del carrusel -->
+          <div class="carousel-dots-row hidden" id="detail-carousel-dots"></div>
+          <!-- Carrusel de Miniaturas de Galería de Fotos y Video -->
           <div class="detail-thumbnails-row hidden" id="detail-thumbnails-row"></div>
 
           <div class="product-modal-video-wrap hidden" id="detail-video-wrap">
@@ -1370,6 +1382,13 @@
           <button type="button" id="cancel-create-store-modal-btn" class="btn-cancel-edit">Cancelar</button>
           <button type="button" id="submit-create-store-modal-btn" class="btn-save-product">Crear y administrar</button>
         </div>
+      </div>
+    </div>
+    <!-- 4. MODAL LIGHTBOX PARA PANTALLA COMPLETA Y ZOOM DE FOTOS -->
+    <div class="overlay lightbox-overlay hidden" id="media-lightbox-modal" aria-hidden="true">
+      <button type="button" class="lightbox-close-btn" id="lightbox-close-btn" aria-label="Cerrar visor a pantalla completa">✕</button>
+      <div class="lightbox-content" id="lightbox-content">
+        <img id="lightbox-img" src="" alt="Foto ampliada en alta resolución" class="lightbox-img">
       </div>
     </div>
 </body>

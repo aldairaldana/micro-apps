@@ -2925,6 +2925,19 @@ const StudioController = {
     const typePills = document.querySelectorAll("#editor-listing-type-pills .listing-pill, #editor-listing-type-pills .type-pill");
     typePills.forEach(pill => pill.classList.toggle("active", (pill.dataset.type || "item") === this.currentListingType));
 
+    // Actualizar barra compacta de tipo de publicación
+    const badgeText = document.getElementById("editor-type-badge-text");
+    const badgeIcon = document.getElementById("editor-type-badge-icon");
+    const typeMeta = {
+      digital: { icon: "⚡", label: "Publicación Digital / Licencia" },
+      vehicle: { icon: "🚗", label: "Publicación Vehículo / Auto" },
+      property: { icon: "🏠", label: "Publicación Inmueble" },
+      item: { icon: "🛍️", label: "Publicación de Artículo Físico" }
+    };
+    const meta = typeMeta[this.currentListingType] || typeMeta.item;
+    if (badgeIcon) badgeIcon.textContent = meta.icon;
+    if (badgeText) badgeText.textContent = meta.label;
+
     // Ajustar etiquetas o visibilidad de Tallas/Colores
     const variantsSection = document.getElementById("editor-variants-section");
     const sizesLabel = document.getElementById("editor-sizes-label");
@@ -2954,29 +2967,71 @@ const StudioController = {
     const dataList = document.getElementById("categories-datalist");
     const catInput = document.getElementById("editor-category-input");
     const listingType = this.currentListingType || "item";
+    const currentNiche = AppState.shopConfig.niche || AppState.activePreset || "general";
 
-    const suggested = TYPE_CATEGORIES[listingType] || TYPE_CATEGORIES.item;
+    let suggested = [];
+    if (currentNiche === "tech" || listingType === "digital") {
+      suggested = [
+        "Diseño & Arquitectura (Adobe / Autodesk)",
+        "Ofimática & Windows",
+        "IA & Productividad (ChatGPT / Canva / CapCut)",
+        "Streaming & Cuentas",
+        "Antivirus & Seguridad",
+        "Cursos & Ebooks",
+        "Gift Cards & Juegos"
+      ];
+    } else if (currentNiche === "vehicles" || listingType === "vehicle") {
+      suggested = (NICHE_DATA.vehicles && NICHE_DATA.vehicles.suggestedCategories) || TYPE_CATEGORIES.vehicle;
+    } else if (currentNiche === "property" || listingType === "property") {
+      suggested = TYPE_CATEGORIES.property;
+    } else if (currentNiche === "sneakers") {
+      suggested = (NICHE_DATA.sneakers && NICHE_DATA.sneakers.suggestedCategories) || ["Urbano & Streetwear", "Deportivas & Running", "Edición Limitada", "Botines & Casual"];
+    } else if (currentNiche === "beauty") {
+      suggested = (NICHE_DATA.beauty && NICHE_DATA.beauty.suggestedCategories) || ["Perfumes Dama", "Perfumes Caballero", "Perfumes Árabes", "Decants (5ml / 10ml)", "Skincare & Maquillaje"];
+    } else if (currentNiche === "watches") {
+      suggested = (NICHE_DATA.watches && NICHE_DATA.watches.suggestedCategories) || ["Ramos & Flores", "Boxes de Regalo", "Relojes Automáticos", "Joyas & Cadenas", "Accesorios"];
+    } else if (currentNiche === "food") {
+      suggested = (NICHE_DATA.food && NICHE_DATA.food.suggestedCategories) || ["Hamburguesas & Smash", "Alitas & Combos", "Bebidas & Tragos", "Postres & Dulces"];
+    } else if (currentNiche === "fashion") {
+      suggested = (NICHE_DATA.fashion && NICHE_DATA.fashion.suggestedCategories) || ["Vestidos & Fiesta", "Polos & Camisas", "Pantalones & Jeans", "Accesorios & Bolsos"];
+    } else {
+      suggested = TYPE_CATEGORIES[listingType] || TYPE_CATEGORIES.item;
+    }
+
     const catInputVal = (selectedCat || (catInput ? catInput.value : "") || "").trim();
 
-    // Actualizar placeholder del input de categoría según tipo
+    // Actualizar placeholder del input de categoría según tipo/rubro
     if (catInput) {
-      if (listingType === "digital") {
+      if (currentNiche === "tech" || listingType === "digital") {
         catInput.placeholder = "Ej: Diseño & Arquitectura, Ofimática, Streaming...";
-      } else if (listingType === "vehicle") {
+      } else if (currentNiche === "vehicles" || listingType === "vehicle") {
         catInput.placeholder = "Ej: Camionetas & SUV, Autos Sedán, Pickups...";
-      } else if (listingType === "property") {
+      } else if (currentNiche === "property" || listingType === "property") {
         catInput.placeholder = "Ej: Departamentos en Venta, Casas, Locales...";
+      } else if (currentNiche === "sneakers") {
+        catInput.placeholder = "Ej: Urbano & Streetwear, Deportivas, Running...";
+      } else if (currentNiche === "beauty") {
+        catInput.placeholder = "Ej: Perfumes Dama, Perfumes Árabes, Decants...";
       } else {
-        catInput.placeholder = "Ej: Calzado & Zapatillas, Ropa, Perfumes...";
+        catInput.placeholder = "Ej: Calzado, Ropa, Accesorios...";
       }
     }
 
+    // Categorías del usuario para esta tienda específica (excluyendo undefined y categorías ajenas al rubro)
+    const storeCategories = (AppState.categories || [])
+      .map(c => typeof c === "string" ? c.trim() : (c && c.name ? c.name.trim() : ""))
+      .filter(c => {
+        if (!c) return false;
+        const low = c.toLowerCase();
+        return low !== "undefined" && low !== "null" && low !== "[object object]";
+      });
+
     const userCategoriesWithProds = (AppState.products || [])
-      .map(p => (p.category && p.category !== "undefined") ? p.category.trim() : "")
+      .map(p => (p.category && p.category.toLowerCase() !== "undefined" && p.category.toLowerCase() !== "null") ? p.category.trim() : "")
       .filter(Boolean);
 
     const allOptions = [...suggested];
-    userCategoriesWithProds.forEach(c => {
+    [...storeCategories, ...userCategoriesWithProds].forEach(c => {
       if (!allOptions.some(item => item.toLowerCase() === c.toLowerCase())) {
         allOptions.push(c);
       }
@@ -3186,13 +3241,29 @@ const StudioController = {
     this.currentProductPhoto = "";
     this.currentProductVideo = "";
     this.currentProductImages = [];
+
+    const currentNiche = AppState.shopConfig.niche || AppState.activePreset || "general";
     let defaultType = "item";
-    if (AppState.activePreset === "tech" || AppState.activePreset === "digital") {
+    if (currentNiche === "tech" || currentNiche === "digital") {
       defaultType = "digital";
-    } else if (AppState.activePreset === "vehicles") {
+    } else if (currentNiche === "vehicles") {
       defaultType = "vehicle";
+    } else if (currentNiche === "property") {
+      defaultType = "property";
+    } else {
+      defaultType = "item";
     }
     this.currentListingType = defaultType;
+
+    const compactBar = document.getElementById("editor-type-compact-bar");
+    const pillsWrap = document.getElementById("editor-listing-type-pills");
+    if (currentNiche === "general") {
+      if (compactBar) compactBar.classList.add("hidden");
+      if (pillsWrap) pillsWrap.classList.remove("hidden");
+    } else {
+      if (compactBar) compactBar.classList.remove("hidden");
+      if (pillsWrap) pillsWrap.classList.add("hidden");
+    }
 
     const currSelect = document.getElementById("editor-currency-select");
     if (currSelect) currSelect.value = AppState.shopConfig.currency || "S/";
@@ -3284,7 +3355,23 @@ const StudioController = {
       if (placeholder) placeholder.classList.remove("hidden");
     }
 
-    this.currentListingType = p.listingType || "item";
+    const currentNiche = AppState.shopConfig.niche || AppState.activePreset || "general";
+    let defaultType = "item";
+    if (currentNiche === "tech" || currentNiche === "digital") defaultType = "digital";
+    else if (currentNiche === "vehicles") defaultType = "vehicle";
+    else if (currentNiche === "property") defaultType = "property";
+
+    this.currentListingType = p.listingType || defaultType;
+
+    const compactBar = document.getElementById("editor-type-compact-bar");
+    const pillsWrap = document.getElementById("editor-listing-type-pills");
+    if (currentNiche === "general") {
+      if (compactBar) compactBar.classList.add("hidden");
+      if (pillsWrap) pillsWrap.classList.remove("hidden");
+    } else {
+      if (compactBar) compactBar.classList.remove("hidden");
+      if (pillsWrap) pillsWrap.classList.add("hidden");
+    }
     this.currentProductImages = (Array.isArray(p.images) && p.images.length > 0) ? [...p.images] : (p.img ? [p.img] : []);
     this.currentProductPhoto = this.currentProductImages[0] || p.img || "";
 
@@ -4077,38 +4164,90 @@ const CustomerUI = {
 
     const currency = product.currency || AppState.shopConfig.currency || "S/";
 
-    // 1. Fotos y Galería de Miniaturas
+    // 1. Fotos y Carrusel Deslizable Swipe + Zoom
     const images = (Array.isArray(product.images) && product.images.length > 0)
       ? product.images
       : (product.img ? [product.img] : []);
-    if (imgEl) imgEl.src = images[0] || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80";
 
-    const thumbsRow = document.getElementById("detail-thumbnails-row");
+    const carouselTrack = document.getElementById("detail-carousel-track");
     const photoCounter = document.getElementById("detail-photo-counter");
-    if (thumbsRow) {
-      if (images.length > 1) {
-        thumbsRow.classList.remove("hidden");
-        thumbsRow.innerHTML = images.map((src, idx) => `
-          <div class="gallery-thumb ${idx === 0 ? 'active' : ''}" data-idx="${idx}">
-            <img src="${src}" alt="Foto ${idx+1}">
+    const dotsRow = document.getElementById("detail-carousel-dots");
+    const thumbsRow = document.getElementById("detail-thumbnails-row");
+
+    if (carouselTrack) {
+      if (images.length === 0) {
+        const fallbackUrl = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80";
+        carouselTrack.innerHTML = `
+          <div class="carousel-slide" data-index="0">
+            <img id="detail-product-img" src="${fallbackUrl}" alt="${escapeHtml(product.name)}" class="carousel-slide-img" onclick="CustomerUI.openLightbox('${fallbackUrl}')">
+          </div>
+        `;
+        if (photoCounter) photoCounter.classList.add("hidden");
+        if (dotsRow) dotsRow.classList.add("hidden");
+        if (thumbsRow) thumbsRow.classList.add("hidden");
+        carouselTrack.onscroll = null;
+      } else {
+        carouselTrack.innerHTML = images.map((src, idx) => `
+          <div class="carousel-slide" data-index="${idx}">
+            <img ${idx === 0 ? 'id="detail-product-img"' : ''} src="${src}" alt="Foto ${idx + 1} de ${escapeHtml(product.name)}" class="carousel-slide-img" onclick="CustomerUI.openLightbox('${src}')">
           </div>
         `).join("");
-        thumbsRow.querySelectorAll(".gallery-thumb").forEach(thumb => {
-          thumb.onclick = () => {
-            const idx = Number(thumb.dataset.idx);
-            thumbsRow.querySelectorAll(".gallery-thumb").forEach(t => t.classList.remove("active"));
-            thumb.classList.add("active");
-            if (imgEl) imgEl.src = images[idx];
-            if (photoCounter) photoCounter.textContent = `${idx + 1}/${images.length}`;
+
+        if (images.length > 1) {
+          if (photoCounter) {
+            photoCounter.textContent = `1 / ${images.length}`;
+            photoCounter.classList.remove("hidden");
+          }
+          if (dotsRow) {
+            dotsRow.classList.remove("hidden");
+            dotsRow.innerHTML = images.map((_, idx) => `
+              <span class="carousel-dot ${idx === 0 ? 'active' : ''}" data-idx="${idx}"></span>
+            `).join("");
+            dotsRow.querySelectorAll(".carousel-dot").forEach(dot => {
+              dot.onclick = () => {
+                const idx = Number(dot.dataset.idx);
+                carouselTrack.scrollTo({ left: idx * carouselTrack.clientWidth, behavior: "smooth" });
+              };
+            });
+          }
+          if (thumbsRow) {
+            thumbsRow.classList.remove("hidden");
+            thumbsRow.innerHTML = images.map((src, idx) => `
+              <div class="gallery-thumb ${idx === 0 ? 'active' : ''}" data-idx="${idx}">
+                <img src="${src}" alt="Miniatura ${idx + 1}">
+              </div>
+            `).join("");
+            thumbsRow.querySelectorAll(".gallery-thumb").forEach(thumb => {
+              thumb.onclick = () => {
+                const idx = Number(thumb.dataset.idx);
+                carouselTrack.scrollTo({ left: idx * carouselTrack.clientWidth, behavior: "smooth" });
+              };
+            });
+          }
+
+          // Escuchar scroll para sincronizar contador, puntos y miniaturas
+          carouselTrack.onscroll = () => {
+            const width = carouselTrack.clientWidth || 1;
+            const currentIdx = Math.min(images.length - 1, Math.max(0, Math.round(carouselTrack.scrollLeft / width)));
+            if (photoCounter) photoCounter.textContent = `${currentIdx + 1} / ${images.length}`;
+            if (dotsRow) {
+              dotsRow.querySelectorAll(".carousel-dot").forEach((d, i) => {
+                d.classList.toggle("active", i === currentIdx);
+              });
+            }
+            if (thumbsRow) {
+              thumbsRow.querySelectorAll(".gallery-thumb").forEach((t, i) => {
+                t.classList.toggle("active", i === currentIdx);
+              });
+            }
           };
-        });
-        if (photoCounter) {
-          photoCounter.textContent = `1/${images.length}`;
-          photoCounter.classList.remove("hidden");
+        } else {
+          // Solo 1 imagen
+          if (photoCounter) photoCounter.classList.add("hidden");
+          if (dotsRow) dotsRow.classList.add("hidden");
+          if (thumbsRow) thumbsRow.classList.add("hidden");
+          carouselTrack.onscroll = null;
         }
-      } else {
-        thumbsRow.classList.add("hidden");
-        if (photoCounter) photoCounter.classList.add("hidden");
       }
     }
 
@@ -4168,9 +4307,6 @@ const CustomerUI = {
       if (isDigitalProd) {
         if (noteLabel) noteLabel.textContent = "Correo o WhatsApp para entrega de activación (opcional):";
         noteInput.placeholder = "ej: tu-correo@gmail.com para enviarte la clave de activación";
-      } else if (isVehicleProd) {
-        if (noteLabel) noteLabel.textContent = "Correo o WhatsApp para entrega digital (opcional):";
-        noteInput.placeholder = "ej: tu-correo@gmail.com para enviarte el acceso";
       } else if (isVehicleProd) {
         if (noteLabel) noteLabel.textContent = "Consulta o disponibilidad para ver el vehículo (opcional):";
         noteInput.placeholder = "ej: disponible el sábado por la tarde";
@@ -4446,6 +4582,25 @@ const CustomerUI = {
     }
   },
 
+  openLightbox(src) {
+    const modal = document.getElementById("media-lightbox-modal");
+    const img = document.getElementById("lightbox-img");
+    if (!modal || !img || !src) return;
+    img.src = src;
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  },
+
+  closeLightbox() {
+    const modal = document.getElementById("media-lightbox-modal");
+    if (!modal) return;
+    modal.classList.add("hidden");
+    const prodModal = document.getElementById("product-detail-modal");
+    if (!prodModal || prodModal.classList.contains("hidden")) {
+      document.body.style.overflow = "";
+    }
+  },
+
   updateCartBar() {
     const bar = document.getElementById("floating-cart-bar");
     const countEl = document.getElementById("cart-items-count");
@@ -4558,6 +4713,7 @@ const CustomerUI = {
     const tableGroup = document.getElementById("table-field-group");
     const addressGroup = document.getElementById("address-field-group");
     const addressLabel = document.querySelector('label[for="client-address"]');
+    const addressInput = document.getElementById("client-address");
     const gpsBtn = document.getElementById("get-gps-location-btn");
     const clientTable = document.getElementById("client-table");
 
@@ -4575,7 +4731,8 @@ const CustomerUI = {
       if (modeDigital) modeDigital.checked = true;
       if (tableGroup) tableGroup.classList.add("hidden");
       if (addressGroup) addressGroup.style.display = "flex";
-      if (addressLabel) addressLabel.textContent = "Correo Electrónico o WhatsApp donde recibirás tu producto digital *";
+      if (addressLabel) addressLabel.textContent = "WhatsApp o Correo para entrega digital *";
+      if (addressInput) addressInput.placeholder = "Ej: tucorreo@gmail.com o 987654321";
       if (gpsBtn) gpsBtn.style.display = "none";
     } else // 1. Mostrar/ocultar opciones según rubro de WhatsApp Business
     if (nicheInfo.isDigitalFriendly) {
@@ -4610,6 +4767,7 @@ const CustomerUI = {
       if (tableGroup) tableGroup.classList.add("hidden");
       if (addressGroup) addressGroup.style.display = "flex";
       if (addressLabel) addressLabel.textContent = "WhatsApp o Correo para entrega digital *";
+      if (addressInput) addressInput.placeholder = "Ej: tucorreo@gmail.com o 987654321";
       if (gpsBtn) gpsBtn.style.display = "none";
     } else if (AppState.deliveryMode === "dinein") {
       if (modeDinein) modeDinein.checked = true;
@@ -4629,6 +4787,7 @@ const CustomerUI = {
       if (tableGroup) tableGroup.classList.add("hidden");
       if (addressGroup) addressGroup.style.display = "flex";
       if (addressLabel) addressLabel.textContent = "Dirección y Referencia *";
+      if (addressInput) addressInput.placeholder = "Ej: Av. Las Palmeras 450, Dpto 302...";
       if (gpsBtn) gpsBtn.style.display = "inline-flex";
     }
 
@@ -4747,8 +4906,17 @@ const CartController = {
 
   isCartAllDigital() {
     const items = this.getCartItems();
-    if (items.length === 0) return false;
-    return items.every(item => item.product && item.product.listingType === "digital");
+    if (items.length === 0) {
+      return AppState.activePreset === "tech" || AppState.activePreset === "digital";
+    }
+    return items.every(item => {
+      const p = item.product;
+      if (!p) return false;
+      if (p.listingType === "digital") return true;
+      if (AppState.activePreset === "tech" || AppState.activePreset === "digital") return true;
+      const combined = ((p.name || "") + " " + (p.sku || "") + " " + (p.category || "")).toLowerCase();
+      return /adobe|autodesk|windows|office|microsoft|licencia|antivirus|canva|capcut|spotify|netflix|vpn|digital|software|suscripci[oó]n|cuenta|streaming/i.test(combined);
+    });
   },
 
   getDeliveryCost() {
@@ -5423,6 +5591,16 @@ document.addEventListener("DOMContentLoaded", () => {
     StudioController.saveProduct(e);
   });
 
+  const editorToggleTypesBtn = document.getElementById("editor-toggle-types-btn");
+  const editorListingTypePills = document.getElementById("editor-listing-type-pills");
+  if (editorToggleTypesBtn && editorListingTypePills) {
+    editorToggleTypesBtn.addEventListener("click", () => {
+      editorListingTypePills.classList.toggle("hidden");
+      const isVisible = !editorListingTypePills.classList.contains("hidden");
+      editorToggleTypesBtn.textContent = isVisible ? "Ocultar tipos ✕" : "Cambiar tipo ▾";
+    });
+  }
+
   // 9.1 Gestor de Categorías (Modal y Paleta de Emojis)
   const studioManageCategoriesBtn = document.getElementById("studio-manage-categories-btn");
   const closeCategoriesModalBtn = document.getElementById("close-categories-modal-btn");
@@ -5718,6 +5896,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeProdBtn = document.getElementById("close-product-modal-btn");
   if (closeProdBtn) closeProdBtn.addEventListener("click", () => CustomerUI.closeProductModal());
 
+  // Lightbox Pantalla Completa & Zoom
+  const lightboxModal = document.getElementById("media-lightbox-modal");
+  const lightboxCloseBtn = document.getElementById("lightbox-close-btn");
+  if (lightboxCloseBtn) {
+    lightboxCloseBtn.addEventListener("click", () => CustomerUI.closeLightbox());
+  }
+  if (lightboxModal) {
+    lightboxModal.addEventListener("click", (e) => {
+      if (e.target === lightboxModal || e.target.classList.contains("lightbox-content")) {
+        CustomerUI.closeLightbox();
+      }
+    });
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      CustomerUI.closeLightbox();
+      CustomerUI.closeProductModal();
+    }
+  });
+
   const modalQtyMinus = document.getElementById("modal-qty-minus");
   const modalQtyPlus = document.getElementById("modal-qty-plus");
   const modalQtyVal = document.getElementById("modal-qty-val");
@@ -5780,6 +5978,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (labelDinein) labelDinein.classList.remove("active");
       if (addressGroup) addressGroup.style.display = "flex";
       if (addressLabel) addressLabel.textContent = "WhatsApp o Correo para entrega digital *";
+      const addrInp = document.getElementById("client-address");
+      if (addrInp) addrInp.placeholder = "Ej: tucorreo@gmail.com o 987654321";
       if (getGpsBtn) getGpsBtn.style.display = "none";
       if (tableGroup) tableGroup.classList.add("hidden");
       CustomerUI.renderCartItemsList();
@@ -5796,6 +5996,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (labelDinein) labelDinein.classList.remove("active");
       if (addressGroup) addressGroup.style.display = "flex";
       if (addressLabel) addressLabel.textContent = "Dirección y Referencia *";
+      const addrInp = document.getElementById("client-address");
+      if (addrInp) addrInp.placeholder = "Ej: Av. Las Palmeras 450, Dpto 302...";
       if (getGpsBtn) getGpsBtn.style.display = "inline-flex";
       if (tableGroup) tableGroup.classList.add("hidden");
       CustomerUI.renderCartItemsList();
