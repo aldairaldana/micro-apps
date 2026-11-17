@@ -183,34 +183,31 @@
         <div id="view-store" class="studio-tab-view">
           <!-- Card Destacada: Enlace Oficial y Acciones de Difusión -->
           <section class="settings-section-card store-link-highlight-box">
-            <div class="store-link-header-row">
-              <div class="store-link-icon-wrap">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-              </div>
-              <div class="store-link-text-wrap">
-                <span class="store-link-label">Enlace Oficial de tu Tienda</span>
-                <span class="store-link-display" id="highlight-store-url">tiendazap.pages.dev/tu-tienda</span>
-              </div>
+            <h3 class="store-link-card-title">Enlace de tu tienda</h3>
+
+            <div class="store-link-input-row">
+              <span class="store-link-icon">🔗</span>
+              <span class="store-link-display-text" id="highlight-store-url">tiendazap.pages.dev/tu-tienda</span>
+              <button type="button" id="store-copy-link-btn" class="btn-copy-integrated" title="Copiar enlace">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+                <span>Copiar</span>
+              </button>
             </div>
 
-            <div class="store-link-actions-grid">
-              <button type="button" id="store-copy-link-btn" class="btn-store-action" title="Copiar enlace para tus clientes">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-                <span>Copiar enlace</span>
-              </button>
-              <button type="button" id="store-share-btn" class="btn-store-action" title="Compartir catálogo">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <div class="store-link-dual-grid">
+              <button type="button" id="store-share-btn" class="btn-dual-action" title="Compartir catálogo">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                 <span>Compartir</span>
               </button>
-              <button type="button" id="store-open-qr-btn" class="btn-store-action" title="Ver código QR para imprimir o mostrar">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <button type="button" id="store-open-qr-btn" class="btn-dual-action" title="Ver código QR para imprimir o mostrar">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 <span>Código QR</span>
               </button>
             </div>
 
-            <div style="margin-top: 10px;">
-              <button type="button" id="btn-copy-portable-link" class="btn-secondary-compact" style="width: 100%; justify-content: center; font-size: 0.74rem;">
-                📤 Generar enlace portátil con datos incluidos (#d=...)
+            <div class="portable-link-discreet-row">
+              <button type="button" id="btn-copy-portable-link" class="btn-portable-link-subtle" title="Generar enlace sin depender del almacenamiento local">
+                <span>📤 Generar enlace portátil con catálogo embebido (#d=...)</span>
               </button>
             </div>
           </section>
@@ -730,23 +727,26 @@
                 <span class="verified-badge" title="Comercio Verificado">✓</span>
               </div>
 
-              <!-- Sello de Seguridad y Confianza para el Comprador -->
-              <div class="store-verified-seal" id="store-verified-seal">
+              <!-- Enlace Oficial Verificado sutil (sin botón ovalado gigante) -->
+              <div class="store-verified-subtle" id="store-verified-seal">
                 <span class="seal-icon">🔒</span>
-                <span class="seal-text">Enlace Oficial Verificado · <strong id="seal-slug-text">/tienda</strong></span>
+                <span class="seal-url" id="seal-slug-text">tiendazap.pages.dev/tienda</span>
               </div>
 
               <p class="store-tagline" id="store-tagline">Eslogan del negocio</p>
 
-              <div class="store-badges-row">
-                <span class="store-pill status-pill open" id="store-status-pill">
-                  <span class="pill-dot"></span> Abierto ahora
+              <!-- Una sola línea editorial limpia sin cajas ni bordes ovalados -->
+              <div class="store-meta-line" id="store-meta-line">
+                <span class="meta-item meta-status" id="store-status-pill">
+                  <span class="meta-dot online"></span> Abierto ahora
                 </span>
-                <span class="store-pill" id="delivery-time-pill">
-                  <span class="pill-icon">⏱️</span> 25-35 min
+                <span class="meta-sep">·</span>
+                <span class="meta-item meta-time" id="delivery-time-pill">
+                  ⚡ Entrega Inmediata
                 </span>
-                <span class="store-pill" id="delivery-cost-pill">
-                  <span class="pill-icon">🛵</span> Delivery S/ 5.00
+                <span class="meta-sep">·</span>
+                <span class="meta-item meta-cost" id="delivery-cost-pill">
+                  Envío gratis
                 </span>
               </div>
             </div>
@@ -817,97 +817,101 @@
     <!-- 1. MODAL DETALLE DE PRODUCTO & VARIANTES (TALLAS/COLORES) -->
     <div class="overlay product-modal-overlay hidden" id="product-detail-modal">
       <div class="product-modal-card">
-        <button id="close-product-modal-btn" class="close-sheet-btn product-close" type="button">✕</button>
-        <div class="product-modal-media-header">
-          <div class="product-modal-media-switcher hidden" id="detail-media-switcher">
-            <button type="button" class="media-switch-btn active" id="detail-switch-photo-btn">📷 Fotos</button>
-            <button type="button" class="media-switch-btn" id="detail-switch-video-btn">🎥 Video</button>
-          </div>
-          <div class="product-modal-carousel-container" id="detail-carousel-container">
-            <div class="product-modal-carousel-track" id="detail-carousel-track">
-              <div class="carousel-slide" data-index="0">
-                <img id="detail-product-img" src="" alt="Producto" class="detail-product-img" loading="eager">
+        <button id="close-product-modal-btn" class="close-sheet-btn product-close" type="button" aria-label="Cerrar modal">✕</button>
+        
+        <!-- Área scrolleable unificada (la foto sube con el contenido) -->
+        <div class="product-modal-scroll-area" id="product-modal-scroll-area">
+          <div class="product-modal-media-header">
+            <div class="product-modal-media-switcher hidden" id="detail-media-switcher">
+              <button type="button" class="media-switch-btn active" id="detail-switch-photo-btn">📷 Fotos</button>
+              <button type="button" class="media-switch-btn" id="detail-switch-video-btn">🎥 Video</button>
+            </div>
+            <div class="product-modal-carousel-container" id="detail-carousel-container">
+              <div class="product-modal-carousel-track" id="detail-carousel-track">
+                <div class="carousel-slide" data-index="0">
+                  <img id="detail-product-img" src="" alt="Producto" class="detail-product-img" loading="eager">
+                </div>
+              </div>
+              <span class="detail-photo-badge hidden" id="detail-photo-counter">1 / 1</span>
+            </div>
+            <!-- Puntos indicadores del carrusel -->
+            <div class="carousel-dots-row hidden" id="detail-carousel-dots"></div>
+            <!-- Carrusel de Miniaturas de Galería de Fotos y Video -->
+            <div class="detail-thumbnails-row hidden" id="detail-thumbnails-row"></div>
+
+            <div class="product-modal-video-wrap hidden" id="detail-video-wrap">
+              <video id="detail-product-video" controls playsinline muted loop preload="metadata" class="detail-product-video hidden"></video>
+              <div id="detail-video-embed" class="detail-video-embed hidden"></div>
+              <div id="detail-video-action" class="detail-video-action hidden">
+                <a id="detail-video-ext-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn-external-video">▶️ Ver Video Demostrativo (Reels / TikTok)</a>
               </div>
             </div>
-            <span class="detail-photo-badge hidden" id="detail-photo-counter">1 / 1</span>
           </div>
-          <!-- Puntos indicadores del carrusel -->
-          <div class="carousel-dots-row hidden" id="detail-carousel-dots"></div>
-          <!-- Carrusel de Miniaturas de Galería de Fotos y Video -->
-          <div class="detail-thumbnails-row hidden" id="detail-thumbnails-row"></div>
-
-          <div class="product-modal-video-wrap hidden" id="detail-video-wrap">
-            <video id="detail-product-video" controls playsinline muted loop preload="metadata" class="detail-product-video hidden"></video>
-            <div id="detail-video-embed" class="detail-video-embed hidden"></div>
-            <div id="detail-video-action" class="detail-video-action hidden">
-              <a id="detail-video-ext-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn-external-video">▶️ Ver Video Demostrativo (Reels / TikTok)</a>
+          <div class="product-modal-body">
+            <div class="detail-badge-row">
+              <span class="detail-category-chip" id="detail-category">Categoría</span>
+              <span class="detail-condition-badge" id="detail-condition-badge">Nuevo</span>
+              <span class="detail-location-badge hidden" id="detail-location-badge">📍 Lima</span>
+              <span class="detail-badge-promo hidden" id="detail-promo-badge">PROMO</span>
             </div>
-          </div>
-        </div>
-        <div class="product-modal-body">
-          <div class="detail-badge-row">
-            <span class="detail-category-chip" id="detail-category">Categoría</span>
-            <span class="detail-condition-badge" id="detail-condition-badge">Nuevo</span>
-            <span class="detail-location-badge hidden" id="detail-location-badge">📍 Lima</span>
-            <span class="detail-badge-promo hidden" id="detail-promo-badge">PROMO</span>
-          </div>
-          <h2 class="detail-title" id="detail-title">Nombre del Producto</h2>
-          <div class="detail-price-highlight-row">
-            <div class="detail-price" id="detail-price">S/ 0.00</div>
-            <span class="detail-listing-badge" id="detail-listing-badge">🛍️ Artículo</span>
-          </div>
-          <p class="detail-description" id="detail-desc">Descripción del producto.</p>
-
-          <!-- Especificaciones Técnicas Estilo Marketplace -->
-          <div class="detail-specs-container hidden" id="detail-specs-container">
-            <h4 class="specs-section-title">📋 Ficha Técnica / Especificaciones</h4>
-            <div class="detail-specs-grid" id="detail-specs-grid"></div>
-          </div>
-
-          <!-- Selector de Tallas si aplica -->
-          <div class="detail-variants-group hidden" id="detail-sizes-group">
-            <span class="detail-variant-label" id="detail-sizes-label">Elige tu Talla / Medida:</span>
-            <div class="variant-chips-row" id="detail-sizes-row"></div>
-          </div>
-
-          <!-- Selector de Colores si aplica -->
-          <div class="detail-variants-group hidden" id="detail-colors-group">
-            <span class="detail-variant-label" id="detail-colors-label">Elige tu Color / Tono:</span>
-            <div class="variant-chips-row" id="detail-colors-row"></div>
-          </div>
-
-          <!-- Bloque de Consulta Rápida por WhatsApp (Para Vehículos e Inmuebles) -->
-          <div class="vehicle-inquiry-box hidden" id="vehicle-inquiry-box">
-            <span class="inquiry-box-title">Consulta directa con el anunciante:</span>
-            <div class="quick-inquiry-pills" id="quick-inquiry-pills">
-              <button type="button" class="inquiry-pill-btn" data-inquiry="👋 Hola, ¿este vehículo sigue disponible?">👋 ¿Sigue disponible?</button>
-              <button type="button" class="inquiry-pill-btn" data-inquiry="📍 Hola, ¿dónde y en qué horario se puede ver?">📍 ¿Dónde se puede ver?</button>
-              <button type="button" class="inquiry-pill-btn" data-inquiry="💵 Hola, ¿aceptas una oferta al contado?">💵 ¿Aceptas oferta al contado?</button>
+            <h2 class="detail-title" id="detail-title">Nombre del Producto</h2>
+            <div class="detail-price-highlight-row">
+              <div class="detail-price" id="detail-price">S/ 0.00</div>
+              <span class="detail-listing-badge" id="detail-listing-badge">🛍️ Artículo</span>
             </div>
-            <button type="button" class="btn-whatsapp-inquire" id="vehicle-whatsapp-btn">
-              <span class="wa-inquire-icon">💬</span>
-              <span>Consultar / Agendar Visita por WhatsApp</span>
-            </button>
-          </div>
+            <p class="detail-description" id="detail-desc">Descripción del producto.</p>
 
-          <!-- Acciones Estándar de Carrito (Para Artículos Físicos y Digitales) -->
-          <div id="standard-cart-actions" class="standard-cart-actions">
-            <!-- Stepper de Cantidad -->
-            <div class="detail-quantity-row">
-              <span class="detail-qty-label">Cantidad:</span>
-              <div class="quantity-stepper">
-                <button class="step-btn" id="modal-qty-minus" type="button">-</button>
-                <span class="step-val" id="modal-qty-val">1</span>
-                <button class="step-btn" id="modal-qty-plus" type="button">+</button>
+            <!-- Especificaciones Técnicas Estilo Marketplace -->
+            <div class="detail-specs-container hidden" id="detail-specs-container">
+              <h4 class="specs-section-title">📋 Ficha Técnica / Especificaciones</h4>
+              <div class="detail-specs-grid" id="detail-specs-grid"></div>
+            </div>
+
+            <!-- Selector de Tallas si aplica -->
+            <div class="detail-variants-group hidden" id="detail-sizes-group">
+              <span class="detail-variant-label" id="detail-sizes-label">Elige tu Talla / Medida:</span>
+              <div class="variant-chips-row" id="detail-sizes-row"></div>
+            </div>
+
+            <!-- Selector de Colores si aplica -->
+            <div class="detail-variants-group hidden" id="detail-colors-group">
+              <span class="detail-variant-label" id="detail-colors-label">Elige tu Color / Tono:</span>
+              <div class="variant-chips-row" id="detail-colors-row"></div>
+            </div>
+
+            <!-- Bloque de Consulta Rápida por WhatsApp (Para Vehículos e Inmuebles) -->
+            <div class="vehicle-inquiry-box hidden" id="vehicle-inquiry-box">
+              <span class="inquiry-box-title">Consulta directa con el anunciante:</span>
+              <div class="quick-inquiry-pills" id="quick-inquiry-pills">
+                <button type="button" class="inquiry-pill-btn" data-inquiry="👋 Hola, ¿este vehículo sigue disponible?">👋 ¿Sigue disponible?</button>
+                <button type="button" class="inquiry-pill-btn" data-inquiry="📍 Hola, ¿dónde y en qué horario se puede ver?">📍 ¿Dónde se puede ver?</button>
+                <button type="button" class="inquiry-pill-btn" data-inquiry="💵 Hola, ¿aceptas una oferta al contado?">💵 ¿Aceptas oferta al contado?</button>
               </div>
+              <button type="button" class="btn-whatsapp-inquire" id="vehicle-whatsapp-btn">
+                <span class="wa-inquire-icon">💬</span>
+                <span>Consultar / Agendar Visita por WhatsApp</span>
+              </button>
             </div>
 
-            <!-- Nota Adicional del Producto -->
-            <div class="editor-field-group" style="margin-top: 10px;">
-              <label id="modal-product-note-label" for="modal-product-note" style="font-size: 0.74rem; color: var(--text-muted); font-weight: 600;">
-                Indicaciones especiales (opcional)
-              </label>
-              <input type="text" id="modal-product-note" class="input-modern" placeholder="Opcional: Detalles para tu pedido...">
+            <!-- Acciones Estándar de Carrito (Para Artículos Físicos y Digitales) -->
+            <div id="standard-cart-actions" class="standard-cart-actions">
+              <!-- Stepper de Cantidad -->
+              <div class="detail-quantity-row">
+                <span class="detail-qty-label">Cantidad:</span>
+                <div class="quantity-stepper">
+                  <button class="step-btn" id="modal-qty-minus" type="button">-</button>
+                  <span class="step-val" id="modal-qty-val">1</span>
+                  <button class="step-btn" id="modal-qty-plus" type="button">+</button>
+                </div>
+              </div>
+
+              <!-- Nota Adicional del Producto -->
+              <div class="editor-field-group" style="margin-top: 10px;">
+                <label id="modal-product-note-label" for="modal-product-note" style="font-size: 0.74rem; color: var(--text-muted); font-weight: 600;">
+                  Indicaciones especiales (opcional)
+                </label>
+                <input type="text" id="modal-product-note" class="input-modern" placeholder="Opcional: Detalles para tu pedido...">
+              </div>
             </div>
           </div>
         </div>

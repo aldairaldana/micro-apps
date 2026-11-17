@@ -1456,27 +1456,36 @@ const AppState = {
         this.shopConfig.storeSlug = targetSlug;
         let loaded = false;
 
-        // 1. Buscar en diccionario persistente por slug
+        // 1. Sincronizar y buscar en almacenamiento local
         if (!rawCompressed) {
-          const slugKey = "tiendazap_store_" + targetSlug;
-          const cachedStore = localStorage.getItem(slugKey);
-          if (cachedStore) {
-            try {
-              const sData = JSON.parse(cachedStore);
-              if (sData && (sData.config || sData.name)) {
-                this.shopConfig = { ...sData.config, name: sData.name || sData.config?.name || targetSlug };
-                this.products = (Array.isArray(sData.products) ? [...sData.products] : []).map(p => this.migrateProduct(p));
-                this.categories = Array.isArray(sData.categories) ? [...sData.categories] : [];
-                if (sData.preset) this.activePreset = sData.preset;
-                this.isViewingRemoteCatalog = true;
-                loaded = true;
+          const currentMemorySlug = this.getStoreSlug();
+          if (currentMemorySlug === targetSlug && this.products && this.products.length > 0) {
+            // Tienda activa en este navegador: asegura sincronización y carga viva
+            this.saveCurrentStoreState();
+            loaded = true;
+          }
+
+          // 2. Buscar en diccionario persistente por slug
+          if (!loaded) {
+            const slugKey = "tiendazap_store_" + targetSlug;
+            const cachedStore = localStorage.getItem(slugKey);
+            if (cachedStore) {
+              try {
+                const sData = JSON.parse(cachedStore);
+                if (sData && (sData.config || sData.name)) {
+                  this.shopConfig = { ...sData.config, name: sData.name || sData.config?.name || targetSlug };
+                  this.products = (Array.isArray(sData.products) ? [...sData.products] : []).map(p => this.migrateProduct(p));
+                  this.categories = Array.isArray(sData.categories) ? [...sData.categories] : [];
+                  if (sData.preset) this.activePreset = sData.preset;
+                  loaded = true;
+                }
+              } catch (e) {
+                console.warn("Error leyendo tienda de cache:", e);
               }
-            } catch (e) {
-              console.warn("Error leyendo tienda de cache:", e);
             }
           }
 
-          // 2. Buscar en storesList
+          // 3. Buscar en storesList
           if (!loaded) {
             if (!this.storesList || this.storesList.length === 0) this.initStores();
             const match = (this.storesList || []).find(s => s.slug === targetSlug || s.id === targetSlug);
@@ -1485,16 +1494,14 @@ const AppState = {
               this.products = (Array.isArray(match.products) ? [...match.products] : []).map(p => this.migrateProduct(p));
               this.categories = Array.isArray(match.categories) ? [...match.categories] : [];
               if (match.preset) this.activePreset = match.preset;
-              this.isViewingRemoteCatalog = true;
               loaded = true;
             }
           }
 
-          // 3. Buscar en plantillas predefinidas
+          // 4. Buscar en plantillas predefinidas
           if (!loaded) {
             const matchedPreset = Object.values(BUSINESS_PRESETS).find(p => p.config && p.config.storeSlug === targetSlug);
             if (matchedPreset) {
-              this.isViewingRemoteCatalog = true;
               this.shopConfig = { ...matchedPreset.config };
               this.products = [...matchedPreset.products].map(p => this.migrateProduct(p));
               loaded = true;
@@ -1617,6 +1624,7 @@ const AppState = {
 
   saveCategories() {
     this.safeSetItem("tiendazap_categories", JSON.stringify(this.categories));
+    this.saveCurrentStoreState();
   },
 
   getCategoriesList() {
@@ -1786,11 +1794,13 @@ const AppState = {
   saveConfig() {
     if (this.isViewingRemoteCatalog) return;
     this.safeSetItem("tiendazap_config", JSON.stringify(this.shopConfig));
+    this.saveCurrentStoreState();
   },
 
   saveProducts() {
     if (this.isViewingRemoteCatalog) return;
     this.safeSetItem("tiendazap_products", JSON.stringify(this.products));
+    this.saveCurrentStoreState();
   },
 
   saveCart() {
@@ -2305,11 +2315,16 @@ const StudioController = {
     const logoImg = document.getElementById("admin-logo-preview");
     const nameInput = document.getElementById("live-store-name");
     const taglineInput = document.getElementById("live-store-tagline");
+    const highlightUrl = document.getElementById("highlight-store-url");
 
     if (bannerImg) bannerImg.src = AppState.shopConfig.bannerUrl || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80";
     if (logoImg) logoImg.src = AppState.shopConfig.logoUrl || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80";
     if (nameInput) nameInput.value = AppState.shopConfig.name || "";
     if (taglineInput) taglineInput.value = AppState.shopConfig.tagline || "";
+    if (highlightUrl) {
+      const slug = AppState.getStoreSlug();
+      highlightUrl.textContent = `${APP_BRAND.domainHint}/${slug}`;
+    }
   },
 
   async handleBannerUpload(file) {
@@ -2521,7 +2536,13 @@ const StudioController = {
     if (logoEl && AppState.shopConfig.logoUrl) logoEl.src = AppState.shopConfig.logoUrl;
     if (nameInput) nameInput.value = AppState.shopConfig.name || "";
     if (taglineInput) taglineInput.value = AppState.shopConfig.tagline || "";
-    if (slugInput) slugInput.value = AppState.getStoreSlug();
+    const slug = AppState.getStoreSlug();
+    if (slugInput) slugInput.value = slug;
+
+    const highlightUrl = document.getElementById("highlight-store-url");
+    if (highlightUrl) {
+      highlightUrl.textContent = `${APP_BRAND.domainHint}/${slug}`;
+    }
 
     document.querySelectorAll(".niche-card-btn").forEach(btn => {
       btn.classList.toggle("active", btn.getAttribute("data-niche") === AppState.activePreset);
@@ -3614,7 +3635,13 @@ const StudioController = {
     const shop = AppState.shopConfig;
     const slugInput = document.getElementById("settings-store-slug");
     const slugPrefix = document.getElementById("settings-slug-prefix");
-    if (slugInput) slugInput.value = AppState.getStoreSlug();
+    const slug = AppState.getStoreSlug();
+    if (slugInput) slugInput.value = slug;
+
+    const highlightUrl = document.getElementById("highlight-store-url");
+    if (highlightUrl) {
+      highlightUrl.textContent = `${APP_BRAND.domainHint}/${slug}`;
+    }
     if (slugPrefix) slugPrefix.textContent = `${APP_BRAND.domainHint}/`;
 
     const phoneInput = document.getElementById("settings-phone");
@@ -3765,7 +3792,7 @@ const CustomerUI = {
 
     const slug = AppState.getStoreSlug();
     const sealEl = document.getElementById("seal-slug-text");
-    if (sealEl) sealEl.textContent = `/${slug}`;
+    if (sealEl) sealEl.textContent = `${APP_BRAND.domainHint}/${slug}`;
 
     document.title = `✅ ${shop.name || "Tienda"} — Catálogo Oficial & Pedidos por WhatsApp`;
 
@@ -3774,12 +3801,12 @@ const CustomerUI = {
     }
 
     if (statusPill) {
-      statusPill.className = `store-pill status-pill ${shop.isOpen ? "open" : "closed"}`;
-      statusPill.innerHTML = `<span class="pill-dot"></span> ${shop.isOpen ? "Abierto ahora" : "Cerrado por hoy"}`;
+      statusPill.innerHTML = `<span class="meta-dot ${shop.isOpen ? "online" : "offline"}"></span> ${shop.isOpen ? "Abierto ahora" : "Cerrado por hoy"}`;
     }
 
     const nicheInfo = NICHE_DATA[AppState.activePreset] || NICHE_DATA.general;
-    const isDigital = AppState.activePreset === "digital" || AppState.activePreset === "tech" || AppState.shopConfig.niche === "tech" || (AppState.products.length > 0 && AppState.products.some(p => p.listingType === "digital" || /licencia|adobe|autodesk|windows|office|microsoft|antivirus|canva|capcut|spotify|netflix|vpn/i.test((p.name || "") + " " + (p.sku || ""))));
+    const isLicenseStore = /licencia|software|digital|tech|keys/i.test((shop.name || "") + " " + (slug || ""));
+    const isDigital = isLicenseStore || AppState.activePreset === "digital" || AppState.activePreset === "tech" || AppState.shopConfig.niche === "tech" || (AppState.products.length > 0 && AppState.products.some(p => p.listingType === "digital" || /licencia|adobe|autodesk|windows|office|microsoft|antivirus|canva|capcut|spotify|netflix|vpn/i.test((p.name || "") + " " + (p.sku || ""))));
     const isVehicle = AppState.activePreset === "vehicles" || AppState.shopConfig.niche === "vehicles" || (AppState.products.length > 0 && AppState.products.every(p => p.listingType === "vehicle"));
 
     if (taglineEl) {
@@ -3792,25 +3819,23 @@ const CustomerUI = {
 
     if (deliveryTimePill) {
       if (isDigital) {
-        deliveryTimePill.innerHTML = `<span class="pill-icon">⚡</span> Entrega Inmediata`;
+        deliveryTimePill.textContent = "⚡ Entrega Inmediata";
       } else if (isVehicle) {
-        deliveryTimePill.innerHTML = `<span class="pill-icon">⏱️</span> Coordinar Visita`;
+        deliveryTimePill.textContent = "⏱️ Coordinar Visita";
       } else {
         const isFashion = AppState.activePreset === "fashion" || AppState.activePreset === "beauty";
         const icon = isFashion ? "📦" : "⏱️";
-        deliveryTimePill.innerHTML = `<span class="pill-icon">${icon}</span> ${shop.deliveryTime || nicheInfo.defaultDeliveryTime || "24-48h"}`;
+        deliveryTimePill.textContent = `${icon} ${shop.deliveryTime || nicheInfo.defaultDeliveryTime || "24-48h"}`;
       }
     }
 
     if (deliveryCostPill) {
-      if (isDigital) {
-        deliveryCostPill.innerHTML = `<span class="pill-icon">💻</span> Activación 100% Online (Envío S/ 0)`;
+      if (isDigital || Number(shop.deliveryCost || 0) === 0) {
+        deliveryCostPill.textContent = "Envío gratis";
       } else if (isVehicle) {
-        deliveryCostPill.innerHTML = `<span class="pill-icon">📍</span> Showroom / Trato Directo`;
-      } else if (Number(shop.deliveryCost || 0) === 0) {
-        deliveryCostPill.innerHTML = `<span class="pill-icon">✨</span> Envío Sin Costo`;
+        deliveryCostPill.textContent = "📍 Trato Directo";
       } else {
-        deliveryCostPill.innerHTML = `<span class="pill-icon">🛵</span> Delivery ${shop.currency} ${Number(shop.deliveryCost || 0).toFixed(2)}`;
+        deliveryCostPill.textContent = `Delivery ${shop.currency} ${Number(shop.deliveryCost || 0).toFixed(2)}`;
       }
     }
 
@@ -5449,7 +5474,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const openPreviewBtn = document.getElementById("open-preview-btn");
   const closePreviewBtn = document.getElementById("close-preview-btn");
 
-  if (openPreviewBtn) openPreviewBtn.addEventListener("click", () => ViewController.showCustomerPreview());
+  if (openPreviewBtn) {
+    openPreviewBtn.addEventListener("click", () => {
+      AppState.saveCurrentStoreState();
+      ViewController.showCustomerPreview();
+    });
+  }
   if (closePreviewBtn) closePreviewBtn.addEventListener("click", () => ViewController.showStudio());
 
   // 2. Switch Rápido de Tienda Abierta / Cerrada en el Topbar
@@ -5514,6 +5544,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const studioShareBtn = document.getElementById("studio-share-btn");
 
   const copyStoreLinkAction = () => {
+    AppState.saveCurrentStoreState();
     const url = QRGenerator.getTargetUrl();
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url).then(() => {
@@ -6654,6 +6685,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const storeShareBtn = document.getElementById("store-share-btn");
   if (storeShareBtn) {
     storeShareBtn.addEventListener("click", () => {
+      AppState.saveCurrentStoreState();
       const url = QRGenerator.getTargetUrl();
       const shareText = `🛍️ *Catálogo Oficial de ${AppState.shopConfig.name}*\n🔒 Enlace seguro: ${url}`;
       if (navigator.share) {
@@ -6674,6 +6706,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCopyPortable = document.getElementById("btn-copy-portable-link");
   if (btnCopyPortable) {
     btnCopyPortable.addEventListener("click", () => {
+      AppState.saveCurrentStoreState();
       const portableUrl = QRGenerator.getTargetUrl(false, true);
       if (navigator.clipboard) {
         navigator.clipboard.writeText(portableUrl).then(() => {
