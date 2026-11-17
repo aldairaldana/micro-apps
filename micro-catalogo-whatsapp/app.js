@@ -1068,6 +1068,25 @@ const AppState = {
     Toast.show("Rubro y categorías de tu tienda actualizados", "✅");
   },
 
+  migrateProduct(p) {
+    if (!p) return p;
+    // 1. Limpiar texto de relleno falso de registro inicial
+    if (p.desc && (p.desc.trim() === "Producto publicado durante el registro inicial." || p.desc.includes("registro inicial"))) {
+      p.desc = "";
+    }
+    // 2. Detección automática de producto digital/software
+    const isDigitalName = /adobe|autodesk|windows|office|microsoft|licencia|antivirus|canva|capcut|suscripci[oó]n|streaming|spotify|netflix|vpn/i.test((p.name || "") + " " + (p.sku || ""));
+    if (isDigitalName) {
+      p.listingType = "digital";
+    }
+    // 3. Sanitización de categoría
+    const rawCat = (p.category || "").trim();
+    if (!rawCat || rawCat.toLowerCase() === "undefined" || rawCat.toLowerCase() === "null") {
+      p.category = (p.listingType === "digital" || this.activePreset === "tech" || this.activePreset === "digital") ? "Licencias & Software" : "General";
+    }
+    return p;
+  },
+
   switchStore(storeId) {
     if (!this.storesList) this.initStores();
     this.saveCurrentStoreState();
@@ -1077,7 +1096,7 @@ const AppState = {
     this.currentStoreId = target.id;
     this.activePreset = target.preset || "apparel";
     this.shopConfig = { ...target.config };
-    this.products = [...(target.products || [])];
+    this.products = [...(target.products || [])].map(p => this.migrateProduct(p));
     this.categories = [...(target.categories || [])];
     this.saveConfig();
     this.saveProducts();
@@ -1296,6 +1315,7 @@ const AppState = {
       } else {
         this.products = [...BUSINESS_PRESETS[this.activePreset].products];
       }
+      this.products = (this.products || []).map(p => this.migrateProduct(p));
 
       // Inicializar y sincronizar categorías oficiales de la tienda
       this.initCategories();
@@ -1388,11 +1408,12 @@ const AppState = {
                     ? p.imgs
                     : (p.img ? [p.img] : []);
                   const rawCat = (p.cat || p.category || "").trim();
-                  const cleanCat = (!rawCat || rawCat.toLowerCase() === "undefined") 
-                    ? (this.activePreset === "tech" ? "Licencias & Software" : "General") 
+                  const isDig = p.lt === "digital" || /adobe|autodesk|windows|office|microsoft|licencia|antivirus|canva|capcut|suscripci[oó]n|streaming|spotify|netflix|vpn/i.test((p.n || "") + " " + (p.sku || ""));
+                  const cleanCat = (!rawCat || rawCat.toLowerCase() === "undefined" || rawCat.toLowerCase() === "null") 
+                    ? (isDig || this.activePreset === "tech" || this.activePreset === "digital" ? "Licencias & Software" : "General") 
                     : rawCat;
-                  const isDig = p.lt === "digital" || (p.n && /licencia|adobe|office|antivirus|windows|canva|spotify|netflix/i.test(p.n));
-                  return {
+                  const cleanDesc = (p.d && (p.d.includes("registro inicial") || p.d.trim() === "Producto publicado durante el registro inicial.")) ? "" : (p.d || "");
+                  return this.migrateProduct({
                     id: p.id || ("p_" + Math.random().toString(36).substr(2, 6)),
                     sku: p.sku || "",
                     name: p.n || "Producto",
@@ -1402,7 +1423,7 @@ const AppState = {
                     listingType: isDig ? "digital" : (p.lt || "item"),
                     condition: p.con || "",
                     location: p.loc || "",
-                    desc: p.d || "",
+                    desc: cleanDesc,
                     img: imgs[0] || p.img || "",
                     images: imgs,
                     specs: Array.isArray(p.sp) ? p.sp : [],
@@ -1411,7 +1432,7 @@ const AppState = {
                     colors: p.co || [],
                     promo: !!p.pro,
                     available: true
-                  };
+                  });
                 });
               }
               this.initCategories();
@@ -1444,7 +1465,7 @@ const AppState = {
               const sData = JSON.parse(cachedStore);
               if (sData && (sData.config || sData.name)) {
                 this.shopConfig = { ...sData.config, name: sData.name || sData.config?.name || targetSlug };
-                this.products = Array.isArray(sData.products) ? [...sData.products] : [];
+                this.products = (Array.isArray(sData.products) ? [...sData.products] : []).map(p => this.migrateProduct(p));
                 this.categories = Array.isArray(sData.categories) ? [...sData.categories] : [];
                 if (sData.preset) this.activePreset = sData.preset;
                 this.isViewingRemoteCatalog = true;
@@ -1461,7 +1482,7 @@ const AppState = {
             const match = (this.storesList || []).find(s => s.slug === targetSlug || s.id === targetSlug);
             if (match) {
               this.shopConfig = { ...match.config, name: match.name || match.config?.name || targetSlug };
-              this.products = Array.isArray(match.products) ? [...match.products] : [];
+              this.products = (Array.isArray(match.products) ? [...match.products] : []).map(p => this.migrateProduct(p));
               this.categories = Array.isArray(match.categories) ? [...match.categories] : [];
               if (match.preset) this.activePreset = match.preset;
               this.isViewingRemoteCatalog = true;
@@ -1475,7 +1496,7 @@ const AppState = {
             if (matchedPreset) {
               this.isViewingRemoteCatalog = true;
               this.shopConfig = { ...matchedPreset.config };
-              this.products = [ ...matchedPreset.products ];
+              this.products = [...matchedPreset.products].map(p => this.migrateProduct(p));
               loaded = true;
             }
           }
@@ -1602,23 +1623,25 @@ const AppState = {
     if (!this.categories || this.categories.length === 0) {
       this.initCategories();
     }
-    // Filtrar categorías con nombre inválido o 'undefined'
+    // Filtrar categorías con nombre inválido o 'undefined' o 'null'
     this.categories = (this.categories || []).filter(c => {
-      const n = typeof c === "string" ? c.trim() : (c && c.name ? c.name.trim() : "");
-      return n && n.toLowerCase() !== "undefined";
+      const n = typeof c === "string" ? c.trim() : (c && c.name ? String(c.name).trim() : "");
+      return n && n.toLowerCase() !== "undefined" && n.toLowerCase() !== "null" && n.toLowerCase() !== "[object object]";
     });
 
     // Sanitizar productos y registrar cualquier categoría nueva que tengan
     (this.products || []).forEach(p => {
-      if (!p.category || p.category === "undefined" || p.category.trim() === "") {
-        p.category = (this.activePreset === "tech" || this.activePreset === "digital") ? "Licencias & Software" : "General";
+      this.migrateProduct(p);
+      const catName = (p.category || "").trim();
+      if (!catName || catName.toLowerCase() === "undefined" || catName.toLowerCase() === "null") {
+        p.category = (p.listingType === "digital" || this.activePreset === "tech" || this.activePreset === "digital") ? "Licencias & Software" : "General";
       }
-      const catName = p.category.trim();
-      if (!this.categories.some(c => (typeof c === "string" ? c : c.name).toLowerCase() === catName.toLowerCase())) {
+      const finalCat = p.category.trim();
+      if (!this.categories.some(c => (typeof c === "string" ? c : (c.name || "")).toLowerCase() === finalCat.toLowerCase())) {
         this.categories.push({
           id: "cat_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4),
-          name: catName,
-          icon: CustomerUI.getCategoryIcon(catName)
+          name: finalCat,
+          icon: CustomerUI.getCategoryIcon(finalCat)
         });
       }
     });
@@ -1626,16 +1649,20 @@ const AppState = {
     // Calcular conteo reactivo de productos para cada categoría registrada
     return (this.categories || [])
       .map(c => {
-        const cName = (typeof c === "string" ? c : c.name).trim();
+        const cName = (typeof c === "string" ? c : (c && c.name ? c.name : "")).trim();
+        if (!cName || cName.toLowerCase() === "undefined" || cName.toLowerCase() === "null") return null;
         const count = this.products.filter(p => (p.category || "").trim().toLowerCase() === cName.toLowerCase()).length;
+        const rawLabel = (c && c.label && typeof c.label === "string") ? c.label.trim() : "";
+        const cleanLabel = (rawLabel && rawLabel.toLowerCase() !== "undefined" && rawLabel.toLowerCase() !== "null") ? rawLabel : cName;
         return {
           id: c.id || ("cat_" + cName),
           name: cName,
-          label: (c.label && c.label.toLowerCase() !== "undefined") ? c.label.trim() : cName,
-          icon: c.icon || CustomerUI.getCategoryIcon(cName),
+          label: cleanLabel,
+          icon: (c && c.icon) || CustomerUI.getCategoryIcon(cName),
           count
         };
-      });
+      })
+      .filter(Boolean);
   },
 
   addCategory(rawName, rawIcon) {
@@ -2238,9 +2265,10 @@ const StudioController = {
     this.renderTopStatus();
     this.renderCategoryFilters();
     this.renderProductsList();
-    this.populateSettingsTab();
-    this.updateVariantInputLabels();
+    this.populateStoreTab();
+    this.populatePaymentsTab();
     this.renderStoresTab();
+    this.renderStoreDropdown();
 
     const nameDisplay = document.getElementById("studio-store-name-display");
     if (nameDisplay) nameDisplay.textContent = AppState.shopConfig.name || "Mi Tienda";
@@ -2363,27 +2391,227 @@ const StudioController = {
     Toast.show("Código QR de Yape eliminado", "ℹ️");
   },
 
+  toggleStoreDropdown(e) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    const dropdown = document.getElementById("store-switcher-dropdown");
+    if (!dropdown) return;
+    const isClosed = dropdown.classList.contains("hidden");
+    if (isClosed) {
+      this.renderStoreDropdown();
+      dropdown.classList.remove("hidden");
+      dropdown.setAttribute("aria-hidden", "false");
+    } else {
+      this.closeStoreDropdown();
+    }
+  },
+
+  closeStoreDropdown() {
+    const dropdown = document.getElementById("store-switcher-dropdown");
+    if (dropdown) {
+      dropdown.classList.add("hidden");
+      dropdown.setAttribute("aria-hidden", "true");
+    }
+  },
+
+  renderStoreDropdown() {
+    const list = document.getElementById("dropdown-stores-list");
+    const countEl = document.getElementById("dropdown-stores-count");
+    if (!list) return;
+
+    if (!AppState.storesList) AppState.initStores();
+    const currentSlug = AppState.getStoreSlug();
+    if (countEl) countEl.textContent = AppState.storesList.length;
+
+    list.innerHTML = AppState.storesList.map(store => {
+      const isActive = store.slug === currentSlug || store.id === AppState.currentStoreId;
+      const prodCount = Array.isArray(store.products) ? store.products.length : 0;
+      const logoUrl = store.config?.logoUrl || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=120&q=80";
+      const nicheLabel = getNicheLabelEs(store.preset || store.config?.niche || "general");
+      const canDelete = AppState.storesList.length > 1 && !isActive;
+
+      return `
+        <div class="dropdown-store-item ${isActive ? 'active' : ''}" data-store-id="${escapeHtml(store.id)}">
+          <img src="${logoUrl}" alt="${escapeHtml(store.name)}" class="dropdown-store-logo">
+          <div class="dropdown-store-info">
+            <div class="dropdown-store-name">${escapeHtml(store.name || "Mi Tienda")}</div>
+            <div class="dropdown-store-meta">${escapeHtml(nicheLabel)} • ${prodCount} ${prodCount === 1 ? 'producto' : 'productos'}</div>
+          </div>
+          ${isActive ? `<span class="dropdown-store-check" title="Tienda activa">✓</span>` : ''}
+          ${canDelete ? `
+            <button type="button" class="dropdown-store-delete-btn" data-delete-store-id="${escapeHtml(store.id)}" title="Eliminar tienda secundaria">
+              🗑️
+            </button>
+          ` : ''}
+        </div>
+      `;
+    }).join("");
+
+    list.querySelectorAll(".dropdown-store-item").forEach(item => {
+      item.addEventListener("click", (e) => {
+        if (e.target.closest(".dropdown-store-delete-btn")) return;
+        const storeId = item.getAttribute("data-store-id");
+        this.closeStoreDropdown();
+        AppState.switchStore(storeId);
+      });
+    });
+
+    list.querySelectorAll(".dropdown-store-delete-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const delId = btn.getAttribute("data-delete-store-id");
+        const targetStore = AppState.storesList.find(s => s.id === delId);
+        if (!targetStore) return;
+        if (confirm(`¿Eliminar la tienda "${targetStore.name}"? Esta acción no se puede deshacer.`)) {
+          AppState.storesList = AppState.storesList.filter(s => s.id !== delId);
+          AppState.saveStoresList();
+          try { localStorage.removeItem("tiendazap_store_" + targetStore.slug); } catch(err){}
+          this.renderStoreDropdown();
+          Toast.show(`Tienda "${targetStore.name}" eliminada`, "🗑️");
+        }
+      });
+    });
+  },
+
   switchStudioTab(tabKey) {
-    document.querySelectorAll(".studio-tab-btn, .studio-bottom-nav-btn").forEach(btn => {
+    if (tabKey === "stores" || tabKey === "settings") tabKey = "store";
+
+    document.querySelectorAll(".studio-bottom-nav-btn").forEach(btn => {
       btn.classList.toggle("active", btn.getAttribute("data-tab") === tabKey);
     });
 
+    const viewStore = document.getElementById("view-store");
     const viewProducts = document.getElementById("view-products");
+    const viewPayments = document.getElementById("view-payments");
     const viewStores = document.getElementById("view-stores");
     const viewSettings = document.getElementById("view-settings");
     const viewCloud = document.getElementById("view-cloud");
 
+    if (viewStore) viewStore.classList.toggle("hidden", tabKey !== "store");
     if (viewProducts) viewProducts.classList.toggle("hidden", tabKey !== "products");
-    if (viewStores) viewStores.classList.toggle("hidden", tabKey !== "stores");
-    if (viewSettings) viewSettings.classList.toggle("hidden", tabKey !== "settings");
-    if (viewCloud) viewCloud.classList.toggle("hidden", tabKey !== "cloud");
+    if (viewPayments) viewPayments.classList.toggle("hidden", tabKey !== "payments");
+    if (viewStores) viewStores.classList.add("hidden");
+    if (viewSettings) viewSettings.classList.add("hidden");
+    if (viewCloud) viewCloud.classList.add("hidden");
 
-    if (tabKey === "stores") {
-      this.renderStoresTab();
+    if (tabKey === "store") {
+      this.populateStoreTab();
     } else if (tabKey === "products") {
-      this.renderProductsList();
       this.renderCategoryFilters();
+      this.renderProductsList();
+    } else if (tabKey === "payments") {
+      this.populatePaymentsTab();
     }
+  },
+
+  populateStoreTab() {
+    const cleanUrl = QRGenerator.getCleanDisplayUrl();
+    const displayUrlEl = document.getElementById("store-clean-display-url");
+    if (displayUrlEl) displayUrlEl.textContent = cleanUrl;
+
+    const bannerEl = document.getElementById("settings-banner-preview");
+    const logoEl = document.getElementById("settings-logo-preview");
+    const nameInput = document.getElementById("live-store-name");
+    const taglineInput = document.getElementById("live-store-tagline");
+    const slugInput = document.getElementById("settings-slug-input") || document.getElementById("settings-store-slug");
+
+    if (bannerEl && AppState.shopConfig.bannerUrl) bannerEl.src = AppState.shopConfig.bannerUrl;
+    if (logoEl && AppState.shopConfig.logoUrl) logoEl.src = AppState.shopConfig.logoUrl;
+    if (nameInput) nameInput.value = AppState.shopConfig.name || "";
+    if (taglineInput) taglineInput.value = AppState.shopConfig.tagline || "";
+    if (slugInput) slugInput.value = AppState.getStoreSlug();
+
+    document.querySelectorAll(".niche-card-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.getAttribute("data-niche") === AppState.activePreset);
+    });
+  },
+
+  populatePaymentsTab() {
+    const phoneInput = document.getElementById("settings-phone");
+    const currSelect = document.getElementById("settings-currency");
+    const yapeToggle = document.getElementById("settings-yape-toggle") || document.getElementById("settings-yape-enabled");
+    const yapeFields = document.getElementById("settings-yape-fields");
+    const yapePhone = document.getElementById("settings-yape-phone");
+    const yapeName = document.getElementById("settings-yape-name");
+    const deliveryCost = document.getElementById("settings-delivery-cost");
+    const deliveryTime = document.getElementById("settings-delivery-time");
+    const yapePreview = document.getElementById("settings-yape-qr-preview");
+    const yapePlaceholder = document.getElementById("settings-yape-qr-placeholder");
+    const removeYapeBtn = document.getElementById("remove-yape-qr-btn");
+
+    if (phoneInput) phoneInput.value = AppState.shopConfig.phone || "";
+    if (currSelect) currSelect.value = AppState.shopConfig.currency || "S/";
+    if (yapeToggle) {
+      yapeToggle.checked = AppState.shopConfig.yapeEnabled !== false;
+      if (yapeFields) yapeFields.classList.toggle("hidden", !yapeToggle.checked);
+    }
+    if (yapePhone) yapePhone.value = AppState.shopConfig.yapePhone || "";
+    if (yapeName) yapeName.value = AppState.shopConfig.yapeName || "";
+    if (deliveryCost) deliveryCost.value = AppState.shopConfig.deliveryCost ?? 0;
+    if (deliveryTime) deliveryTime.value = AppState.shopConfig.deliveryTime || "";
+
+    if (yapePreview && yapePlaceholder) {
+      if (AppState.shopConfig.yapeQrUrl) {
+        yapePreview.src = AppState.shopConfig.yapeQrUrl;
+        yapePreview.classList.remove("hidden");
+        yapePlaceholder.classList.add("hidden");
+        if (removeYapeBtn) removeYapeBtn.classList.remove("hidden");
+      } else {
+        yapePreview.classList.add("hidden");
+        yapePlaceholder.classList.remove("hidden");
+        if (removeYapeBtn) removeYapeBtn.classList.add("hidden");
+      }
+    }
+  },
+
+  saveStoreIdentity() {
+    const nameInp = document.getElementById("live-store-name");
+    const tagInp = document.getElementById("live-store-tagline");
+    const slugInp = document.getElementById("settings-slug-input") || document.getElementById("settings-store-slug");
+
+    if (nameInp && nameInp.value.trim()) {
+      AppState.shopConfig.name = nameInp.value.trim();
+    }
+    if (tagInp) {
+      AppState.shopConfig.tagline = tagInp.value.trim();
+    }
+    if (slugInp && slugInp.value.trim()) {
+      AppState.shopConfig.storeSlug = slugifyStoreName(slugInp.value.trim());
+    }
+
+    AppState.saveConfig();
+    this.populateStoreTab();
+    CustomerUI.renderStoreHeader();
+    Toast.show("Identidad y enlace de tu tienda guardados", "🏪");
+  },
+
+  savePaymentsSettings() {
+    const phone = document.getElementById("settings-phone")?.value.trim() || AppState.shopConfig.phone;
+    const currency = document.getElementById("settings-currency")?.value.trim() || "S/";
+    const deliveryCost = parseFloat(document.getElementById("settings-delivery-cost")?.value) || 0;
+    const deliveryTime = document.getElementById("settings-delivery-time")?.value.trim() || "24-48h";
+
+    const yapeToggle = document.getElementById("settings-yape-toggle") || document.getElementById("settings-yape-enabled");
+    const yapeEnabled = yapeToggle ? yapeToggle.checked : true;
+    const yapePhone = document.getElementById("settings-yape-phone")?.value.trim() || "";
+    const yapeName = document.getElementById("settings-yape-name")?.value.trim() || "";
+
+    AppState.shopConfig.phone = phone;
+    AppState.shopConfig.currency = currency;
+    AppState.shopConfig.deliveryCost = deliveryCost;
+    AppState.shopConfig.deliveryTime = deliveryTime;
+    AppState.shopConfig.yapeEnabled = yapeEnabled;
+    AppState.shopConfig.yapePhone = yapePhone;
+    AppState.shopConfig.yapeName = yapeName;
+
+    AppState.saveConfig();
+    this.renderProductsList();
+    CustomerUI.renderStoreHeader();
+    CustomerUI.renderProductCards();
+    CustomerUI.renderYapeCheckoutBox();
+    Toast.show("Ajustes de cobros y envíos guardados", "💳");
   },
 
   renderStoresTab() {
@@ -2827,24 +3055,20 @@ const StudioController = {
           </div>
 
           <div class="apple-prod-info">
-            <div class="apple-prod-header-line">
-              <h4 class="apple-prod-title action-open-edit" data-prod-id="${escapeHtml(p.id)}" style="cursor: pointer;">${escapeHtml(p.name)}</h4>
-              <div style="display: flex; gap: 4px; align-items: center;">
-                ${skuTag}
-                ${promoBadge}
-              </div>
-            </div>
+            <h4 class="apple-prod-title action-open-edit" data-prod-id="${escapeHtml(p.id)}" style="cursor: pointer;">${escapeHtml(p.name)}</h4>
 
-            <div class="apple-prod-meta">
-              <span>${escapeHtml(p.category || "")}</span>
-              ${(p.sizes && p.sizes.length > 0) ? ` • ${p.sizes.length} opciones` : ''}
+            <div class="apple-prod-meta-line">
+              <span class="apple-prod-meta-cat">${escapeHtml(p.category || "General")}</span>
+              ${skuTag}
+              ${promoBadge}
+              ${(p.sizes && p.sizes.length > 0) ? `<span class="apple-prod-variant-hint">• ${p.sizes.length} opciones</span>` : ''}
             </div>
 
             <div class="apple-prod-controls-row">
               <!-- Píldora de Modificación de Precio Apple -->
               <button type="button" class="apple-price-chip action-quick-price" data-prod-id="${escapeHtml(p.id)}" title="Toca para cambiar precio">
                 <span>${currency} ${Number(p.price).toFixed(2)}</span>
-                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                 </svg>
@@ -2858,26 +3082,22 @@ const StudioController = {
                 <span>${isAvailable ? 'Activo' : 'Agotado'}</span>
               </button>
 
-              <!-- Acciones Rápidas Vectoriales -->
-              <div class="apple-prod-actions">
-                <button type="button" class="apple-icon-btn action-copy-link" data-prod-id="${escapeHtml(p.id)}" title="Copiar enlace directo">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                  </svg>
-                </button>
-                <button type="button" class="apple-icon-btn action-open-edit" data-prod-id="${escapeHtml(p.id)}" title="Editar">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
-                  </svg>
-                </button>
-                <button type="button" class="apple-icon-btn danger action-delete-prod" data-prod-id="${escapeHtml(p.id)}" title="Eliminar">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                  </svg>
-                </button>
-              </div>
+              <!-- Botón Explícito de Editar -->
+              <button type="button" class="apple-btn-explicit-edit action-open-edit" data-prod-id="${escapeHtml(p.id)}" title="Editar detalles, fotos y ficha">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                <span>Editar</span>
+              </button>
+
+              <!-- Eliminar producto -->
+              <button type="button" class="apple-icon-btn danger action-delete-prod" data-prod-id="${escapeHtml(p.id)}" title="Eliminar producto">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
             </div>
           </div>
         </article>
@@ -3472,8 +3692,16 @@ const CustomerUI = {
     }
 
     const nicheInfo = NICHE_DATA[AppState.activePreset] || NICHE_DATA.general;
-    const isDigital = AppState.activePreset === "digital" || AppState.activePreset === "tech" || AppState.shopConfig.niche === "tech" || (AppState.products.length > 0 && AppState.products.every(p => p.listingType === "digital"));
+    const isDigital = AppState.activePreset === "digital" || AppState.activePreset === "tech" || AppState.shopConfig.niche === "tech" || (AppState.products.length > 0 && AppState.products.some(p => p.listingType === "digital" || /licencia|adobe|autodesk|windows|office|microsoft|antivirus|canva|capcut|spotify|netflix|vpn/i.test((p.name || "") + " " + (p.sku || ""))));
     const isVehicle = AppState.activePreset === "vehicles" || AppState.shopConfig.niche === "vehicles" || (AppState.products.length > 0 && AppState.products.every(p => p.listingType === "vehicle"));
+
+    if (taglineEl) {
+      if (isDigital && (!shop.tagline || shop.tagline.includes("contraentrega") || shop.tagline.includes("Catálogo y pedidos") || shop.tagline.includes("favoritos en tendencia"))) {
+        taglineEl.textContent = "Licencias originales con activación inmediata y soporte directo por WhatsApp ⚡💻";
+      } else {
+        taglineEl.textContent = shop.tagline || "Catálogo y pedidos directos por WhatsApp";
+      }
+    }
 
     if (deliveryTimePill) {
       if (isDigital) {
@@ -3605,17 +3833,24 @@ const CustomerUI = {
 
   getCategories() {
     (AppState.products || []).forEach(p => {
-      if (!p.category || p.category === "undefined" || p.category.trim() === "") {
-        p.category = "General";
+      AppState.migrateProduct(p);
+      const c = (p.category || "").trim().toLowerCase();
+      if (!c || c === "undefined" || c === "null" || c === "[object object]") {
+        p.category = (p.listingType === "digital" || AppState.activePreset === "tech" || AppState.activePreset === "digital") ? "Licencias & Software" : "General";
       }
     });
 
     const list = AppState.getCategoriesList() || [];
     const validCats = list
-      .filter(c => c && c.name && c.name.toLowerCase() !== "undefined" && c.name.trim() !== "" && c.count > 0)
+      .filter(c => {
+        if (!c || !c.name) return false;
+        const n = String(c.name).trim().toLowerCase();
+        return n !== "" && n !== "undefined" && n !== "null" && n !== "[object object]" && c.count > 0;
+      })
       .map(c => {
-        const cleanName = c.name.trim();
-        const cleanLabel = (c.label && c.label.toLowerCase() !== "undefined") ? c.label.trim() : cleanName;
+        const cleanName = String(c.name).trim();
+        const rawLabel = (c.label && String(c.label).trim()) || cleanName;
+        const cleanLabel = (rawLabel.toLowerCase() !== "undefined" && rawLabel.toLowerCase() !== "null") ? rawLabel : cleanName;
         return {
           ...c,
           name: cleanName,
@@ -3654,10 +3889,11 @@ const CustomerUI = {
   },
 
   buildProductCardHtml(p, defaultCurrency) {
+    AppState.migrateProduct(p);
     const isAvailable = p.available !== false;
     const hasVariants = (p.sizes && p.sizes.length > 0) || (p.colors && p.colors.length > 0);
     const isVehicle = p.listingType === "vehicle" || p.listingType === "property";
-    const isDigital = p.listingType === "digital" || AppState.activePreset === "tech" || AppState.activePreset === "digital" || /licencia|adobe|office|antivirus|windows|canva|spotify|netflix/i.test(p.name);
+    const isDigital = p.listingType === "digital" || AppState.activePreset === "tech" || AppState.activePreset === "digital" || /licencia|adobe|autodesk|office|antivirus|windows|microsoft|canva|capcut|spotify|netflix|vpn/i.test((p.name || "") + " " + (p.sku || ""));
     const prodCurrency = p.currency || defaultCurrency;
     const photosCount = (Array.isArray(p.images) && p.images.length > 0) ? p.images.length : (p.img ? 1 : 0);
 
@@ -3670,6 +3906,8 @@ const CustomerUI = {
       if (p.location) quickSpecs.push(p.location);
     }
 
+    const cleanDesc = (p.desc || "").trim();
+    const hasValidDesc = cleanDesc && !cleanDesc.toLowerCase().includes("registro inicial");
     const formattedPrice = Number(p.price).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
     return `
@@ -3691,9 +3929,9 @@ const CustomerUI = {
               <div class="product-specs-quick-pills">
                 ${quickSpecs.map(sp => `<span class="quick-spec-pill">${escapeHtml(sp)}</span>`).join("")}
               </div>
-            ` : `
-              <p class="product-desc">${escapeHtml(p.desc || "")}</p>
-            `}
+            ` : hasValidDesc ? `
+              <p class="product-desc">${escapeHtml(cleanDesc)}</p>
+            ` : ""}
           </div>
 
           <div class="product-bottom-row">
@@ -3875,6 +4113,9 @@ const CustomerUI = {
     }
 
     // 2. Badges de Marketplace (Condición, Ubicación, Tipo)
+    const isDigitalProd = product.listingType === "digital" || AppState.activePreset === "tech" || AppState.activePreset === "digital" || /licencia|adobe|autodesk|office|antivirus|windows|microsoft|canva|capcut|spotify|netflix|vpn/i.test((product.name || "") + " " + (product.sku || ""));
+    const isVehicleProd = product.listingType === "vehicle" || product.listingType === "property";
+
     const condBadge = document.getElementById("detail-condition-badge");
     const locBadge = document.getElementById("detail-location-badge");
     const listBadge = document.getElementById("detail-listing-badge");
@@ -3895,11 +4136,12 @@ const CustomerUI = {
       }
     }
     if (listBadge) {
-      const typeIcons = { vehicle: "🚗 Vehículo", digital: "⚡ Digital", property: "🏠 Inmueble", item: "🛍️ Artículo" };
-      listBadge.textContent = typeIcons[product.listingType] || "🛍️ Artículo";
+      const typeIcons = { vehicle: "🚗 Vehículo", digital: "⚡ Licencia / Digital", property: "🏠 Inmueble", item: "🛍️ Artículo" };
+      listBadge.textContent = isDigitalProd ? "⚡ Licencia / Digital" : (typeIcons[product.listingType] || "🛍️ Artículo");
+      listBadge.classList.remove("hidden");
     }
 
-    if (catEl) catEl.textContent = product.category;
+    if (catEl) catEl.textContent = product.category || (isDigitalProd ? "Licencias & Software" : "General");
     if (promoBadge) {
       if (product.promo) promoBadge.classList.remove("hidden");
       else promoBadge.classList.add("hidden");
@@ -3907,16 +4149,26 @@ const CustomerUI = {
     if (titleEl) {
       titleEl.innerHTML = `${escapeHtml(product.name)} ${product.sku ? `<small style="font-size:0.75rem; color:var(--accent-gold); display:block;">REF: ${escapeHtml(product.sku)}</small>` : ''}`;
     }
-    if (descEl) descEl.textContent = product.desc || "";
+
+    const cleanDesc = (product.desc || "").trim();
+    if (descEl) {
+      if (!cleanDesc || cleanDesc.toLowerCase().includes("registro inicial")) {
+        descEl.textContent = "";
+        descEl.classList.add("hidden");
+      } else {
+        descEl.textContent = cleanDesc;
+        descEl.classList.remove("hidden");
+      }
+    }
     if (qtyValEl) qtyValEl.textContent = AppState.modalQuantity;
 
     const noteLabel = document.getElementById("modal-product-note-label");
-    const isDigitalProd = product.listingType === "digital" || AppState.activePreset === "tech" || AppState.activePreset === "digital" || /licencia|adobe|office|antivirus|windows|canva|spotify|netflix/i.test(product.name);
-    const isVehicleProd = product.listingType === "vehicle" || product.listingType === "property";
-
     if (noteInput) {
       noteInput.value = "";
       if (isDigitalProd) {
+        if (noteLabel) noteLabel.textContent = "Correo o WhatsApp para entrega de activación (opcional):";
+        noteInput.placeholder = "ej: tu-correo@gmail.com para enviarte la clave de activación";
+      } else if (isVehicleProd) {
         if (noteLabel) noteLabel.textContent = "Correo o WhatsApp para entrega digital (opcional):";
         noteInput.placeholder = "ej: tu-correo@gmail.com para enviarte el acceso";
       } else if (isVehicleProd) {
@@ -5003,10 +5255,27 @@ const Toast = {
 };
 
 // ============================================================================
+// 12.5 EXPORTACIÓN GLOBAL INMEDIATA
+// ============================================================================
+window.AppState = AppState;
+window.ViewController = ViewController;
+window.StudioController = StudioController;
+window.CustomerUI = CustomerUI;
+window.CartController = CartController;
+window.OnboardingWizard = OnboardingWizard;
+window.QRGenerator = QRGenerator;
+window.ImageOptimizer = ImageOptimizer;
+window.Toast = Toast;
+
+// ============================================================================
 // 13. REGISTRO DE EVENTOS & ARRANQUE
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
-  AppState.init();
+  try {
+    AppState.init();
+  } catch (err) {
+    console.error("Error en AppState.init:", err);
+  }
 
   // 1. Switch de Vista Previa vs Studio
   const openPreviewBtn = document.getElementById("open-preview-btn");
@@ -6146,19 +6415,86 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Store Switcher Trigger -> Tab Tiendas
+  // 1. Store Switcher Trigger -> Menú Desplegable Flotante
   const storeSwitcherTrigger = document.getElementById("store-switcher-trigger");
   if (storeSwitcherTrigger) {
-    storeSwitcherTrigger.addEventListener("click", () => {
-      StudioController.switchStudioTab("stores");
+    storeSwitcherTrigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      StudioController.toggleStoreDropdown(e);
     });
   }
 
-  // Studio Edit Store Btn -> Tab Ajustes
+  // Cerrar dropdown al hacer click fuera
+  document.addEventListener("click", (e) => {
+    const dropdown = document.getElementById("store-switcher-dropdown");
+    const trigger = document.getElementById("store-switcher-trigger");
+    if (dropdown && !dropdown.classList.contains("hidden")) {
+      if (!dropdown.contains(e.target) && !trigger?.contains(e.target)) {
+        StudioController.closeStoreDropdown();
+      }
+    }
+  });
+
+  // Botón Crear nueva tienda dentro del desplegable
+  const dropdownCreateBtn = document.getElementById("dropdown-create-store-btn");
+  if (dropdownCreateBtn) {
+    dropdownCreateBtn.addEventListener("click", () => {
+      StudioController.closeStoreDropdown();
+      const modal = document.getElementById("create-store-modal");
+      if (modal) modal.classList.remove("hidden");
+    });
+  }
+
+  // 2. Botones de Difusión en Pestaña 1 (Mi Tienda)
+  const storeCopyLinkBtn = document.getElementById("store-copy-link-btn");
+  if (storeCopyLinkBtn) storeCopyLinkBtn.addEventListener("click", copyStoreLinkAction);
+
+  const storeShareBtn = document.getElementById("store-share-btn");
+  if (storeShareBtn) {
+    storeShareBtn.addEventListener("click", () => {
+      const url = QRGenerator.getTargetUrl();
+      const shareText = `🛍️ *Catálogo Oficial de ${AppState.shopConfig.name}*\n🔒 Enlace seguro: ${url}`;
+      if (navigator.share) {
+        navigator.share({
+          title: `Catálogo Oficial de ${AppState.shopConfig.name}`,
+          text: shareText,
+          url: url
+        }).catch(() => copyStoreLinkAction());
+      } else {
+        copyStoreLinkAction();
+      }
+    });
+  }
+
+  const storeOpenQrBtn = document.getElementById("store-open-qr-btn");
+  if (storeOpenQrBtn) storeOpenQrBtn.addEventListener("click", () => QRGenerator.openQRModal());
+
+  const btnCopyPortable = document.getElementById("btn-copy-portable-link");
+  if (btnCopyPortable) {
+    btnCopyPortable.addEventListener("click", () => {
+      const portableUrl = QRGenerator.getTargetUrl(false, true);
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(portableUrl).then(() => {
+          Toast.show("Enlace portátil con catálogo completo copiado", "📤");
+        }).catch(() => prompt("Enlace portátil de tu tienda:", portableUrl));
+      } else {
+        prompt("Enlace portátil de tu tienda:", portableUrl);
+      }
+    });
+  }
+
+  // 3. Botones Guardar en Pestaña 1 y Pestaña 3
+  const saveStoreBtn = document.getElementById("save-store-btn");
+  if (saveStoreBtn) saveStoreBtn.addEventListener("click", () => StudioController.saveStoreIdentity());
+
+  const savePaymentsBtn = document.getElementById("save-payments-btn");
+  if (savePaymentsBtn) savePaymentsBtn.addEventListener("click", () => StudioController.savePaymentsSettings());
+
+  // Studio Edit Store Btn -> Tab Mi Tienda
   const studioEditStoreBtn = document.getElementById("studio-edit-store-btn");
   if (studioEditStoreBtn) {
     studioEditStoreBtn.addEventListener("click", () => {
-      StudioController.switchStudioTab("settings");
+      StudioController.switchStudioTab("store");
     });
   }
 

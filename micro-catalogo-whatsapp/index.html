@@ -130,10 +130,29 @@
       <!-- Cabecera Compacta del Administrador (< 120px de alto) -->
       <header class="studio-compact-header">
         <div class="studio-header-top-row">
-          <div class="studio-store-pill-dropdown" id="store-switcher-trigger" title="Cambiar o ver tiendas">
-            <img id="admin-logo-preview" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=120&q=80" alt="Logo" class="studio-mini-logo">
-            <span class="studio-header-store-name" id="studio-store-name-display">Mi Tienda</span>
-            <svg class="dropdown-arrow-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          <div class="studio-store-pill-dropdown-wrap">
+            <div class="studio-store-pill-dropdown" id="store-switcher-trigger" title="Cambiar o ver tiendas">
+              <img id="admin-logo-preview" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=120&q=80" alt="Logo" class="studio-mini-logo">
+              <span class="studio-header-store-name" id="studio-store-name-display">Mi Tienda</span>
+              <svg class="dropdown-arrow-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+
+            <!-- Menú Desplegable Flotante Elegante de Tiendas -->
+            <div id="store-switcher-dropdown" class="store-switcher-dropdown-menu hidden" aria-hidden="true">
+              <div class="dropdown-menu-header">
+                <span class="dropdown-menu-title">Tus Tiendas</span>
+                <span class="dropdown-stores-count" id="dropdown-stores-count">1</span>
+              </div>
+              <div class="dropdown-stores-list" id="dropdown-stores-list">
+                <!-- Generado dinámicamente -->
+              </div>
+              <div class="dropdown-menu-footer">
+                <button type="button" id="dropdown-create-store-btn" class="dropdown-btn-create">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  <span>+ Crear nueva tienda</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <div class="studio-header-right-actions">
@@ -149,25 +168,9 @@
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                 <circle cx="12" cy="12" r="3"/>
               </svg>
-              <span>Ver tienda</span>
+              <span>Ver vitrina</span>
             </button>
           </div>
-        </div>
-
-        <!-- Barra compacta de acciones rápidas (Copiar enlace | QR | Editar tienda) -->
-        <div class="studio-compact-actions-row">
-          <button type="button" id="studio-copy-link-btn" class="studio-pill-action-btn" title="Copiar enlace del catálogo para clientes">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-            <span>Copiar enlace</span>
-          </button>
-          <button type="button" id="studio-open-qr-btn" class="studio-pill-action-btn" title="Ver código QR para imprimir o mostrar">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-            <span>Código QR</span>
-          </button>
-          <button type="button" id="studio-edit-store-btn" class="studio-pill-action-btn" title="Editar fotos, nombre y datos de la tienda">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            <span>Editar tienda</span>
-          </button>
         </div>
       </header>
 
@@ -175,9 +178,161 @@
       <main class="studio-main-body">
 
         <!-- =============================================================
-             PESTAÑA 1: GESTOR DE PRODUCTOS & PRECIOS
+             PESTAÑA 1: MI TIENDA (ENLACE OFICIAL, IDENTIDAD & RUBRO)
              ============================================================= -->
-        <div id="view-products" class="studio-tab-view">
+        <div id="view-store" class="studio-tab-view">
+          <!-- Card Destacada: Enlace Oficial y Acciones de Difusión -->
+          <section class="settings-section-card store-link-highlight-box">
+            <div class="store-link-header-row">
+              <div class="store-link-icon-wrap">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+              </div>
+              <div class="store-link-text-wrap">
+                <span class="store-link-label">Enlace Oficial de tu Tienda</span>
+                <span class="store-link-display" id="highlight-store-url">tiendazap.pages.dev/tu-tienda</span>
+              </div>
+            </div>
+
+            <div class="store-link-actions-grid">
+              <button type="button" id="store-copy-link-btn" class="btn-store-action" title="Copiar enlace para tus clientes">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+                <span>Copiar enlace</span>
+              </button>
+              <button type="button" id="store-share-btn" class="btn-store-action" title="Compartir catálogo">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                <span>Compartir</span>
+              </button>
+              <button type="button" id="store-open-qr-btn" class="btn-store-action" title="Ver código QR para imprimir o mostrar">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span>Código QR</span>
+              </button>
+            </div>
+
+            <div style="margin-top: 10px;">
+              <button type="button" id="btn-copy-portable-link" class="btn-secondary-compact" style="width: 100%; justify-content: center; font-size: 0.74rem;">
+                📤 Generar enlace portátil con datos incluidos (#d=...)
+              </button>
+            </div>
+          </section>
+
+          <!-- Card de Identidad Visual y Diseño de la Tienda -->
+          <section class="settings-section-card">
+            <h3 class="section-card-title">Identidad y Portada de tu Tienda</h3>
+            <p class="section-card-desc">Personaliza la foto de portada, tu logo o avatar, y el nombre comercial visible para tus compradores.</p>
+
+            <!-- Banner / Portada -->
+            <div class="settings-banner-preview-box">
+              <img id="admin-banner-preview" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80" alt="Portada de tu tienda" class="settings-banner-img">
+              <button type="button" id="change-banner-btn" class="btn-secondary-compact change-banner-btn">
+                <span>📷 Cambiar Portada</span>
+              </button>
+              <input type="file" id="banner-file-input" accept="image/*" class="hidden">
+            </div>
+
+            <!-- Avatar & Nombre -->
+            <div class="settings-identity-grid">
+              <div class="settings-logo-wrap">
+                <img id="admin-logo-preview-settings" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80" alt="Logo" class="settings-logo-img">
+                <button type="button" id="change-logo-btn" class="btn-secondary-compact change-logo-btn">
+                  <span>📷 Cambiar Logo</span>
+                </button>
+                <input type="file" id="logo-file-input" accept="image/*" class="hidden">
+              </div>
+
+              <div class="settings-names-col">
+                <div class="editor-field-group">
+                  <label for="live-store-name" class="field-label-sm">Nombre comercial *</label>
+                  <input type="text" id="live-store-name" class="input-modern" placeholder="Nombre comercial de tu tienda">
+                </div>
+                <div class="editor-field-group">
+                  <label for="live-store-tagline" class="field-label-sm">Eslogan o descripción breve</label>
+                  <input type="text" id="live-store-tagline" class="input-modern" placeholder="Eslogan de tu catálogo">
+                </div>
+              </div>
+            </div>
+
+            <div class="editor-field-group" style="margin-top: 14px;">
+              <label for="settings-store-slug">🔒 Enlace Web Oficial de tu Negocio (Slug)</label>
+              <div class="slug-input-wrapper">
+                <span class="slug-domain-prefix" id="settings-slug-prefix">tiendazap.pages.dev/</span>
+                <input type="text" id="settings-store-slug" class="input-modern" placeholder="flores-vanesa">
+              </div>
+              <span class="field-hint">Tus clientes verán este nombre en su enlace seguro. Solo letras minúsculas, números y guiones.</span>
+            </div>
+          </section>
+
+          <!-- Card de Rubro Comercial WhatsApp Business -->
+          <section class="settings-section-card">
+            <h3 class="section-card-title">Rubro Comercial WhatsApp Business</h3>
+            <p class="section-card-desc">Elige el rubro de tu tienda. TiendaZap adaptará automáticamente las modalidades de entrega y sugerencias de categorías sin borrar tus productos.</p>
+            
+            <div class="niche-selector-grid">
+              <button type="button" class="niche-card-btn active" data-niche="sneakers">
+                <span class="niche-emoji">👟</span>
+                <div class="niche-meta">
+                  <strong>Zapatillas & Calzado</strong>
+                  <span>Sneakers, Urbana, Running</span>
+                </div>
+              </button>
+              <button type="button" class="niche-card-btn" data-niche="beauty">
+                <span class="niche-emoji">✨</span>
+                <div class="niche-meta">
+                  <strong>Perfumes & Belleza</strong>
+                  <span>Decants, Diseñador, Árabes</span>
+                </div>
+              </button>
+              <button type="button" class="niche-card-btn" data-niche="watches">
+                <span class="niche-emoji">⌚</span>
+                <div class="niche-meta">
+                  <strong>Relojes & Joyas</strong>
+                  <span>Automáticos, Joyería, Lentes</span>
+                </div>
+              </button>
+              <button type="button" class="niche-card-btn" data-niche="fashion">
+                <span class="niche-emoji">👖</span>
+                <div class="niche-meta">
+                  <strong>Ropa & Pantalones</strong>
+                  <span>Jeans, Polos, Casacas, Outfits</span>
+                </div>
+              </button>
+              <button type="button" class="niche-card-btn" data-niche="food">
+                <span class="niche-emoji">🍰</span>
+                <div class="niche-meta">
+                  <strong>Postres & Comida</strong>
+                  <span>Tortas, Boxes, Snacks, Burgers</span>
+                </div>
+              </button>
+              <button type="button" class="niche-card-btn" data-niche="tech">
+                <span class="niche-emoji">💻</span>
+                <div class="niche-meta">
+                  <strong>Tecnología & Licencias</strong>
+                  <span>Software, Licencias, Gadgets</span>
+                </div>
+              </button>
+              <button type="button" class="niche-card-btn" data-niche="vehicles">
+                <span class="niche-emoji">🚗</span>
+                <div class="niche-meta">
+                  <strong>Vehículos & Motos</strong>
+                  <span>Autos, SUV, Motos, Repuestos</span>
+                </div>
+              </button>
+              <button type="button" class="niche-card-btn" data-niche="general">
+                <span class="niche-emoji">🛍️</span>
+                <div class="niche-meta">
+                  <strong>Tienda General</strong>
+                  <span>Todo rubro, Multicategoría</span>
+                </div>
+              </button>
+            </div>
+
+            <button type="button" id="save-store-btn" class="btn-save-settings" style="margin-top: 14px;">Guardar Datos de Tienda</button>
+          </section>
+        </div>
+
+        <!-- =============================================================
+             PESTAÑA 2: GESTOR DE PRODUCTOS & PRECIOS
+             ============================================================= -->
+        <div id="view-products" class="studio-tab-view hidden">
           <!-- Toolbar de Acciones (Buscador + Botón Crear) -->
           <div class="products-action-toolbar">
             <div class="search-box-wrap">
@@ -363,242 +518,100 @@
           </div>
         </div>
 
-                <!-- =============================================================
-             PESTAÑA 2: GESTOR MULTI-TIENDA (TIENDAS)
-             ============================================================= -->
-        <div id="view-stores" class="studio-tab-view hidden">
-          <div class="stores-tab-header">
-            <div>
-              <h2 class="stores-tab-title">Tus Tiendas</h2>
-              <p class="stores-tab-subtitle">Administra diferentes negocios y catálogos desde el mismo celular.</p>
-            </div>
-            <button type="button" id="btn-open-create-store-modal" class="btn-primary-compact">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              <span>Nueva tienda</span>
-            </button>
-          </div>
-
-          <div id="studio-stores-list" class="stores-list-container">
-            <!-- Renderizado dinámicamente -->
-          </div>
-        </div>
-
-<!-- =============================================================
-             PESTAÑA 3: AJUSTES & DELIVERY
-             ============================================================= -->
-        <div id="view-settings" class="studio-tab-view hidden">
-          <form id="studio-settings-form">
-            <!-- Card de Identidad Visual y Diseño de la Tienda -->
-            <section class="settings-section-card">
-              <h3 class="section-card-title">Identidad y Portada de tu Tienda</h3>
-              <p class="section-card-desc">Personaliza la foto de portada, tu logo o avatar, y el nombre comercial visible para tus compradores.</p>
-
-              <!-- Banner / Portada -->
-              <div class="settings-banner-preview-box">
-                <img id="admin-banner-preview" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80" alt="Portada de tu tienda" class="settings-banner-img">
-                <button type="button" id="change-banner-btn" class="btn-secondary-compact change-banner-btn">
-                  <span>📷 Cambiar Portada</span>
-                </button>
-                <input type="file" id="banner-file-input" accept="image/*" class="hidden">
-              </div>
-
-              <!-- Avatar & Nombre -->
-              <div class="settings-identity-grid">
-                <div class="settings-logo-wrap">
-                  <img id="admin-logo-preview-settings" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80" alt="Logo" class="settings-logo-img">
-                  <button type="button" id="change-logo-btn" class="btn-secondary-compact change-logo-btn">
-                    <span>📷 Cambiar Logo</span>
-                  </button>
-                  <input type="file" id="logo-file-input" accept="image/*" class="hidden">
-                </div>
-
-                <div class="settings-names-col">
-                  <div class="editor-field-group">
-                    <label for="live-store-name" class="field-label-sm">Nombre comercial *</label>
-                    <input type="text" id="live-store-name" class="input-modern" placeholder="Nombre comercial de tu tienda">
-                  </div>
-                  <div class="editor-field-group">
-                    <label for="live-store-tagline" class="field-label-sm">Eslogan o descripción breve</label>
-                    <input type="text" id="live-store-tagline" class="input-modern" placeholder="Eslogan de tu catálogo">
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <!-- Card de Rubro Comercial WhatsApp Business -->
-            <section class="settings-section-card">
-              <h3 class="section-card-title">Rubro Comercial WhatsApp Business</h3>
-              <p class="section-card-desc">Elige el rubro de tu tienda. TiendaZap adaptará automáticamente las modalidades de entrega y sugerencias.</p>
-              
-              <div class="niche-selector-grid">
-                <button type="button" class="niche-card-btn active" data-niche="sneakers">
-                  <span class="niche-emoji">👟</span>
-                  <div class="niche-meta">
-                    <strong>Zapatillas & Calzado</strong>
-                    <span>Sneakers, Urbana, Running</span>
-                  </div>
-                </button>
-                <button type="button" class="niche-card-btn" data-niche="beauty">
-                  <span class="niche-emoji">✨</span>
-                  <div class="niche-meta">
-                    <strong>Perfumes & Belleza</strong>
-                    <span>Decants, Diseñador, Árabes</span>
-                  </div>
-                </button>
-                <button type="button" class="niche-card-btn" data-niche="watches">
-                  <span class="niche-emoji">⌚</span>
-                  <div class="niche-meta">
-                    <strong>Relojes & Joyas</strong>
-                    <span>Automáticos, Joyería, Lentes</span>
-                  </div>
-                </button>
-                <button type="button" class="niche-card-btn" data-niche="fashion">
-                  <span class="niche-emoji">👖</span>
-                  <div class="niche-meta">
-                    <strong>Ropa & Pantalones</strong>
-                    <span>Jeans, Polos, Casacas, Outfits</span>
-                  </div>
-                </button>
-                <button type="button" class="niche-card-btn" data-niche="food">
-                  <span class="niche-emoji">🍰</span>
-                  <div class="niche-meta">
-                    <strong>Postres & Comida</strong>
-                    <span>Tortas, Boxes, Snacks, Burgers</span>
-                  </div>
-                </button>
-                <button type="button" class="niche-card-btn" data-niche="tech">
-                  <span class="niche-emoji">💻</span>
-                  <div class="niche-meta">
-                    <strong>Tecnología & Licencias</strong>
-                    <span>Software, Licencias, Gadgets</span>
-                  </div>
-                </button>
-                <button type="button" class="niche-card-btn" data-niche="vehicles">
-                  <span class="niche-emoji">🚗</span>
-                  <div class="niche-meta">
-                    <strong>Vehículos & Motos</strong>
-                    <span>Autos, SUV, Motos, Repuestos</span>
-                  </div>
-                </button>
-                <button type="button" class="niche-card-btn" data-niche="general">
-                  <span class="niche-emoji">🛍️</span>
-                  <div class="niche-meta">
-                    <strong>Tienda General</strong>
-                    <span>Todo rubro, Multicategoría</span>
-                  </div>
-                </button>
-              </div>
-            </section>
-
-            <!-- Datos de WhatsApp & Moneda -->
-            <section class="settings-section-card">
-              <h3 class="section-card-title">Canal Oficial de WhatsApp & Enlace Web</h3>
-              <p class="section-card-desc">Personaliza el enlace de tu tienda y el número al que tus clientes enviarán sus pedidos.</p>
-              
-              <div class="editor-field-group">
-                <label for="settings-store-slug">🔒 Enlace Web Oficial de tu Negocio (Slug)</label>
-                <div class="slug-input-wrapper">
-                  <span class="slug-domain-prefix" id="settings-slug-prefix">tiendazap.pages.dev/</span>
-                  <input type="text" id="settings-store-slug" class="input-modern" placeholder="flores-vanesa">
-                </div>
-                <span class="field-hint">Tus clientes verán este nombre en su enlace seguro. Solo letras minúsculas, números y guiones.</span>
-                <div style="margin-top: 8px;">
-                  <button type="button" id="btn-copy-portable-link" class="btn-secondary-compact" style="width: 100%; justify-content: center; font-size: 0.75rem;">
-                    📤 Generar enlace portátil con datos incluidos (#d=...)
-                  </button>
-                </div>
-              </div>
-              
-              <div class="editor-field-group">
-                <label for="settings-phone">Número de WhatsApp (con código de país, ej: 51987654321) *</label>
-                <div class="phone-input-wrap">
-                  <span class="phone-icon">📲</span>
-                  <input type="tel" id="settings-phone" class="input-modern" placeholder="51987654321" required>
-                </div>
-                <span class="field-hint">En Perú antepón 51 (ej: 51 + 9 dígitos de celular).</span>
-              </div>
-
-              <div class="editor-field-group">
-                <label for="settings-currency">Moneda Comercial</label>
-                <select id="settings-currency" class="input-modern">
-                  <option value="S/">S/ Soles Peruanos (PEN)</option>
-                  <option value="$">$ Dólares Americanos (USD)</option>
-                  <option value="€">€ Euros (EUR)</option>
-                  <option value="MXN$">MXN$ Pesos Mexicanos</option>
-                  <option value="COP$">COP$ Pesos Colombianos</option>
-                </select>
-              </div>
-            </section>
-
-            <!-- Modalidades de Entrega Adaptativas -->
-            <section class="settings-section-card">
-              <h3 class="section-card-title">Modalidades de Entrega & Despacho</h3>
-              <p class="section-card-desc">Configura los costos y tiempos según el tipo de producto que comercializas.</p>
-
-              <div class="form-grid-2">
-                <div class="editor-field-group">
-                  <label for="settings-delivery-cost">Costo de Envío Físico (0 si es gratis o digital)</label>
-                  <input type="number" id="settings-delivery-cost" step="0.5" min="0" class="input-modern" value="0.00">
-                </div>
-                <div class="editor-field-group">
-                  <label for="settings-delivery-time">Tiempo Estimado de Entrega</label>
-                  <input type="text" id="settings-delivery-time" class="input-modern" placeholder="Ej: Entrega Inmediata / 24-48h">
-                </div>
-              </div>
-            </section>
-
-            <!-- Módulo de Cobros Yape / Plin -->
-            <section class="settings-section-card">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                  <h3 class="section-card-title">Módulo de Cobros Yape & Plin</h3>
-                  <p class="section-card-desc">Permite a tus clientes escanear tu QR y adjuntar su comprobante de pago directo en la orden.</p>
-                </div>
-                <label class="modern-switch-label">
-                  <input type="checkbox" id="settings-yape-enabled" checked>
-                  <span style="color: var(--primary);">Habilitado</span>
-                </label>
-              </div>
-
-              <div class="form-grid-2">
-                <div class="editor-field-group">
-                  <label for="settings-yape-phone">Número de Celular Yape / Plin</label>
-                  <input type="tel" id="settings-yape-phone" class="input-modern" placeholder="987654321">
-                </div>
-                <div class="editor-field-group">
-                  <label for="settings-yape-name">Titular de la Cuenta (Nombre completo)</label>
-                  <input type="text" id="settings-yape-name" class="input-modern" placeholder="Ej: Don Licencia / Juan Pérez">
-                </div>
-              </div>
-
-              <!-- Upload QR Yape -->
-              <div class="editor-field-group">
-                <label>Código QR de tu Yape / Plin (Captura)</label>
-                <div class="product-photo-upload-box" id="settings-yape-upload-box" style="height: 180px;">
-                  <img id="settings-yape-qr-preview" src="" alt="QR Yape" class="hidden" style="max-height: 100%; object-fit: contain;">
-                  <div class="photo-placeholder-content" id="settings-yape-qr-placeholder">
-                    <span class="camera-big-icon">📱</span>
-                    <span class="photo-prompt-title">Toca para adjuntar tu código QR de Yape</span>
-                    <span class="photo-prompt-sub">Sube una captura de tu app Yape o Plin</span>
-                  </div>
-                </div>
-                <input type="file" id="settings-yape-file-input" accept="image/*" class="hidden">
-                
-                <div style="display: flex; gap: 8px; margin-top: 6px;">
-                  <button type="button" id="trigger-yape-qr-btn" class="btn-alt-sm">Subir o Cambiar QR</button>
-                  <button type="button" id="remove-yape-qr-btn" class="btn-alt-sm hidden" style="color: var(--accent-red);">Eliminar QR</button>
-                </div>
-              </div>
-
-              <button type="submit" id="save-settings-btn" class="btn-save-settings">Guardar Todos los Ajustes</button>
-            </section>
-          </form>
-        </div>
+        <!-- Contenedor oculto para compatibilidad de lista de tiendas -->
+        <div id="view-stores" class="hidden"><div id="studio-stores-list"></div></div>
 
         <!-- =============================================================
-             PESTAÑA 3: NUBE & RESPALDO
+             PESTAÑA 3: COBROS Y ENVÍOS
              ============================================================= -->
-        <div id="view-cloud" class="studio-tab-view hidden">
+        <div id="view-payments" class="studio-tab-view hidden">
+          <!-- Datos de WhatsApp & Moneda -->
+          <section class="settings-section-card">
+            <h3 class="section-card-title">Canal Oficial de Pedidos por WhatsApp</h3>
+            <p class="section-card-desc">Configura el número receptor de pedidos y la moneda principal de tus cobros.</p>
+            
+            <div class="editor-field-group">
+              <label for="settings-phone">Número de WhatsApp (con código de país, ej: 51987654321) *</label>
+              <div class="phone-input-wrap">
+                <span class="phone-icon">📲</span>
+                <input type="tel" id="settings-phone" class="input-modern" placeholder="51987654321" required>
+              </div>
+              <span class="field-hint">En Perú antepón 51 (ej: 51 + 9 dígitos de celular).</span>
+            </div>
+
+            <div class="editor-field-group">
+              <label for="settings-currency">Moneda Principal</label>
+              <select id="settings-currency" class="input-modern">
+                <option value="S/">S/ Soles Peruanos (PEN)</option>
+                <option value="US$">US$ Dólares Americanos (USD)</option>
+                <option value="€">€ Euros (EUR)</option>
+                <option value="MXN$">MXN$ Pesos Mexicanos</option>
+                <option value="COP$">COP$ Pesos Colombianos</option>
+              </select>
+            </div>
+          </section>
+
+          <!-- Módulo de Cobros Yape / Plin -->
+          <section class="settings-section-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h3 class="section-card-title">Cobros con Yape & Plin</h3>
+                <p class="section-card-desc">Permite a tus clientes escanear tu QR y adjuntar su comprobante de pago directo en la orden.</p>
+              </div>
+              <label class="modern-switch-label">
+                <input type="checkbox" id="settings-yape-enabled" checked>
+                <span style="color: var(--primary);">Habilitado</span>
+              </label>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="editor-field-group">
+                <label for="settings-yape-phone">Número de Celular Yape / Plin</label>
+                <input type="tel" id="settings-yape-phone" class="input-modern" placeholder="987654321">
+              </div>
+              <div class="editor-field-group">
+                <label for="settings-yape-name">Titular de la Cuenta (Nombre completo)</label>
+                <input type="text" id="settings-yape-name" class="input-modern" placeholder="Ej: Don Licencia / Juan Pérez">
+              </div>
+            </div>
+
+            <!-- Upload QR Yape -->
+            <div class="editor-field-group">
+              <label>Código QR de tu Yape / Plin (Captura)</label>
+              <div class="product-photo-upload-box" id="settings-yape-upload-box" style="height: 180px;">
+                <img id="settings-yape-qr-preview" src="" alt="QR Yape" class="hidden" style="max-height: 100%; object-fit: contain;">
+                <div class="photo-placeholder-content" id="settings-yape-qr-placeholder">
+                  <span class="camera-big-icon">📱</span>
+                  <span class="photo-prompt-title">Toca para adjuntar tu código QR de Yape</span>
+                  <span class="photo-prompt-sub">Sube una captura de tu app Yape o Plin</span>
+                </div>
+              </div>
+              <input type="file" id="settings-yape-file-input" accept="image/*" class="hidden">
+              
+              <div style="display: flex; gap: 8px; margin-top: 6px;">
+                <button type="button" id="trigger-yape-qr-btn" class="btn-alt-sm">Subir o Cambiar QR</button>
+                <button type="button" id="remove-yape-qr-btn" class="btn-alt-sm hidden" style="color: var(--accent-red);">Eliminar QR</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Modalidades de Entrega Adaptativas -->
+          <section class="settings-section-card">
+            <h3 class="section-card-title">Modalidades de Entrega & Despacho</h3>
+            <p class="section-card-desc">Configura los costos y tiempos según el tipo de producto que comercializas.</p>
+
+            <div class="form-grid-2">
+              <div class="editor-field-group">
+                <label for="settings-delivery-cost">Costo de Envío Físico (0 si es gratis o digital)</label>
+                <input type="number" id="settings-delivery-cost" step="0.5" min="0" class="input-modern" value="0.00">
+              </div>
+              <div class="editor-field-group">
+                <label for="settings-delivery-time">Tiempo Estimado de Entrega</label>
+                <input type="text" id="settings-delivery-time" class="input-modern" placeholder="Ej: Entrega Inmediata / 24-48h">
+              </div>
+            </div>
+          </section>
+
           <!-- Google Sheet Sync -->
           <section class="cloud-card">
             <span class="cloud-badge-free">SIN BASE DE DATOS ($0 DE COSTO)</span>
@@ -640,22 +653,24 @@
               </button>
             </div>
           </section>
+
+          <button type="button" id="save-payments-btn" class="btn-save-settings">Guardar Ajustes de Cobros y Envíos</button>
         </div>
 
       </main>
-      <!-- Navegación Inferior Fija Tipo App Móvil (3 Pestañas: Productos | Tiendas | Ajustes) -->
+      <!-- Navegación Inferior Fija Tipo App Móvil (3 Pasos Lógicos: Mi Tienda | Productos | Cobros y Envíos) -->
       <nav class="studio-bottom-nav" aria-label="Navegación principal">
-        <button type="button" class="studio-bottom-nav-btn active" data-tab="products" id="tab-nav-products">
+        <button type="button" class="studio-bottom-nav-btn active" data-tab="store" id="tab-nav-store">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Mi Tienda</span>
+        </button>
+        <button type="button" class="studio-bottom-nav-btn" data-tab="products" id="tab-nav-products">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
           <span>Productos</span>
         </button>
-        <button type="button" class="studio-bottom-nav-btn" data-tab="stores" id="tab-nav-stores">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span>Tiendas</span>
-        </button>
-        <button type="button" class="studio-bottom-nav-btn" data-tab="settings" id="tab-nav-settings">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-          <span>Ajustes</span>
+        <button type="button" class="studio-bottom-nav-btn" data-tab="payments" id="tab-nav-payments">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <span>Cobros y Envíos</span>
         </button>
       </nav>
 

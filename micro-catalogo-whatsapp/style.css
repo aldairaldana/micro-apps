@@ -4390,12 +4390,31 @@ body.has-preview-bar .sticky-nav-section {
 .apple-prod-title {
   font-family: var(--font-heading);
   font-size: 0.94rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
+  margin-bottom: 3px;
+}
+
+.apple-prod-meta-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 8px;
+}
+
+.apple-prod-meta-cat {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .apple-prod-meta {
@@ -4405,12 +4424,18 @@ body.has-preview-bar .sticky-nav-section {
 }
 
 .apple-sku-pill {
-  font-size: 0.62rem;
-  padding: 1px 6px;
-  border-radius: 4px;
+  white-space: nowrap !important;
+  display: inline-block;
+  font-size: 0.64rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 5px;
   background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.7);
-  font-family: monospace;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
 }
 
 .apple-promo-pill {
@@ -4420,13 +4445,45 @@ body.has-preview-bar .sticky-nav-section {
   border-radius: 4px;
   background: rgba(255, 214, 10, 0.15);
   color: #ffd60a;
+  flex-shrink: 0;
+}
+
+.apple-prod-variant-hint {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.40);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.apple-btn-explicit-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.30);
+  border-radius: 8px;
+  color: #38bdf8;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.apple-btn-explicit-edit:hover {
+  background: rgba(56, 189, 248, 0.22);
+  border-color: #38bdf8;
+  color: #ffffff;
 }
 
 .apple-prod-controls-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 7px;
 }
 
 .apple-price-chip {
@@ -6215,3 +6272,279 @@ select option {
   flex-direction: column;
   gap: 8px;
 }
+
+/* ============================================================================
+   ESTILOS DE MENÚ DESPLEGABLE DE TIENDAS Y CARD DE ENLACE OFICIAL
+   ============================================================================ */
+.studio-store-pill-dropdown-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.store-switcher-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 290px;
+  max-width: calc(100vw - 32px);
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 1200;
+  overflow: hidden;
+  animation: fadeInDropdown 0.16s ease-out;
+}
+
+@keyframes fadeInDropdown {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.dropdown-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dropdown-menu-title {
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dropdown-stores-count {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.dropdown-stores-list {
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.dropdown-store-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  user-select: none;
+}
+
+.dropdown-store-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.dropdown-store-item.active {
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.dropdown-store-logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #1e293b;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.dropdown-store-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.dropdown-store-name {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-store-meta {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-store-check {
+  color: #38bdf8;
+  font-size: 1rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.dropdown-store-delete-btn {
+  background: none;
+  border: none;
+  color: rgba(239, 68, 68, 0.6);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.dropdown-store-delete-btn:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.dropdown-menu-footer {
+  padding: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.dropdown-btn-create {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px dashed rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dropdown-btn-create:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+/* Card de Enlace Oficial Destacado en Pestaña 1 (Mi Tienda) */
+.store-link-highlight-box {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.store-link-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.store-link-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+}
+
+.store-link-display-wrap {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.store-link-clean-url {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.store-link-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.btn-store-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.btn-store-action-primary {
+  background: #38bdf8;
+  color: #0f172a;
+}
+
+.btn-store-action-primary:hover {
+  background: #7dd3fc;
+}
+
+.btn-store-action-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.btn-store-action-secondary:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.btn-store-portable-link {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-store-portable-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
