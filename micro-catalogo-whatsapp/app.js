@@ -929,6 +929,72 @@ const NICHE_DATA = {
 };
 
 // ============================================================================
+// ============================================================================
+// TEMAS VISUALES Y COLORES DE TIENDA
+// ============================================================================
+const STORE_THEME_PRESETS = {
+  "boutique-rose": {
+    id: "boutique-rose",
+    name: "Rosa Boutique",
+    mode: "light",
+    accent: "#e11d48",
+    headerBg: "#fff1f2",
+    headerText: "#18181b",
+    badgeBg: "#f43f5e",
+    badgeText: "#ffffff"
+  },
+  "minimal-light": {
+    id: "minimal-light",
+    name: "Minimalista Claro",
+    mode: "light",
+    accent: "#111827",
+    headerBg: "#ffffff",
+    headerText: "#09090b",
+    badgeBg: "#18181b",
+    badgeText: "#ffffff"
+  },
+  "lavender-luxe": {
+    id: "lavender-luxe",
+    name: "Lavanda & Belleza",
+    mode: "light",
+    accent: "#7c3aed",
+    headerBg: "#f5f3ff",
+    headerText: "#1e1b4b",
+    badgeBg: "#8b5cf6",
+    badgeText: "#ffffff"
+  },
+  "warm-coral": {
+    id: "warm-coral",
+    name: "Coral Cálido",
+    mode: "light",
+    accent: "#ea580c",
+    headerBg: "#fff7ed",
+    headerText: "#1c1917",
+    badgeBg: "#f97316",
+    badgeText: "#ffffff"
+  },
+  "tech-dark": {
+    id: "tech-dark",
+    name: "Tech & Licencias",
+    mode: "dark",
+    accent: "#3b82f6",
+    headerBg: "#0f172a",
+    headerText: "#f8fafc",
+    badgeBg: "#2563eb",
+    badgeText: "#ffffff"
+  },
+  "obsidian-emerald": {
+    id: "obsidian-emerald",
+    name: "Obsidiana Clásico",
+    mode: "dark",
+    accent: "#10b981",
+    headerBg: "#0b0e14",
+    headerText: "#f8fafc",
+    badgeBg: "#059669",
+    badgeText: "#ffffff"
+  }
+};
+
 // 2. ESTADO GLOBAL REACTIVO (APPSTATE)
 // ============================================================================
 const AppState = {
@@ -1010,7 +1076,12 @@ const AppState = {
         createdAt: Date.now()
       };
       this.storesList = [currentStore];
+      this.currentStoreId = currentStore.id;
       this.saveStoresList();
+    } else if (!this.currentStoreId) {
+      const currentSlug = this.getStoreSlug();
+      const match = this.storesList.find(s => s.slug === currentSlug) || this.storesList[0];
+      this.currentStoreId = match ? match.id : this.storesList[0].id;
     }
   },
 
@@ -1049,6 +1120,49 @@ const AppState = {
 
   syncActiveStoreToList() {
     this.saveCurrentStoreState();
+  },
+
+  applyStoreTheme() {
+    const presetKey = this.shopConfig?.themePreset || (this.activePreset === "tech" ? "tech-dark" : (this.activePreset === "fashion" || this.activePreset === "beauty" ? "boutique-rose" : "minimal-light"));
+    const preset = (typeof STORE_THEME_PRESETS !== "undefined" && STORE_THEME_PRESETS[presetKey]) ? STORE_THEME_PRESETS[presetKey] : {
+      id: "minimal-light", name: "Minimalista Claro", mode: "light", accent: "#111827", headerBg: "#ffffff", headerText: "#09090b", badgeBg: "#18181b", badgeText: "#ffffff"
+    };
+    const mode = this.shopConfig?.themeMode || preset.mode || "light";
+    const accent = this.shopConfig?.accentColor || preset.accent || "#10b981";
+
+    const customerView = document.getElementById("customer-preview-view");
+    if (customerView) {
+      customerView.setAttribute("data-theme-mode", mode);
+      customerView.setAttribute("data-theme-preset", presetKey);
+      customerView.style.setProperty("--store-accent", accent);
+      customerView.style.setProperty("--store-header-bg", preset.headerBg);
+      customerView.style.setProperty("--store-header-text", preset.headerText);
+      customerView.style.setProperty("--store-badge-bg", preset.badgeBg);
+      customerView.style.setProperty("--store-badge-text", preset.badgeText);
+      if (mode === "light") {
+        customerView.classList.add("theme-light");
+        customerView.classList.remove("theme-dark");
+      } else {
+        customerView.classList.add("theme-dark");
+        customerView.classList.remove("theme-light");
+      }
+    }
+
+    document.querySelectorAll(".theme-preset-card").forEach(card => {
+      card.classList.toggle("active", card.dataset.themeId === presetKey);
+    });
+
+    const customColorInput = document.getElementById("store-custom-accent-color");
+    if (customColorInput && accent) {
+      customColorInput.value = accent;
+    }
+
+    const lightBtn = document.getElementById("store-theme-mode-light");
+    const darkBtn = document.getElementById("store-theme-mode-dark");
+    if (lightBtn && darkBtn) {
+      lightBtn.classList.toggle("active", mode === "light");
+      darkBtn.classList.toggle("active", mode === "dark");
+    }
   },
 
   changeStoreNiche(newNiche) {
@@ -1159,11 +1273,24 @@ const AppState = {
       ? [...target.catalogs]
       : [{ id: "cat_main", name: "Catálogo Principal", slug: "principal", isDefault: true }];
     this.activeStudioCatalogId = "all";
+    this.loadCartForCurrentStore();
     this.saveConfig();
     this.saveProducts();
     this.saveCategories();
     this.saveCatalogs();
-    StudioController.renderAll();
+    this.applyStoreTheme();
+    if (typeof StudioController !== "undefined") {
+      StudioController.syncAllLogoElements(this.shopConfig.logoUrl);
+      StudioController.renderAll();
+    }
+    if (typeof CustomerUI !== "undefined") {
+      CustomerUI.renderStoreHeader();
+      CustomerUI.renderCategoryTabs();
+      CustomerUI.renderProductCards();
+    }
+    if (typeof CartController !== "undefined") {
+      CartController.renderCart();
+    }
     Toast.show(`Cambiaste a la tienda "${target.name}"`, "🏪");
     return true;
   },
@@ -1229,12 +1356,18 @@ const AppState = {
     this.categories = starterCategories;
     this.catalogs = starterCatalogs;
     this.activeStudioCatalogId = "all";
+    this.cart = {};
+    this.saveCart();
     this.saveConfig();
     this.saveProducts();
     this.saveCategories();
     this.saveCatalogs();
+    this.applyStoreTheme();
 
-    StudioController.renderAll();
+    if (typeof StudioController !== "undefined") {
+      StudioController.syncAllLogoElements(this.shopConfig.logoUrl);
+      StudioController.renderAll();
+    }
     return newStore;
   },
 
@@ -1612,6 +1745,8 @@ const AppState = {
       // 4. Si tiene Google Sheets configurado, sincronizar
       if (!this.isViewingRemoteCatalog) {
         this.initStores();
+        this.loadCartForCurrentStore();
+        this.applyStoreTheme();
       }
       if (this.shopConfig.googleSheetUrl) {
         this.fetchGoogleSheetData(this.shopConfig.googleSheetUrl, false);
@@ -1993,6 +2128,7 @@ const AppState = {
   saveConfig() {
     if (this.isViewingRemoteCatalog) return;
     this.safeSetItem("tiendazap_config", JSON.stringify(this.shopConfig));
+    this.safeSetItem("tiendazap_preset", this.activePreset || "general");
     this.saveCurrentStoreState();
   },
 
@@ -2002,8 +2138,29 @@ const AppState = {
     this.saveCurrentStoreState();
   },
 
+  getCartStorageKey() {
+    const sId = this.currentStoreId || ("store_" + (this.getStoreSlug() || "principal"));
+    return "tiendazap_cart_" + sId;
+  },
+
   saveCart() {
-    this.safeSetItem("tiendazap_cart", JSON.stringify(this.cart));
+    const key = this.getCartStorageKey();
+    this.safeSetItem(key, JSON.stringify(this.cart || {}));
+    this.safeSetItem("tiendazap_cart", JSON.stringify(this.cart || {}));
+  },
+
+  loadCartForCurrentStore() {
+    try {
+      const key = this.getCartStorageKey();
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        this.cart = JSON.parse(saved) || {};
+      } else {
+        this.cart = {};
+      }
+    } catch (e) {
+      this.cart = {};
+    }
   },
 
   saveClientData(name, phone, address) {
@@ -2402,16 +2559,43 @@ const StudioController = {
     const strip = document.getElementById("editor-photos-strip");
     const countEl = document.getElementById("editor-photos-count");
     if (!strip) return;
+    if (!Array.isArray(this.currentProductImages)) this.currentProductImages = [];
     const count = this.currentProductImages.length;
     if (countEl) countEl.textContent = String(count);
 
-    strip.innerHTML = this.currentProductImages.map((url, idx) => `
-      <div class="photo-thumb-slot" style="position: relative; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-subtle); flex-shrink: 0;">
+    let html = this.currentProductImages.map((url, idx) => `
+      <div class="photo-thumb-slot ${idx === 0 ? "is-principal" : ""}" style="position: relative; width: 68px; height: 68px; border-radius: 8px; overflow: hidden; border: 2px solid ${idx === 0 ? "var(--store-accent, #10b981)" : "rgba(255,255,255,0.12)"}; flex-shrink: 0; cursor: pointer;" onclick="StudioController.setPrincipalEditorPhoto(${idx})">
         <img src="${url}" alt="Foto ${idx+1}" style="width: 100%; height: 100%; object-fit: cover;">
-        <button type="button" class="btn-remove-photo" onclick="StudioController.removeEditorPhoto(${idx})"
-                style="position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.7); color: #fff; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center;">×</button>
+        ${idx === 0 ? `<span style="position: absolute; bottom: 0; left: 0; right: 0; background: var(--store-accent, #10b981); color: #fff; font-size: 9px; font-weight: 700; text-align: center; padding: 1px 0; text-transform: uppercase;">Principal</span>` : ""}
+        <button type="button" class="btn-remove-photo" onclick="event.stopPropagation(); StudioController.removeEditorPhoto(${idx})"
+                style="position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.75); color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center;">×</button>
       </div>
     `).join("");
+
+    if (count < 6) {
+      html += `
+        <button type="button" onclick="document.getElementById('editor-file-input').click()"
+                style="width: 68px; height: 68px; border-radius: 8px; border: 2px dashed rgba(255,255,255,0.2); background: rgba(255,255,255,0.03); color: #94a3b8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; flex-shrink: 0; font-size: 0.72rem; font-weight: 600;">
+          <span style="font-size: 1.1rem; line-height: 1;">+</span>
+          <span>Añadir</span>
+          <span style="font-size: 0.65rem; opacity: 0.7;">(${count}/6)</span>
+        </button>
+      `;
+    }
+
+    strip.innerHTML = html;
+  },
+
+  setPrincipalEditorPhoto(index) {
+    if (index > 0 && index < this.currentProductImages.length) {
+      const selected = this.currentProductImages.splice(index, 1)[0];
+      this.currentProductImages.unshift(selected);
+      this.currentProductPhoto = selected;
+      const previewImg = document.getElementById("editor-photo-preview");
+      if (previewImg) previewImg.src = selected;
+      this.renderEditorPhotosStrip();
+      Toast.show("Foto principal actualizada", "⭐");
+    }
   },
 
   removeEditorPhoto(index) {
@@ -2435,9 +2619,12 @@ const StudioController = {
   async handleMultiPhotoUpload(files) {
     if (!files || files.length === 0) return;
     Toast.show("Optimizando fotos...", "⏳");
-    for (const file of Array.from(files).slice(0, 6 - this.currentProductImages.length)) {
+    if (!Array.isArray(this.currentProductImages)) this.currentProductImages = [];
+    const remainingSlots = Math.max(0, 6 - this.currentProductImages.length);
+    const filesToProcess = Array.from(files).slice(0, remainingSlots);
+    for (const file of filesToProcess) {
       try {
-        const compressed = await ImageOptimizer.compressImage(file, 800, 0.82);
+        const compressed = await ImageOptimizer.compressImage(file, 850, 0.84);
         this.currentProductImages.push(compressed);
       } catch (e) {
         console.warn("Error optimizando imagen:", e);
@@ -2482,10 +2669,20 @@ const StudioController = {
 
     const nameDisplay = document.getElementById("studio-store-name-display");
     if (nameDisplay) nameDisplay.textContent = AppState.shopConfig.name || "Mi Tienda";
-    const miniLogo = document.getElementById("admin-logo-preview");
-    if (miniLogo && AppState.shopConfig.logoUrl) miniLogo.src = AppState.shopConfig.logoUrl;
-    const settingsLogo = document.getElementById("admin-logo-preview-settings");
-    if (settingsLogo && AppState.shopConfig.logoUrl) settingsLogo.src = AppState.shopConfig.logoUrl;
+    this.syncAllLogoElements(AppState.shopConfig.logoUrl);
+  },
+
+  syncAllLogoElements(url) {
+    const finalUrl = url || AppState.shopConfig?.logoUrl || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80";
+    const el1 = document.getElementById("admin-logo-preview");
+    const el2 = document.getElementById("admin-logo-preview-settings");
+    const el3 = document.getElementById("settings-logo-preview");
+    const el4 = document.getElementById("store-logo-img");
+
+    if (el1) el1.src = finalUrl;
+    if (el2) el2.src = finalUrl;
+    if (el3) el3.src = finalUrl;
+    if (el4) el4.src = finalUrl;
   },
 
   renderTopStatus() {
@@ -2552,10 +2749,9 @@ const StudioController = {
       AppState.shopConfig.logoUrl = compressedUrl;
       AppState.saveConfig();
 
-      const logoImg = document.getElementById("admin-logo-preview");
-      if (logoImg) logoImg.src = compressedUrl;
+      this.syncAllLogoElements(compressedUrl);
       CustomerUI.renderStoreHeader();
-      Toast.show("¡Logo de tu negocio actualizado!", "✨");
+      Toast.show("¡Logo de tu negocio actualizado al instante!", "✨");
     } catch (e) {
       alert("Error procesando logo: " + e.message);
     }
@@ -2794,6 +2990,22 @@ const StudioController = {
     document.querySelectorAll(".niche-card-btn").forEach(btn => {
       btn.classList.toggle("active", btn.getAttribute("data-niche") === AppState.activePreset);
     });
+
+    this.syncAllLogoElements(AppState.shopConfig.logoUrl);
+
+    // Redes Sociales
+    const soc = AppState.shopConfig.socials || {};
+    const igInp = document.getElementById("settings-social-instagram");
+    const ttInp = document.getElementById("settings-social-tiktok");
+    const fbInp = document.getElementById("settings-social-facebook");
+    const wsInp = document.getElementById("settings-social-website");
+    if (igInp) igInp.value = soc.instagram || "";
+    if (ttInp) ttInp.value = soc.tiktok || "";
+    if (fbInp) fbInp.value = soc.facebook || "";
+    if (wsInp) wsInp.value = soc.website || "";
+
+    // Aplicar estilos visuales y tema
+    AppState.applyStoreTheme();
   },
 
   populatePaymentsTab() {
@@ -2849,10 +3061,36 @@ const StudioController = {
       AppState.shopConfig.storeSlug = slugifyStoreName(slugInp.value.trim());
     }
 
+    // Guardar rubro activo
+    const activeNicheBtn = document.querySelector(".niche-card-btn.active");
+    if (activeNicheBtn) {
+      const niche = AppState.normalizePresetKey(activeNicheBtn.getAttribute("data-niche"));
+      AppState.activePreset = niche;
+      AppState.shopConfig.niche = niche;
+    }
+
+    // Guardar redes sociales
+    const ig = document.getElementById("settings-social-instagram")?.value.trim() || "";
+    const tt = document.getElementById("settings-social-tiktok")?.value.trim() || "";
+    const fb = document.getElementById("settings-social-facebook")?.value.trim() || "";
+    const ws = document.getElementById("settings-social-website")?.value.trim() || "";
+    AppState.shopConfig.socials = { instagram: ig, tiktok: tt, facebook: fb, website: ws };
+
+    // Guardar color de botón y modo de tema
+    const customColorInp = document.getElementById("store-custom-accent-color");
+    if (customColorInp) {
+      AppState.shopConfig.accentColor = customColorInp.value;
+    }
+    const activeModeBtn = document.querySelector(".btn-theme-mode.active");
+    if (activeModeBtn) {
+      AppState.shopConfig.themeMode = activeModeBtn.dataset.mode || "light";
+    }
+
     AppState.saveConfig();
+    AppState.applyStoreTheme();
     this.populateStoreTab();
     CustomerUI.renderStoreHeader();
-    Toast.show("Identidad y enlace de tu tienda guardados", "🏪");
+    Toast.show("¡Tienda y estilos guardados correctamente!", "🏪");
   },
 
   savePaymentsSettings() {
@@ -3841,42 +4079,13 @@ const StudioController = {
 
   async handleProductPhotoUpload(file) {
     if (!file) return;
-    try {
-      Toast.show("Optimizando foto...", "⏳");
-      const compressedUrl = await ImageOptimizer.compressImage(file, 700, 0.82);
-      this.currentProductPhoto = compressedUrl;
-
-      if (!Array.isArray(this.currentProductImages)) this.currentProductImages = [];
-      if (!this.currentProductImages.includes(compressedUrl)) {
-        if (this.currentProductImages.length === 0) {
-          this.currentProductImages.push(compressedUrl);
-        } else {
-          this.currentProductImages[0] = compressedUrl;
-        }
-      }
-
-      const previewImg = document.getElementById("editor-photo-preview");
-      const placeholder = document.getElementById("editor-photo-placeholder");
-      if (previewImg) {
-        previewImg.src = compressedUrl;
-        previewImg.classList.remove("hidden");
-      }
-      if (placeholder) placeholder.classList.add("hidden");
-
-      const urlInput = document.getElementById("editor-url-input");
-      if (urlInput) urlInput.value = "";
-
-      this.renderEditorPhotosStrip();
-      Toast.show("Foto optimizada y lista", "📸");
-    } catch (err) {
-      alert("Error procesando foto del producto: " + err.message);
-    }
+    await this.handleMultiPhotoUpload([file]);
   },
 
   async handleProductVideoUpload(file) {
     if (!file) return;
-    if (file.size > 30 * 1024 * 1024) {
-      alert("El video supera los 30MB para almacenamiento local. Te sugerimos recortar el clip o pegar el enlace directo de Reels/TikTok/YouTube.");
+    if (file.size > 50 * 1024 * 1024) {
+      alert("El video supera los 50MB. Te sugerimos recortar el clip o usar un archivo más ligero.");
       return;
     }
     try {
@@ -3897,10 +4106,26 @@ const StudioController = {
       if (previewWrap) previewWrap.classList.remove("hidden");
       if (urlInput) urlInput.value = "";
 
-      Toast.show("¡Video guardado en tu celular!", "✅");
+      Toast.show("¡Video guardado en tu catálogo!", "✅");
     } catch (err) {
       alert("Error al cargar video: " + err.message);
     }
+  },
+
+  removeProductVideo() {
+    this.currentProductVideo = "";
+    const previewWrap = document.getElementById("editor-video-preview-wrap");
+    const previewVideo = document.getElementById("editor-video-preview");
+    const urlInput = document.getElementById("editor-video-url-input");
+    const fileInput = document.getElementById("editor-video-file-input");
+    if (previewVideo) {
+      previewVideo.pause();
+      previewVideo.src = "";
+    }
+    if (previewWrap) previewWrap.classList.add("hidden");
+    if (urlInput) urlInput.value = "";
+    if (fileInput) fileInput.value = "";
+    Toast.show("Video eliminado del producto", "🗑️");
   },
 
   handleProductVideoUrlChange(url) {
@@ -4283,6 +4508,61 @@ const CustomerUI = {
         catBanner.classList.add("hidden");
       }
     }
+
+    // Renderizado de Redes Sociales del Negocio (con íconos limpios SVG)
+    const socialsWrap = document.getElementById("store-social-links");
+    if (socialsWrap) {
+      const soc = shop.socials || {};
+      let socialButtonsHtml = "";
+
+      if (soc.instagram) {
+        const handle = soc.instagram.trim();
+        const url = handle.startsWith("http") ? handle : `https://instagram.com/${handle.replace(/^@/, "")}`;
+        socialButtonsHtml += `
+          <a href="${url}" target="_blank" rel="noopener noreferrer" class="store-social-btn" title="Instagram" aria-label="Instagram">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+          </a>
+        `;
+      }
+
+      if (soc.tiktok) {
+        const handle = soc.tiktok.trim();
+        const url = handle.startsWith("http") ? handle : `https://tiktok.com/@${handle.replace(/^@/, "")}`;
+        socialButtonsHtml += `
+          <a href="${url}" target="_blank" rel="noopener noreferrer" class="store-social-btn" title="TikTok" aria-label="TikTok">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+          </a>
+        `;
+      }
+
+      if (soc.facebook) {
+        const handle = soc.facebook.trim();
+        const url = handle.startsWith("http") ? handle : `https://facebook.com/${handle}`;
+        socialButtonsHtml += `
+          <a href="${url}" target="_blank" rel="noopener noreferrer" class="store-social-btn" title="Facebook" aria-label="Facebook">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+        `;
+      }
+
+      if (soc.website) {
+        const rawWeb = soc.website.trim();
+        const url = rawWeb.startsWith("http") ? rawWeb : `https://${rawWeb}`;
+        socialButtonsHtml += `
+          <a href="${url}" target="_blank" rel="noopener noreferrer" class="store-social-btn" title="Sitio Web" aria-label="Sitio Web">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </a>
+        `;
+      }
+
+      if (socialButtonsHtml) {
+        socialsWrap.innerHTML = socialButtonsHtml;
+        socialsWrap.classList.remove("hidden");
+      } else {
+        socialsWrap.innerHTML = "";
+        socialsWrap.classList.add("hidden");
+      }
+    }
   },
 
   renderYapeCheckoutBox() {
@@ -4476,7 +4756,7 @@ const CustomerUI = {
     const isAvailable = p.available !== false;
     const hasVariants = (p.sizes && p.sizes.length > 0) || (p.colors && p.colors.length > 0);
     const isVehicle = p.listingType === "vehicle" || p.listingType === "property";
-    const isDigital = p.listingType === "digital" || AppState.activePreset === "tech" || AppState.activePreset === "digital" || /licencia|adobe|autodesk|office|antivirus|windows|microsoft|canva|capcut|spotify|netflix|vpn/i.test((p.name || "") + " " + (p.sku || ""));
+    const isDigital = p.listingType === "digital" || (!p.listingType && (AppState.activePreset === "tech" || AppState.activePreset === "digital"));
     const prodCurrency = p.currency || defaultCurrency;
     const photosCount = (Array.isArray(p.images) && p.images.length > 0) ? p.images.length : (p.img ? 1 : 0);
 
@@ -5404,15 +5684,12 @@ const CartController = {
   isCartAllDigital() {
     const items = this.getCartItems();
     if (items.length === 0) {
-      return AppState.activePreset === "tech" || AppState.activePreset === "digital";
+      return false;
     }
     return items.every(item => {
       const p = item.product;
       if (!p) return false;
-      if (p.listingType === "digital") return true;
-      if (AppState.activePreset === "tech" || AppState.activePreset === "digital") return true;
-      const combined = ((p.name || "") + " " + (p.sku || "") + " " + (p.category || "")).toLowerCase();
-      return /adobe|autodesk|windows|office|microsoft|licencia|antivirus|canva|capcut|spotify|netflix|vpn|digital|software|suscripci[oó]n|cuenta|streaming/i.test(combined);
+      return p.listingType === "digital" || (!p.listingType && (AppState.activePreset === "tech" || AppState.activePreset === "digital"));
     });
   },
 
@@ -6240,8 +6517,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   if (editorFileInput) {
     editorFileInput.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (file) StudioController.handleProductPhotoUpload(file);
+      const files = e.target.files;
+      if (files && files.length > 0) {
+        StudioController.handleMultiPhotoUpload(files);
+      }
+      e.target.value = "";
     });
   }
   if (editorToggleUrlBtn && editorUrlInput) {
@@ -6276,19 +6556,37 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 10.1 Subida de Video en el Editor de Producto
+  // 10.1 Subida de Video en el Editor de Producto (Dropzone y Archivo)
+  const productVideoUploadBox = document.getElementById("product-video-upload-box");
   const editorTriggerVideoBtn = document.getElementById("editor-trigger-video-btn");
   const editorVideoFileInput = document.getElementById("editor-video-file-input");
+  const editorToggleVideoUrlBtn = document.getElementById("editor-toggle-video-url-btn");
   const editorVideoUrlInput = document.getElementById("editor-video-url-input");
   const editorRemoveVideoBtn = document.getElementById("editor-remove-video-btn");
 
   if (editorTriggerVideoBtn && editorVideoFileInput) {
     editorTriggerVideoBtn.addEventListener("click", () => editorVideoFileInput.click());
   }
+  if (productVideoUploadBox && editorVideoFileInput) {
+    productVideoUploadBox.addEventListener("click", (e) => {
+      if (e.target !== editorTriggerVideoBtn && !editorTriggerVideoBtn.contains(e.target)) {
+        editorVideoFileInput.click();
+      }
+    });
+  }
   if (editorVideoFileInput) {
     editorVideoFileInput.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (file) StudioController.handleProductVideoUpload(file);
+      e.target.value = "";
+    });
+  }
+  if (editorToggleVideoUrlBtn && editorVideoUrlInput) {
+    editorToggleVideoUrlBtn.addEventListener("click", () => {
+      editorVideoUrlInput.classList.toggle("hidden");
+      if (!editorVideoUrlInput.classList.contains("hidden")) {
+        editorVideoUrlInput.focus();
+      }
     });
   }
   if (editorVideoUrlInput) {
@@ -6299,6 +6597,52 @@ document.addEventListener("DOMContentLoaded", () => {
   if (editorRemoveVideoBtn) {
     editorRemoveVideoBtn.addEventListener("click", () => {
       StudioController.removeProductVideo();
+    });
+  }
+
+  // 10.2 Selector de Temas Visuales y Colores de Tienda
+  document.querySelectorAll(".theme-preset-card").forEach(card => {
+    card.addEventListener("click", () => {
+      const themeId = card.dataset.themeId;
+      if (!themeId || (typeof STORE_THEME_PRESETS !== "undefined" && !STORE_THEME_PRESETS[themeId])) return;
+      const preset = STORE_THEME_PRESETS[themeId];
+      AppState.shopConfig.themePreset = themeId;
+      AppState.shopConfig.themeMode = preset.mode;
+      AppState.shopConfig.accentColor = preset.accent;
+      AppState.saveConfig();
+      AppState.applyStoreTheme();
+      Toast.show(`Estilo aplicado: ${preset.name}`, "🎨");
+    });
+  });
+
+  const customAccentColorInput = document.getElementById("store-custom-accent-color");
+  if (customAccentColorInput) {
+    customAccentColorInput.addEventListener("input", (e) => {
+      AppState.shopConfig.accentColor = e.target.value;
+      AppState.applyStoreTheme();
+    });
+    customAccentColorInput.addEventListener("change", () => {
+      AppState.saveConfig();
+      Toast.show("Color de botón actualizado", "🎨");
+    });
+  }
+
+  const themeModeLightBtn = document.getElementById("store-theme-mode-light");
+  const themeModeDarkBtn = document.getElementById("store-theme-mode-dark");
+  if (themeModeLightBtn) {
+    themeModeLightBtn.addEventListener("click", () => {
+      AppState.shopConfig.themeMode = "light";
+      AppState.saveConfig();
+      AppState.applyStoreTheme();
+      Toast.show("Modo Claro activado", "☀️");
+    });
+  }
+  if (themeModeDarkBtn) {
+    themeModeDarkBtn.addEventListener("click", () => {
+      AppState.shopConfig.themeMode = "dark";
+      AppState.saveConfig();
+      AppState.applyStoreTheme();
+      Toast.show("Modo Oscuro activado", "🌙");
     });
   }
 

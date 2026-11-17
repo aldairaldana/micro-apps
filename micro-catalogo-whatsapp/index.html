@@ -322,7 +322,113 @@
               </button>
             </div>
 
-            <button type="button" id="save-store-btn" class="btn-save-settings" style="margin-top: 14px;">Guardar Datos de Tienda</button>
+            <!-- Estilo Visual y Color de tu Tienda (Modo Claro / Femenino / Boutique / Oscuro) -->
+            <div class="store-subsection-divider" style="margin: 22px 0 16px; border-top: 1px solid rgba(255, 255, 255, 0.08);"></div>
+            <h4 style="margin: 0 0 4px; font-size: 0.95rem; font-weight: 700; color: #f8fafc;">Estilo Visual y Color de tu Tienda</h4>
+            <p style="margin: 0 0 12px; font-size: 0.78rem; color: #94a3b8;">Elige la personalidad visual de tu catálogo (Modo Claro para moda y boutique, u Oscuro para tecnología).</p>
+
+            <div class="theme-presets-grid" id="theme-presets-grid">
+              <button type="button" class="theme-preset-card" data-theme-id="boutique-rose">
+                <div class="theme-preview-swatch" style="background: #fff9fb; border: 1px solid rgba(225, 29, 72, 0.25);">
+                  <span class="swatch-accent" style="background: #e11d48;"></span>
+                </div>
+                <div class="theme-meta">
+                  <strong>Rosa Boutique</strong>
+                  <span>Fondo Claro · Carmesí</span>
+                </div>
+              </button>
+
+              <button type="button" class="theme-preset-card" data-theme-id="minimal-light">
+                <div class="theme-preview-swatch" style="background: #f8fafc; border: 1px solid rgba(15, 23, 42, 0.2);">
+                  <span class="swatch-accent" style="background: #111827;"></span>
+                </div>
+                <div class="theme-meta">
+                  <strong>Minimalista Claro</strong>
+                  <span>Fondo Blanco · Editorial</span>
+                </div>
+              </button>
+
+              <button type="button" class="theme-preset-card" data-theme-id="lavender-luxe">
+                <div class="theme-preview-swatch" style="background: #faf8ff; border: 1px solid rgba(124, 58, 237, 0.25);">
+                  <span class="swatch-accent" style="background: #7c3aed;"></span>
+                </div>
+                <div class="theme-meta">
+                  <strong>Lavanda & Belleza</strong>
+                  <span>Fondo Claro · Violeta</span>
+                </div>
+              </button>
+
+              <button type="button" class="theme-preset-card" data-theme-id="warm-coral">
+                <div class="theme-preview-swatch" style="background: #fffaf5; border: 1px solid rgba(234, 88, 12, 0.25);">
+                  <span class="swatch-accent" style="background: #ea580c;"></span>
+                </div>
+                <div class="theme-meta">
+                  <strong>Coral Cálido</strong>
+                  <span>Fondo Claro · Terracota</span>
+                </div>
+              </button>
+
+              <button type="button" class="theme-preset-card" data-theme-id="tech-dark">
+                <div class="theme-preview-swatch" style="background: #0f172a; border: 1px solid rgba(59, 130, 246, 0.35);">
+                  <span class="swatch-accent" style="background: #3b82f6;"></span>
+                </div>
+                <div class="theme-meta">
+                  <strong>Tech & Licencias</strong>
+                  <span>Fondo Oscuro · Azul</span>
+                </div>
+              </button>
+
+              <button type="button" class="theme-preset-card" data-theme-id="obsidian-emerald">
+                <div class="theme-preview-swatch" style="background: #0b0e14; border: 1px solid rgba(16, 185, 129, 0.35);">
+                  <span class="swatch-accent" style="background: #10b981;"></span>
+                </div>
+                <div class="theme-meta">
+                  <strong>Obsidiana Clásico</strong>
+                  <span>Fondo Oscuro · Esmeralda</span>
+                </div>
+              </button>
+            </div>
+
+            <!-- Selector de Color de Botón Personalizado -->
+            <div class="custom-color-control-row" style="margin-top: 14px; padding: 10px 12px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <label for="store-custom-accent-color" style="font-size: 0.82rem; font-weight: 600; color: #e2e8f0;">Color de botón / acento:</label>
+                <input type="color" id="store-custom-accent-color" value="#10b981" style="width: 38px; height: 32px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.2); background: none; cursor: pointer; padding: 0;">
+              </div>
+              <div class="theme-mode-switch" style="display: flex; gap: 6px;">
+                <button type="button" id="store-theme-mode-light" class="btn-theme-mode" data-mode="light">☀️ Modo Claro</button>
+                <button type="button" id="store-theme-mode-dark" class="btn-theme-mode active" data-mode="dark">🌙 Modo Oscuro</button>
+              </div>
+            </div>
+
+            <!-- Redes Sociales del Negocio (Opcional) -->
+            <div class="store-subsection-divider" style="margin: 22px 0 16px; border-top: 1px solid rgba(255, 255, 255, 0.08);"></div>
+            <h4 style="margin: 0 0 4px; font-size: 0.95rem; font-weight: 700; color: #f8fafc;">Redes Sociales del Negocio (Opcional)</h4>
+            <p style="margin: 0 0 12px; font-size: 0.78rem; color: #94a3b8;">Aparecerán con íconos directos para tus clientes debajo del eslogan de tu tienda.</p>
+
+            <div class="form-grid-2">
+              <div class="editor-field-group">
+                <label for="settings-social-instagram" class="field-label-sm">Instagram</label>
+                <input type="text" id="settings-social-instagram" class="input-modern" placeholder="Ej: @mitienda.pe o link">
+              </div>
+              <div class="editor-field-group">
+                <label for="settings-social-tiktok" class="field-label-sm">TikTok</label>
+                <input type="text" id="settings-social-tiktok" class="input-modern" placeholder="Ej: @mitienda.pe o link">
+              </div>
+            </div>
+
+            <div class="form-grid-2" style="margin-top: 10px;">
+              <div class="editor-field-group">
+                <label for="settings-social-facebook" class="field-label-sm">Facebook</label>
+                <input type="text" id="settings-social-facebook" class="input-modern" placeholder="Ej: facebook.com/mitienda">
+              </div>
+              <div class="editor-field-group">
+                <label for="settings-social-website" class="field-label-sm">Sitio Web / Enlace</label>
+                <input type="text" id="settings-social-website" class="input-modern" placeholder="Ej: www.mitienda.com">
+              </div>
+            </div>
+
+            <button type="button" id="save-store-btn" class="btn-save-settings" style="margin-top: 18px;">Guardar Datos de Tienda</button>
           </section>
         </div>
 
@@ -421,15 +527,21 @@
 
               <!-- Video del Producto (Opcional) -->
               <div class="editor-field-group">
-                <label for="editor-video-url-input">🎥 Video del Producto (Opcional: Reels, TikTok, YouTube Shorts o sube clip)</label>
-                <div class="video-input-dual-row">
-                  <input type="url" id="editor-video-url-input" class="input-modern" placeholder="Pega link de TikTok, Instagram Reel, YouTube Short o video .mp4">
-                  <button type="button" id="editor-trigger-video-btn" class="btn-alt-sm">Subir Video</button>
+                <div class="label-with-action">
+                  <label>Video del Producto (Opcional)</label>
+                  <button type="button" id="editor-toggle-video-url-btn" class="btn-text-link">O usar enlace externo</button>
                 </div>
-                <input type="file" id="editor-video-file-input" accept="video/*" class="hidden">
+                <div class="video-upload-dropzone" id="product-video-upload-box">
+                  <button type="button" id="editor-trigger-video-btn" class="btn-upload-video-main">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                    <span>Subir video desde tu celular o PC (MP4 / MOV)</span>
+                  </button>
+                </div>
+                <input type="file" id="editor-video-file-input" accept="video/mp4,video/webm,video/quicktime,video/*" class="hidden">
+                <input type="url" id="editor-video-url-input" class="input-modern hidden" placeholder="O pega enlace de TikTok, Reel o YouTube" style="margin-top: 8px;">
                 <div id="editor-video-preview-wrap" class="editor-video-preview-wrap hidden">
                   <video id="editor-video-preview" controls playsinline muted class="editor-video-thumb"></video>
-                  <button type="button" id="editor-remove-video-btn" class="btn-remove-video">✕ Quitar Video</button>
+                  <button type="button" id="editor-remove-video-btn" class="btn-remove-video">Quitar video</button>
                 </div>
               </div>
 
@@ -747,6 +859,9 @@
               </div>
 
               <p class="store-tagline" id="store-tagline">Eslogan del negocio</p>
+
+              <!-- Redes Sociales del Negocio en Vitrina -->
+              <div class="store-social-links hidden" id="store-social-links"></div>
 
               <!-- Una sola línea editorial limpia sin cajas ni bordes ovalados -->
               <div class="store-meta-line" id="store-meta-line">
@@ -1424,6 +1539,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
-  <script src="app.js?v=20261109-v28"></script>
+  <script src="app.js?v=20261109-v29"></script>
 </body>
 </html>
