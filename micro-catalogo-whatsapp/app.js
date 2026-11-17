@@ -939,6 +939,11 @@ const AppState = {
   storesList: [],
   currentStoreId: null,
 
+  // Catálogos independientes por tienda (Etapa 2)
+  catalogs: [],
+  activeStudioCatalogId: "all",
+  activeCustomerCatalogSlug: "",
+
   initStores() {
     try {
       const saved = localStorage.getItem("tiendazap_stores");
@@ -959,6 +964,7 @@ const AppState = {
         config: { ...this.shopConfig },
         products: [...this.products],
         categories: [...this.categories],
+        catalogs: [...(this.catalogs && this.catalogs.length > 0 ? this.catalogs : [{ id: "cat_main", name: "Catálogo Principal", slug: "principal", isDefault: true }])],
         createdAt: Date.now()
       };
       this.storesList = [currentStore];
@@ -984,6 +990,7 @@ const AppState = {
       config: { ...this.shopConfig },
       products: [...this.products],
       categories: [...this.categories],
+      catalogs: [...(this.catalogs && this.catalogs.length > 0 ? this.catalogs : [{ id: "cat_main", name: "Catálogo Principal", slug: "principal", isDefault: true }])],
       updatedAt: Date.now()
     };
     if (idx >= 0) {
@@ -1084,6 +1091,10 @@ const AppState = {
     if (!rawCat || rawCat.toLowerCase() === "undefined" || rawCat.toLowerCase() === "null") {
       p.category = (p.listingType === "digital" || this.activePreset === "tech" || this.activePreset === "digital") ? "Licencias & Software" : "General";
     }
+    // 4. Catálogo de pertenencia (Etapa 2: retrocompatibilidad, nunca huérfano)
+    if (!p.catalogId) {
+      p.catalogId = "cat_main";
+    }
     return p;
   },
 
@@ -1098,9 +1109,14 @@ const AppState = {
     this.shopConfig = { ...target.config };
     this.products = [...(target.products || [])].map(p => this.migrateProduct(p));
     this.categories = [...(target.categories || [])];
+    this.catalogs = Array.isArray(target.catalogs) && target.catalogs.length > 0
+      ? [...target.catalogs]
+      : [{ id: "cat_main", name: "Catálogo Principal", slug: "principal", isDefault: true }];
+    this.activeStudioCatalogId = "all";
     this.saveConfig();
     this.saveProducts();
     this.saveCategories();
+    this.saveCatalogs();
     StudioController.renderAll();
     Toast.show(`Cambiaste a la tienda "${target.name}"`, "🏪");
     return true;
@@ -1150,6 +1166,7 @@ const AppState = {
       name: catName,
       icon: CustomerUI.getCategoryIcon(catName)
     }));
+    const starterCatalogs = [{ id: "cat_main", name: "Catálogo Principal", slug: "principal", isDefault: true }];
 
     // Tienda limpia sin productos de relleno falso
     const newStore = {
@@ -1162,6 +1179,7 @@ const AppState = {
       config: initialConfig,
       products: [],
       categories: starterCategories,
+      catalogs: starterCatalogs,
       createdAt: Date.now()
     };
 
@@ -1174,9 +1192,12 @@ const AppState = {
     this.shopConfig = initialConfig;
     this.products = [];
     this.categories = starterCategories;
+    this.catalogs = starterCatalogs;
+    this.activeStudioCatalogId = "all";
     this.saveConfig();
     this.saveProducts();
     this.saveCategories();
+    this.saveCatalogs();
 
     StudioController.renderAll();
     return newStore;
@@ -1256,6 +1277,12 @@ const AppState = {
         this.deliveryMode = "dinein";
       }
 
+      // Detectar si viene filtro directo de catálogo (?cat=autodesk)
+      const catParam = urlParams.get("cat");
+      if (catParam) {
+        this.activeCustomerCatalogSlug = decodeURIComponent(catParam).trim();
+      }
+
       // Soporte para reiniciar demostración desde cero (?nuevo=1, ?reset=1, ?demo=1, ?start=1)
       const resetParam = urlParams.get("reset") || urlParams.get("nuevo") || urlParams.get("demo") || urlParams.get("start");
       if (resetParam) {
@@ -1319,6 +1346,9 @@ const AppState = {
 
       // Inicializar y sincronizar categorías oficiales de la tienda
       this.initCategories();
+
+      // Inicializar y sincronizar catálogos independientes de la tienda (Etapa 2)
+      this.initCatalogs();
 
       const storedCart = localStorage.getItem("tiendazap_cart");
       if (storedCart) this.cart = JSON.parse(storedCart);
@@ -1476,6 +1506,7 @@ const AppState = {
                   this.shopConfig = { ...sData.config, name: sData.name || sData.config?.name || targetSlug };
                   this.products = (Array.isArray(sData.products) ? [...sData.products] : []).map(p => this.migrateProduct(p));
                   this.categories = Array.isArray(sData.categories) ? [...sData.categories] : [];
+                  this.catalogs = Array.isArray(sData.catalogs) && sData.catalogs.length > 0 ? [...sData.catalogs] : [{ id: "cat_main", name: "Catálogo Principal", slug: "principal", isDefault: true }];
                   if (sData.preset) this.activePreset = sData.preset;
                   loaded = true;
                 }
@@ -1493,6 +1524,7 @@ const AppState = {
               this.shopConfig = { ...match.config, name: match.name || match.config?.name || targetSlug };
               this.products = (Array.isArray(match.products) ? [...match.products] : []).map(p => this.migrateProduct(p));
               this.categories = Array.isArray(match.categories) ? [...match.categories] : [];
+              this.catalogs = Array.isArray(match.catalogs) && match.catalogs.length > 0 ? [...match.catalogs] : [{ id: "cat_main", name: "Catálogo Principal", slug: "principal", isDefault: true }];
               if (match.preset) this.activePreset = match.preset;
               loaded = true;
             }
@@ -1514,7 +1546,7 @@ const AppState = {
       const prodParam = urlParams.get("p");
       const modeParam = urlParams.get("mode");
 
-      if (prodParam || modeParam === "shop" || mesaParam || rawCompressed || sheetParam || tiendaParam) {
+      if (catParam || prodParam || modeParam === "shop" || mesaParam || rawCompressed || sheetParam || tiendaParam) {
         // MODO USUARIO FINAL (El comprador que ve el catálogo, compra y paga)
         this.isCustomerOnlyMode = true;
         ViewController.showCustomerPreview();
@@ -1625,6 +1657,138 @@ const AppState = {
   saveCategories() {
     this.safeSetItem("tiendazap_categories", JSON.stringify(this.categories));
     this.saveCurrentStoreState();
+  },
+
+  // ==========================================================================
+  // GESTIÓN DE MÚLTIPLES CATÁLOGOS POR TIENDA (ETAPA 2)
+  // ==========================================================================
+  initCatalogs() {
+    let stored = null;
+    try {
+      const raw = localStorage.getItem("tiendazap_catalogs");
+      if (raw) stored = JSON.parse(raw);
+    } catch (e) {}
+
+    if (Array.isArray(stored) && stored.length > 0) {
+      this.catalogs = stored;
+    } else if (!this.catalogs || this.catalogs.length === 0) {
+      this.catalogs = [
+        { id: "cat_main", name: "Catálogo Principal", slug: "principal", isDefault: true }
+      ];
+    }
+
+    // Asegurar que siempre exista el Catálogo Principal por defecto
+    if (!this.catalogs.some(c => c.isDefault || c.id === "cat_main")) {
+      this.catalogs.unshift({ id: "cat_main", name: "Catálogo Principal", slug: "principal", isDefault: true });
+    }
+
+    // Validar que activeStudioCatalogId apunte a un catálogo existente
+    if (this.activeStudioCatalogId !== "all" && !this.catalogs.some(c => c.id === this.activeStudioCatalogId)) {
+      this.activeStudioCatalogId = "all";
+    }
+
+    this.saveCatalogs();
+  },
+
+  saveCatalogs() {
+    if (this.isViewingRemoteCatalog) return;
+    this.safeSetItem("tiendazap_catalogs", JSON.stringify(this.catalogs || []));
+    this.saveCurrentStoreState();
+  },
+
+  addCatalog(name) {
+    const cleanName = (name || "").trim();
+    if (!cleanName) {
+      Toast.show("Por favor ingresa un nombre para el catálogo", "⚠️");
+      return { ok: false, msg: "Por favor ingresa un nombre para el catálogo." };
+    }
+    const cleanSlug = slugifyStoreName(cleanName);
+    const exists = (this.catalogs || []).some(
+      c => c.name.toLowerCase() === cleanName.toLowerCase() || c.slug === cleanSlug
+    );
+    if (exists) {
+      Toast.show(`Ya existe un catálogo llamado "${cleanName}"`, "⚠️");
+      return { ok: false, msg: `Ya existe un catálogo llamado "${cleanName}".` };
+    }
+    const newCat = {
+      id: "cat_" + Date.now().toString(36) + "_" + Math.random().toString(36).substr(2, 4),
+      name: cleanName,
+      slug: cleanSlug,
+      isDefault: false
+    };
+    this.catalogs.push(newCat);
+    this.activeStudioCatalogId = newCat.id;
+    this.saveCatalogs();
+    if (typeof StudioController !== "undefined") {
+      StudioController.renderCatalogsBar();
+      StudioController.renderProductsList();
+    }
+    Toast.show(`Catálogo "${cleanName}" creado`, "📁");
+    return { ok: true, catalog: newCat };
+  },
+
+  renameCatalog(id, newName) {
+    const cleanName = (newName || "").trim();
+    if (!cleanName) {
+      Toast.show("El nombre no puede estar vacío", "⚠️");
+      return { ok: false, msg: "El nombre no puede estar vacío." };
+    }
+    const target = (this.catalogs || []).find(c => c.id === id);
+    if (!target) return { ok: false, msg: "Catálogo no encontrado." };
+
+    const cleanSlug = slugifyStoreName(cleanName);
+    const exists = (this.catalogs || []).some(
+      c => c.id !== id && (c.name.toLowerCase() === cleanName.toLowerCase() || c.slug === cleanSlug)
+    );
+    if (exists) {
+      Toast.show(`Ya existe otro catálogo con ese nombre`, "⚠️");
+      return { ok: false, msg: `Ya existe otro catálogo con ese nombre.` };
+    }
+
+    target.name = cleanName;
+    if (!target.isDefault && target.id !== "cat_main") {
+      target.slug = cleanSlug;
+    }
+    this.saveCatalogs();
+    if (typeof StudioController !== "undefined") {
+      StudioController.renderCatalogsBar();
+      StudioController.renderProductsList();
+    }
+    Toast.show(`Catálogo renombrado a "${cleanName}"`, "✏️");
+    return { ok: true, catalog: target };
+  },
+
+  deleteCatalog(id) {
+    const target = (this.catalogs || []).find(c => c.id === id);
+    if (!target) return { ok: false, msg: "Catálogo no encontrado." };
+    if (target.isDefault || target.id === "cat_main") {
+      Toast.show("No se puede eliminar el Catálogo Principal", "⚠️");
+      return { ok: false, msg: "No se puede eliminar el Catálogo Principal." };
+    }
+
+    let reassigned = 0;
+    (this.products || []).forEach(p => {
+      if (p.catalogId === id) {
+        p.catalogId = "cat_main";
+        reassigned++;
+      }
+    });
+    if (reassigned > 0) {
+      this.saveProducts();
+    }
+
+    this.catalogs = this.catalogs.filter(c => c.id !== id);
+    if (this.activeStudioCatalogId === id) {
+      this.activeStudioCatalogId = "all";
+    }
+    this.saveCatalogs();
+
+    if (typeof StudioController !== "undefined") {
+      StudioController.renderCatalogsBar();
+      StudioController.renderProductsList();
+    }
+    Toast.show(`Catálogo eliminado. ${reassigned} producto(s) en Principal`, "🗑️");
+    return { ok: true, reassigned };
   },
 
   getCategoriesList() {
@@ -2273,6 +2437,7 @@ const StudioController = {
   renderAll() {
     this.renderVisualCard();
     this.renderTopStatus();
+    this.renderCatalogsBar();
     this.renderCategoryFilters();
     this.renderProductsList();
     this.populateStoreTab();
@@ -2514,6 +2679,7 @@ const StudioController = {
     if (tabKey === "store") {
       this.populateStoreTab();
     } else if (tabKey === "products") {
+      this.renderCatalogsBar();
       this.renderCategoryFilters();
       this.renderProductsList();
     } else if (tabKey === "payments") {
@@ -3089,12 +3255,178 @@ const StudioController = {
     }
   },
 
+  populateCatalogSelect(selectedId = "cat_main") {
+    const sel = document.getElementById("editor-catalog-select");
+    if (!sel) return;
+    if (!AppState.catalogs || AppState.catalogs.length === 0) {
+      AppState.initCatalogs();
+    }
+    sel.innerHTML = AppState.catalogs.map(c => `
+      <option value="${escapeHtml(c.id)}" ${c.id === selectedId ? "selected" : ""}>
+        ${escapeHtml(c.name)}${c.isDefault ? " (Principal)" : ""}
+      </option>
+    `).join("");
+  },
+
+  promptCreateCatalog() {
+    const name = prompt("Nombre del nuevo catálogo:\n(Ej: Autodesk, Calzado Deportivo, Menú Ejecutivo)");
+    if (name && name.trim()) {
+      const res = AppState.addCatalog(name.trim());
+      if (res.ok) {
+        this.populateCatalogSelect(res.catalog.id);
+      }
+    }
+  },
+
+  renderCatalogsBar() {
+    const bar = document.getElementById("studio-catalogs-bar");
+    const actionsBar = document.getElementById("studio-active-catalog-actions");
+    if (!bar) return;
+
+    if (!AppState.catalogs || AppState.catalogs.length === 0) {
+      AppState.initCatalogs();
+    }
+
+    const totalCount = (AppState.products || []).length;
+    const activeId = AppState.activeStudioCatalogId || "all";
+
+    let html = `
+      <button type="button" class="catalog-chip-btn ${activeId === "all" ? "active" : ""}" data-catalog-id="all">
+        <span>✨ Todos</span>
+        <span class="catalog-chip-count">${totalCount}</span>
+      </button>
+    `;
+
+    AppState.catalogs.forEach(cat => {
+      const count = (AppState.products || []).filter(p => (p.catalogId || "cat_main") === cat.id).length;
+      const isAct = activeId === cat.id;
+      html += `
+        <button type="button" class="catalog-chip-btn ${isAct ? "active" : ""}" data-catalog-id="${escapeHtml(cat.id)}">
+          <span class="catalog-chip-icon">📁</span>
+          <span class="catalog-chip-name">${escapeHtml(cat.name)}</span>
+          <span class="catalog-chip-count">${count}</span>
+        </button>
+      `;
+    });
+
+    html += `
+      <button type="button" class="catalog-chip-btn catalog-chip-add" id="studio-add-catalog-btn" title="Crear nuevo catálogo">
+        <span class="catalog-chip-plus">+</span>
+        <span>Catálogo</span>
+      </button>
+    `;
+
+    bar.innerHTML = html;
+
+    bar.querySelectorAll(".catalog-chip-btn[data-catalog-id]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const catId = btn.getAttribute("data-catalog-id");
+        AppState.activeStudioCatalogId = catId;
+        this.renderCatalogsBar();
+        this.renderProductsList();
+      });
+    });
+
+    const addBtn = document.getElementById("studio-add-catalog-btn");
+    if (addBtn) {
+      addBtn.addEventListener("click", () => {
+        this.promptCreateCatalog();
+      });
+    }
+
+    // Acciones del catálogo activo (sólo si no es 'all')
+    if (actionsBar) {
+      if (activeId === "all") {
+        actionsBar.classList.add("hidden");
+        actionsBar.innerHTML = "";
+      } else {
+        const currentCat = AppState.catalogs.find(c => c.id === activeId);
+        if (!currentCat) {
+          actionsBar.classList.add("hidden");
+          actionsBar.innerHTML = "";
+        } else {
+          const catUrl = QRGenerator.getCleanDisplayUrl(currentCat.slug);
+          const isDefault = currentCat.isDefault || currentCat.id === "cat_main";
+          const displaySlug = `${APP_BRAND.domainHint}/${AppState.getStoreSlug()}?cat=${currentCat.slug}`;
+
+          actionsBar.classList.remove("hidden");
+          actionsBar.innerHTML = `
+            <div class="active-catalog-info">
+              <span class="active-catalog-label">📁 ${escapeHtml(currentCat.name)}:</span>
+              <span class="active-catalog-url" title="${escapeHtml(catUrl)}">${escapeHtml(displaySlug)}</span>
+            </div>
+            <div class="active-catalog-actions-btns">
+              <button type="button" class="catalog-action-btn btn-copy-cat-link" data-url="${escapeHtml(catUrl)}" title="Copiar enlace de este catálogo">
+                <span>🔗 Copiar link</span>
+              </button>
+              <button type="button" class="catalog-action-btn btn-rename-cat" data-id="${escapeHtml(currentCat.id)}" title="Renombrar catálogo">
+                <span>✏️ Renombrar</span>
+              </button>
+              ${!isDefault ? `
+                <button type="button" class="catalog-action-btn btn-delete-cat" data-id="${escapeHtml(currentCat.id)}" title="Eliminar catálogo">
+                  <span>🗑️</span>
+                </button>
+              ` : ""}
+            </div>
+          `;
+
+          const copyBtn = actionsBar.querySelector(".btn-copy-cat-link");
+          if (copyBtn) {
+            copyBtn.addEventListener("click", () => {
+              const urlToCopy = copyBtn.getAttribute("data-url");
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(urlToCopy).then(() => {
+                  Toast.show("Enlace del catálogo copiado", "📋");
+                }).catch(() => {
+                  prompt("Copia este enlace de tu catálogo:", urlToCopy);
+                });
+              } else {
+                prompt("Copia este enlace de tu catálogo:", urlToCopy);
+              }
+            });
+          }
+
+          const renameBtn = actionsBar.querySelector(".btn-rename-cat");
+          if (renameBtn) {
+            renameBtn.addEventListener("click", () => {
+              const catId = renameBtn.getAttribute("data-id");
+              const catObj = AppState.catalogs.find(c => c.id === catId);
+              if (!catObj) return;
+              const newName = prompt("Nuevo nombre para el catálogo:", catObj.name);
+              if (newName && newName.trim()) {
+                AppState.renameCatalog(catId, newName.trim());
+              }
+            });
+          }
+
+          const deleteBtn = actionsBar.querySelector(".btn-delete-cat");
+          if (deleteBtn) {
+            deleteBtn.addEventListener("click", () => {
+              const catId = deleteBtn.getAttribute("data-id");
+              const catObj = AppState.catalogs.find(c => c.id === catId);
+              if (!catObj) return;
+              if (confirm(`¿Eliminar el catálogo "${catObj.name}"?\nSus productos se moverán automáticamente al Catálogo Principal para que no se pierdan.`)) {
+                AppState.deleteCatalog(catId);
+              }
+            });
+          }
+        }
+      }
+    }
+  },
+
   renderProductsList() {
     const listContainer = document.getElementById("studio-products-list");
     const emptyState = document.getElementById("studio-empty-state");
     if (!listContainer) return;
 
     let items = [...AppState.products];
+
+    // Filtro reactivo por catálogo independiente (Etapa 2)
+    if (AppState.activeStudioCatalogId && AppState.activeStudioCatalogId !== "all") {
+      items = items.filter(p => (p.catalogId || "cat_main") === AppState.activeStudioCatalogId);
+    }
+
     const query = AppState.studioSearchQuery.toLowerCase().trim();
 
     if (AppState.studioCategory !== "all") {
@@ -3316,6 +3648,11 @@ const StudioController = {
 
     this.renderEditorCategoryChips("");
 
+    const preselectCatalog = (AppState.activeStudioCatalogId && AppState.activeStudioCatalogId !== "all")
+      ? AppState.activeStudioCatalogId
+      : "cat_main";
+    this.populateCatalogSelect(preselectCatalog);
+
     if (title) title.textContent = "Añadir Nuevo Producto";
     const modal = document.getElementById("studio-product-modal");
     if (modal) modal.classList.remove("hidden");
@@ -3406,6 +3743,7 @@ const StudioController = {
     this.onListingTypeChange(this.currentListingType, p.specs || []);
     this.renderEditorPhotosStrip();
     this.renderEditorCategoryChips(p.category);
+    this.populateCatalogSelect(p.catalogId || "cat_main");
 
     if (title) title.textContent = "Editar Producto";
     const modal = document.getElementById("studio-product-modal");
@@ -3581,13 +3919,18 @@ const StudioController = {
     const videoUrlInput = document.getElementById("editor-video-url-input");
     const videoUrl = this.currentProductVideo || (videoUrlInput ? videoUrlInput.value.trim() : "");
 
+    // Catálogo de pertenencia (Etapa 2)
+    const catalogSelect = document.getElementById("editor-catalog-select");
+    const catalogId = catalogSelect ? catalogSelect.value : (AppState.activeStudioCatalogId !== "all" ? AppState.activeStudioCatalogId : "cat_main");
+
     if (id) {
       const idx = AppState.products.findIndex(p => p.id === id);
       if (idx !== -1) {
         AppState.products[idx] = {
           ...AppState.products[idx],
           name, price, category, sku, desc, sizes, colors, img: images[0] || img,
-          images, listingType, currency, condition, location, specs, videoUrl, promo, available
+          images, listingType, currency, condition, location, specs, videoUrl, promo, available,
+          catalogId: catalogId || AppState.products[idx].catalogId || "cat_main"
         };
       }
     } else {
@@ -3595,13 +3938,15 @@ const StudioController = {
         id: "p_" + Date.now(),
         sku: sku || `COD-${AppState.products.length + 1}`,
         name, price, category, sku, desc, sizes, colors, img: images[0] || img,
-        images, listingType, currency, condition, location, specs, videoUrl, promo, available
+        images, listingType, currency, condition, location, specs, videoUrl, promo, available,
+        catalogId: catalogId || "cat_main"
       };
       AppState.products.unshift(newProd);
     }
 
     AppState.saveProducts();
     this.closeProductEditor();
+    this.renderCatalogsBar();
     this.renderCategoryFilters();
     this.renderProductsList();
     CustomerUI.renderCategoryTabs();
@@ -3841,6 +4186,22 @@ const CustomerUI = {
 
     const cartStoreName = document.getElementById("cart-modal-store-name");
     if (cartStoreName) cartStoreName.textContent = shop.name;
+
+    // Banner sutil de Catálogo Activo para el Comprador (Etapa 2)
+    const catBanner = document.getElementById("store-active-catalog-banner");
+    const catNameEl = document.getElementById("store-active-catalog-name");
+    if (catBanner) {
+      if (AppState.activeCustomerCatalogSlug) {
+        const matched = (AppState.catalogs || []).find(
+          c => (c.slug && c.slug.toLowerCase() === AppState.activeCustomerCatalogSlug.toLowerCase()) || c.id === AppState.activeCustomerCatalogSlug
+        );
+        const displayName = matched ? matched.name : AppState.activeCustomerCatalogSlug;
+        if (catNameEl) catNameEl.textContent = displayName;
+        catBanner.classList.remove("hidden");
+      } else {
+        catBanner.classList.add("hidden");
+      }
+    }
   },
 
   renderYapeCheckoutBox() {
@@ -3943,8 +4304,24 @@ const CustomerUI = {
     return "🛍️";
   },
 
+  getCustomerBaseProducts() {
+    if (!AppState.activeCustomerCatalogSlug) return AppState.products || [];
+    const targetSlug = String(AppState.activeCustomerCatalogSlug).toLowerCase().trim();
+    const matched = (AppState.catalogs || []).find(
+      c => (c.slug && c.slug.toLowerCase() === targetSlug) || (c.id && c.id.toLowerCase() === targetSlug)
+    );
+    const targetId = matched ? matched.id : (targetSlug === "principal" ? "cat_main" : null);
+
+    return (AppState.products || []).filter(p => {
+      const pCatId = p.catalogId || "cat_main";
+      if (targetId) return pCatId === targetId;
+      return false;
+    });
+  },
+
   getCategories() {
-    (AppState.products || []).forEach(p => {
+    const baseProds = this.getCustomerBaseProducts();
+    (baseProds || []).forEach(p => {
       AppState.migrateProduct(p);
       const c = (p.category || "").trim().toLowerCase();
       if (!c || c === "undefined" || c === "null" || c === "[object object]") {
@@ -3952,12 +4329,20 @@ const CustomerUI = {
       }
     });
 
+    const catCounts = {};
+    baseProds.forEach(p => {
+      const cName = (p.category || "General").trim();
+      const key = cName.toLowerCase();
+      catCounts[key] = (catCounts[key] || 0) + 1;
+    });
+
     const list = AppState.getCategoriesList() || [];
     const validCats = list
       .filter(c => {
         if (!c || !c.name) return false;
         const n = String(c.name).trim().toLowerCase();
-        return n !== "" && n !== "undefined" && n !== "null" && n !== "[object object]" && c.count > 0;
+        const countInCatalog = catCounts[n] || 0;
+        return n !== "" && n !== "undefined" && n !== "null" && n !== "[object object]" && countInCatalog > 0;
       })
       .map(c => {
         const cleanName = String(c.name).trim();
@@ -3967,12 +4352,13 @@ const CustomerUI = {
           ...c,
           name: cleanName,
           label: cleanLabel || "General",
-          icon: c.icon || CustomerUI.getCategoryIcon(cleanName)
+          icon: c.icon || CustomerUI.getCategoryIcon(cleanName),
+          count: catCounts[cleanName.toLowerCase()] || 0
         };
       });
 
     return [
-      { name: "all", label: "Todos", count: (AppState.products || []).length, icon: "✨" },
+      { name: "all", label: "Todos", count: baseProds.length, icon: "✨" },
       ...validCats
     ];
   },
@@ -3982,6 +4368,10 @@ const CustomerUI = {
     if (!track) return;
 
     const categories = this.getCategories();
+    if (AppState.customerCategory !== "all" && !categories.some(c => c.name.toLowerCase() === AppState.customerCategory.toLowerCase())) {
+      AppState.customerCategory = "all";
+    }
+
     track.innerHTML = categories.map(cat => `
       <button class="cat-tab-btn ${AppState.customerCategory === cat.name ? "active" : ""}" 
               data-category="${escapeHtml(cat.name)}" type="button">
@@ -4081,8 +4471,9 @@ const CustomerUI = {
     const emptyState = document.getElementById("customer-empty-state");
     if (!container) return;
 
+    const baseProds = this.getCustomerBaseProducts();
     const query = AppState.customerSearchQuery.toLowerCase().trim();
-    let filtered = [...AppState.products];
+    let filtered = [...baseProds];
 
     if (AppState.customerCategory !== "all") {
       filtered = filtered.filter(p => (p.category || "").trim().toLowerCase() === AppState.customerCategory.trim().toLowerCase());
@@ -5281,19 +5672,26 @@ const QRGenerator = {
     ctx.fillText(isFoodOrTable ? "🍽️" : "⚡", center, center);
   },
 
-  getCleanDisplayUrl() {
+  getCleanDisplayUrl(catalogSlug = "") {
     const slug = AppState.getStoreSlug();
     const hostname = window.location.hostname;
     const isPagesDev = hostname.endsWith("pages.dev") || hostname.includes("localhost") || hostname === "127.0.0.1";
     const path = window.location.pathname;
     const isRoot = isPagesDev && (path === "/" || path === "/index.html" || !path.includes("/micro-catalogo-whatsapp"));
 
+    let cleanBase = "";
     if (isRoot) {
-      return `${window.location.origin}/${encodeURIComponent(slug)}`;
+      cleanBase = `${window.location.origin}/${encodeURIComponent(slug)}`;
+    } else {
+      const baseUrl = window.location.origin + window.location.pathname;
+      cleanBase = baseUrl.replace(/\/index\.html$/i, "").replace(/\/+$/, "") + `?tienda=${encodeURIComponent(slug)}&mode=shop`;
     }
-    const baseUrl = window.location.origin + window.location.pathname;
-    const cleanBase = baseUrl.replace(/\/index\.html$/i, "").replace(/\/+$/, "");
-    return `${cleanBase}?tienda=${encodeURIComponent(slug)}&mode=shop`;
+
+    if (catalogSlug && catalogSlug !== "all") {
+      const sep = cleanBase.includes("?") ? "&" : "?";
+      return `${cleanBase}${sep}cat=${encodeURIComponent(catalogSlug)}`;
+    }
+    return cleanBase;
   },
 
   buildPayload(forQR = false) {
@@ -5324,6 +5722,7 @@ const QRGenerator = {
         np: AppState.activePreset
       },
       cats: AppState.categories,
+      catalogs: AppState.catalogs,
       prods: AppState.products
         .filter(p => p.available !== false)
         .map(p => {
@@ -5334,6 +5733,7 @@ const QRGenerator = {
             sku: p.sku || "",
             n: p.name,
             cat: (p.category && p.category !== "undefined") ? p.category.trim() : "General",
+            catalogId: p.catalogId || "cat_main",
             pr: p.price,
             cur: p.currency || AppState.shopConfig.currency || "S/",
             lt: p.listingType || "item",
@@ -5352,8 +5752,9 @@ const QRGenerator = {
     };
   },
 
-  getTargetUrl(forQR = false, portable = false) {
-    const cleanStoreBase = this.getCleanDisplayUrl();
+  getTargetUrl(forQR = false, portable = false, catalogSlug = "") {
+    const activeSlug = catalogSlug !== "" ? catalogSlug : (AppState.activeStudioCatalogId && AppState.activeStudioCatalogId !== "all" ? (AppState.catalogs.find(c => c.id === AppState.activeStudioCatalogId)?.slug || "") : "");
+    const cleanStoreBase = this.getCleanDisplayUrl(activeSlug);
 
     if (this.isTableMode) {
       const tableVal = document.getElementById("qr-table-number")?.value.trim() || "Mesa 1";
@@ -5388,6 +5789,8 @@ const QRGenerator = {
     const qrPillTable = document.getElementById("qr-pill-table");
     const qrPillGeneral = document.getElementById("qr-pill-general");
     const qrTableInputRow = document.getElementById("qr-table-input-row");
+    const qrCatRow = document.getElementById("qr-catalog-select-row");
+    const qrCatSelect = document.getElementById("qr-catalog-select");
 
     if (qrPillTable) {
       if (nicheInfo.hasDineIn) {
@@ -5400,8 +5803,28 @@ const QRGenerator = {
       }
     }
 
+    if (qrCatRow && qrCatSelect) {
+      if (AppState.catalogs && AppState.catalogs.length > 1) {
+        qrCatRow.classList.remove("hidden");
+        let opts = `<option value="">Toda la tienda (Catálogo Completo)</option>`;
+        AppState.catalogs.forEach(c => {
+          opts += `<option value="${escapeHtml(c.slug)}">${escapeHtml(c.name)}${c.isDefault ? " (Principal)" : ""}</option>`;
+        });
+        qrCatSelect.innerHTML = opts;
+        if (AppState.activeStudioCatalogId && AppState.activeStudioCatalogId !== "all") {
+          const act = AppState.catalogs.find(c => c.id === AppState.activeStudioCatalogId);
+          if (act) qrCatSelect.value = act.slug;
+        } else {
+          qrCatSelect.value = "";
+        }
+      } else {
+        qrCatRow.classList.add("hidden");
+      }
+    }
+
     if (titleEl) titleEl.textContent = AppState.shopConfig.name;
-    this.renderStoreQR(canvas, this.getTargetUrl(true));
+    const initialSlug = (qrCatSelect && !qrCatRow?.classList.contains("hidden")) ? qrCatSelect.value : "";
+    this.renderStoreQR(canvas, this.getTargetUrl(true, false, initialSlug));
 
     if (modal) modal.classList.remove("hidden");
   },
@@ -5415,7 +5838,9 @@ const QRGenerator = {
     const canvas = document.getElementById("qr-canvas");
     if (!canvas) return;
     const link = document.createElement("a");
-    const suffix = this.isTableMode ? (document.getElementById("qr-table-number")?.value.trim() || "Mesa") : "General";
+    const qrCatSelect = document.getElementById("qr-catalog-select");
+    const catSuffix = (qrCatSelect && qrCatSelect.value) ? `-${qrCatSelect.value}` : "";
+    const suffix = this.isTableMode ? (document.getElementById("qr-table-number")?.value.trim() || "Mesa") : `General${catSuffix}`;
     link.download = `QR-TiendaZap-${AppState.shopConfig.name.replace(/\s+/g, "_")}-${suffix}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
@@ -6289,6 +6714,40 @@ document.addEventListener("DOMContentLoaded", () => {
       if (QRGenerator.isTableMode) {
         QRGenerator.renderStoreQR(qrCanvas, QRGenerator.getTargetUrl());
       }
+    });
+  }
+
+  // Eventos de Catálogos (Etapa 2)
+  const qrCatalogSelect = document.getElementById("qr-catalog-select");
+  if (qrCatalogSelect) {
+    qrCatalogSelect.addEventListener("change", () => {
+      if (qrCanvas) {
+        const targetUrl = QRGenerator.getTargetUrl(true, false, qrCatalogSelect.value);
+        QRGenerator.renderStoreQR(qrCanvas, targetUrl);
+      }
+    });
+  }
+
+  const clearCatFilterBtn = document.getElementById("btn-clear-customer-catalog");
+  if (clearCatFilterBtn) {
+    clearCatFilterBtn.addEventListener("click", () => {
+      AppState.activeCustomerCatalogSlug = "";
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("cat");
+        window.history.replaceState({}, "", url.toString());
+      } catch (err) {}
+      CustomerUI.renderStoreHeader();
+      CustomerUI.renderCategoryTabs();
+      CustomerUI.renderProductCards();
+      Toast.show("Mostrando toda la tienda", "🏪");
+    });
+  }
+
+  const quickAddCatBtn = document.getElementById("editor-quick-add-catalog-btn");
+  if (quickAddCatBtn) {
+    quickAddCatBtn.addEventListener("click", () => {
+      StudioController.promptCreateCatalog();
     });
   }
 

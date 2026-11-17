@@ -6816,3 +6816,222 @@ select option {
 }
 
 
+
+/* ===================================================================
+   ETAPA 2: MÚLTIPLES CATÁLOGOS POR TIENDA (STUDIO & CUSTOMER)
+   =================================================================== */
+
+/* 1. Tira Horizontal de Catálogos en Studio */
+.studio-catalogs-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 2px 8px 2px;
+  margin-bottom: 2px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.studio-catalogs-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.catalog-chip-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.catalog-chip-btn:hover {
+  border-color: var(--border-medium);
+  color: var(--text-main);
+}
+
+.catalog-chip-btn.active {
+  background: rgba(0, 210, 106, 0.12);
+  border-color: var(--primary);
+  color: #00d26a;
+}
+
+.catalog-chip-count {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+}
+
+.catalog-chip-btn.active .catalog-chip-count {
+  background: rgba(0, 210, 106, 0.22);
+  color: #00d26a;
+}
+
+.catalog-chip-add {
+  background: transparent;
+  border: 1px dashed var(--border-medium);
+  color: var(--text-muted);
+}
+
+.catalog-chip-add:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.catalog-chip-plus {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* 2. Barra Discreta de Acciones del Catálogo Activo */
+.studio-active-catalog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(0, 210, 106, 0.06);
+  border: 1px solid rgba(0, 210, 106, 0.22);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+}
+
+.active-catalog-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.active-catalog-label {
+  font-weight: 700;
+  font-size: 0.76rem;
+  color: #00d26a;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.active-catalog-url {
+  font-size: 0.72rem;
+  font-family: monospace;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.active-catalog-actions-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.catalog-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-medium);
+  background: var(--bg-card);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.catalog-action-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.catalog-action-btn.btn-delete-cat {
+  color: var(--accent-red);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.catalog-action-btn.btn-delete-cat:hover {
+  background: var(--accent-red-subtle);
+  border-color: var(--accent-red);
+}
+
+/* 3. Banner Sutil de Catálogo Activo para el Comprador (#store-header) */
+.store-active-catalog-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 3px 10px;
+  background: rgba(0, 210, 106, 0.08);
+  border: 1px solid rgba(0, 210, 106, 0.22);
+  border-radius: var(--radius-pill);
+  font-size: 0.74rem;
+  color: var(--text-main);
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.catalog-badge-icon {
+  font-size: 0.78rem;
+  flex-shrink: 0;
+}
+
+.catalog-badge-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.catalog-badge-label strong {
+  color: #00d26a;
+  font-weight: 700;
+}
+
+.btn-clear-catalog-filter {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.72rem;
+  padding: 0 4px;
+  margin-left: 2px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-clear-catalog-filter:hover {
+  color: #ffffff;
+}
+
+/* 4. Selector de Catálogo en Modal QR */
+.qr-catalog-select-row {
+  margin-top: 10px;
+  text-align: left;
+}
+
+.qr-field-label {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}

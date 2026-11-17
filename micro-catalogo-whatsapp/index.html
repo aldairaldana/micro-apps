@@ -330,6 +330,10 @@
              PESTAÑA 2: GESTOR DE PRODUCTOS & PRECIOS
              ============================================================= -->
         <div id="view-products" class="studio-tab-view hidden">
+          <!-- Barra Limpia de Catálogos (Etapa 2) -->
+          <div id="studio-catalogs-bar" class="studio-catalogs-bar"></div>
+          <div id="studio-active-catalog-actions" class="studio-active-catalog-actions hidden"></div>
+
           <!-- Toolbar de Acciones (Buscador + Botón Crear) -->
           <div class="products-action-toolbar">
             <div class="search-box-wrap">
@@ -444,6 +448,15 @@
                   </select>
                   <input type="number" id="editor-price-input" step="0.01" min="0" class="input-modern price-highlight" placeholder="0.00" required>
                 </div>
+              </div>
+
+              <!-- Catálogo de Pertenencia (Etapa 2) -->
+              <div class="editor-field-group">
+                <div class="label-with-action">
+                  <label for="editor-catalog-select">Catálogo</label>
+                  <button type="button" id="editor-quick-add-catalog-btn" class="btn-text-link">+ Nuevo catálogo</button>
+                </div>
+                <select id="editor-catalog-select" class="input-modern"></select>
               </div>
 
               <div class="editor-field-group">
@@ -748,6 +761,13 @@
                 <span class="meta-item meta-cost" id="delivery-cost-pill">
                   Envío gratis
                 </span>
+              </div>
+
+              <!-- Banner sutil de Catálogo Activo para el Comprador (Etapa 2) -->
+              <div class="store-active-catalog-banner hidden" id="store-active-catalog-banner">
+                <span class="catalog-badge-icon">📁</span>
+                <span class="catalog-badge-label">Catálogo: <strong id="store-active-catalog-name">Principal</strong></span>
+                <button type="button" class="btn-clear-catalog-filter" id="btn-clear-customer-catalog">Ver tienda completa</button>
               </div>
             </div>
           </div>
@@ -1164,6 +1184,10 @@
           <div class="qr-table-input-row hidden" id="qr-table-input-row">
             <label for="qr-table-number">Número o Nombre de la Mesa:</label>
             <input type="text" id="qr-table-number" class="form-input" placeholder="Ej: Mesa 1, Mesa 2, Barra" value="Mesa 1">
+          </div>
+          <div class="qr-catalog-select-row hidden" id="qr-catalog-select-row">
+            <label for="qr-catalog-select" class="qr-field-label">Catálogo a generar:</label>
+            <select id="qr-catalog-select" class="form-input"></select>
           </div>
         </div>
 
