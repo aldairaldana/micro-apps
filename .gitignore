@@ -23,3 +23,5 @@ studio_verified.png
 .vscode/
 .idea/
 node_modules/
+.agents/
+skills-lock.json

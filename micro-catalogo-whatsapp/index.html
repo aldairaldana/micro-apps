@@ -215,7 +215,7 @@
           <!-- Card de Identidad Visual y Diseño de la Tienda -->
           <section class="settings-section-card">
             <h3 class="section-card-title">Identidad y Portada de tu Tienda</h3>
-            <p class="section-card-desc">Personaliza la foto de portada, tu logo o avatar, y el nombre comercial visible para tus compradores.</p>
+            
 
             <!-- Banner / Portada -->
             <div class="settings-banner-preview-box">
@@ -258,177 +258,127 @@
             </div>
           </section>
 
-          <!-- Card de Rubro Comercial WhatsApp Business -->
+          <!-- Card de Rubro Comercial WhatsApp Business (Diseño Compacto) -->
           <section class="settings-section-card">
-            <h3 class="section-card-title">Rubro Comercial WhatsApp Business</h3>
-            <p class="section-card-desc">Elige el rubro de tu tienda. TiendaZap adaptará automáticamente las modalidades de entrega y sugerencias de categorías sin borrar tus productos.</p>
+            <h3 class="section-card-title">Rubro de la Tienda</h3>
             
-            <div class="niche-selector-grid">
+            <div class="niche-selector-compact-grid">
               <button type="button" class="niche-card-btn active" data-niche="sneakers">
                 <span class="niche-emoji">👟</span>
-                <div class="niche-meta">
-                  <strong>Zapatillas & Calzado</strong>
-                  <span>Sneakers, Urbana, Running</span>
-                </div>
+                <span class="niche-label">Zapatillas & Calzado</span>
               </button>
               <button type="button" class="niche-card-btn" data-niche="beauty">
-                <span class="niche-emoji">✨</span>
-                <div class="niche-meta">
-                  <strong>Perfumes & Belleza</strong>
-                  <span>Decants, Diseñador, Árabes</span>
-                </div>
+                <span class="niche-emoji">💄</span>
+                <span class="niche-label">Perfumes & Belleza</span>
               </button>
               <button type="button" class="niche-card-btn" data-niche="watches">
                 <span class="niche-emoji">⌚</span>
-                <div class="niche-meta">
-                  <strong>Relojes & Joyas</strong>
-                  <span>Automáticos, Joyería, Lentes</span>
-                </div>
+                <span class="niche-label">Relojes & Joyas</span>
               </button>
               <button type="button" class="niche-card-btn" data-niche="fashion">
                 <span class="niche-emoji">👖</span>
-                <div class="niche-meta">
-                  <strong>Ropa & Pantalones</strong>
-                  <span>Jeans, Polos, Casacas, Outfits</span>
-                </div>
+                <span class="niche-label">Ropa & Moda</span>
               </button>
               <button type="button" class="niche-card-btn" data-niche="food">
                 <span class="niche-emoji">🍰</span>
-                <div class="niche-meta">
-                  <strong>Postres & Comida</strong>
-                  <span>Tortas, Boxes, Snacks, Burgers</span>
-                </div>
+                <span class="niche-label">Postres & Comida</span>
               </button>
               <button type="button" class="niche-card-btn" data-niche="tech">
                 <span class="niche-emoji">💻</span>
-                <div class="niche-meta">
-                  <strong>Tecnología & Licencias</strong>
-                  <span>Software, Licencias, Gadgets</span>
-                </div>
+                <span class="niche-label">Tecnología & Software</span>
               </button>
               <button type="button" class="niche-card-btn" data-niche="vehicles">
                 <span class="niche-emoji">🚗</span>
-                <div class="niche-meta">
-                  <strong>Vehículos & Motos</strong>
-                  <span>Autos, SUV, Motos, Repuestos</span>
-                </div>
+                <span class="niche-label">Vehículos & Autos</span>
               </button>
               <button type="button" class="niche-card-btn" data-niche="general">
                 <span class="niche-emoji">🛍️</span>
-                <div class="niche-meta">
-                  <strong>Tienda General</strong>
-                  <span>Todo rubro, Multicategoría</span>
-                </div>
+                <span class="niche-label">Tienda General</span>
               </button>
             </div>
 
-            <!-- Estilo Visual y Color de tu Tienda (Modo Claro / Femenino / Boutique / Oscuro) -->
-            <div class="store-subsection-divider" style="margin: 22px 0 16px; border-top: 1px solid rgba(255, 255, 255, 0.08);"></div>
-            <h4 style="margin: 0 0 4px; font-size: 0.95rem; font-weight: 700; color: #f8fafc;">Estilo Visual y Color de tu Tienda</h4>
-            <p style="margin: 0 0 12px; font-size: 0.78rem; color: #94a3b8;">Elige la personalidad visual de tu catálogo (Modo Claro para moda y boutique, u Oscuro para tecnología).</p>
-
-            <div class="theme-presets-grid" id="theme-presets-grid">
-              <button type="button" class="theme-preset-card" data-theme-id="boutique-rose">
-                <div class="theme-preview-swatch" style="background: #fff9fb; border: 1px solid rgba(225, 29, 72, 0.25);">
-                  <span class="swatch-accent" style="background: #e11d48;"></span>
+            <!-- Estilo Visual y Color Compacto (Swatches circulares + Segmented Control) -->
+            <div class="store-subsection-divider" style="margin: 16px 0 12px; border-top: 1px solid rgba(255, 255, 255, 0.08);"></div>
+            <div class="theme-compact-wrapper">
+              <div class="theme-compact-header">
+                <h4 style="margin: 0; font-size: 0.88rem; font-weight: 700; color: #f8fafc;">Tema y Color</h4>
+                <div class="theme-mode-segmented">
+                  <button type="button" id="store-theme-mode-light" class="btn-theme-mode-seg" data-mode="light">Claro</button>
+                  <button type="button" id="store-theme-mode-dark" class="btn-theme-mode-seg active" data-mode="dark">Oscuro</button>
                 </div>
-                <div class="theme-meta">
-                  <strong>Rosa Boutique</strong>
-                  <span>Fondo Claro · Carmesí</span>
-                </div>
-              </button>
-
-              <button type="button" class="theme-preset-card" data-theme-id="minimal-light">
-                <div class="theme-preview-swatch" style="background: #f8fafc; border: 1px solid rgba(15, 23, 42, 0.2);">
-                  <span class="swatch-accent" style="background: #111827;"></span>
-                </div>
-                <div class="theme-meta">
-                  <strong>Minimalista Claro</strong>
-                  <span>Fondo Blanco · Editorial</span>
-                </div>
-              </button>
-
-              <button type="button" class="theme-preset-card" data-theme-id="lavender-luxe">
-                <div class="theme-preview-swatch" style="background: #faf8ff; border: 1px solid rgba(124, 58, 237, 0.25);">
-                  <span class="swatch-accent" style="background: #7c3aed;"></span>
-                </div>
-                <div class="theme-meta">
-                  <strong>Lavanda & Belleza</strong>
-                  <span>Fondo Claro · Violeta</span>
-                </div>
-              </button>
-
-              <button type="button" class="theme-preset-card" data-theme-id="warm-coral">
-                <div class="theme-preview-swatch" style="background: #fffaf5; border: 1px solid rgba(234, 88, 12, 0.25);">
-                  <span class="swatch-accent" style="background: #ea580c;"></span>
-                </div>
-                <div class="theme-meta">
-                  <strong>Coral Cálido</strong>
-                  <span>Fondo Claro · Terracota</span>
-                </div>
-              </button>
-
-              <button type="button" class="theme-preset-card" data-theme-id="tech-dark">
-                <div class="theme-preview-swatch" style="background: #0f172a; border: 1px solid rgba(59, 130, 246, 0.35);">
-                  <span class="swatch-accent" style="background: #3b82f6;"></span>
-                </div>
-                <div class="theme-meta">
-                  <strong>Tech & Licencias</strong>
-                  <span>Fondo Oscuro · Azul</span>
-                </div>
-              </button>
-
-              <button type="button" class="theme-preset-card" data-theme-id="obsidian-emerald">
-                <div class="theme-preview-swatch" style="background: #0b0e14; border: 1px solid rgba(16, 185, 129, 0.35);">
-                  <span class="swatch-accent" style="background: #10b981;"></span>
-                </div>
-                <div class="theme-meta">
-                  <strong>Obsidiana Clásico</strong>
-                  <span>Fondo Oscuro · Esmeralda</span>
-                </div>
-              </button>
-            </div>
-
-            <!-- Selector de Color de Botón Personalizado -->
-            <div class="custom-color-control-row" style="margin-top: 14px; padding: 10px 12px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <label for="store-custom-accent-color" style="font-size: 0.82rem; font-weight: 600; color: #e2e8f0;">Color de botón / acento:</label>
-                <input type="color" id="store-custom-accent-color" value="#10b981" style="width: 38px; height: 32px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.2); background: none; cursor: pointer; padding: 0;">
               </div>
-              <div class="theme-mode-switch" style="display: flex; gap: 6px;">
-                <button type="button" id="store-theme-mode-light" class="btn-theme-mode" data-mode="light">☀️ Modo Claro</button>
-                <button type="button" id="store-theme-mode-dark" class="btn-theme-mode active" data-mode="dark">🌙 Modo Oscuro</button>
+
+              <div class="theme-swatches-strip" id="theme-presets-grid">
+                <button type="button" class="theme-preset-card theme-swatch-item" data-theme-id="boutique-rose" title="Rosa Boutique">
+                  <span class="swatch-circle" style="background: #e11d48; border-color: #fda4af;"></span>
+                  <span class="swatch-name">Boutique</span>
+                </button>
+                <button type="button" class="theme-preset-card theme-swatch-item" data-theme-id="minimal-light" title="Minimalista Blanco">
+                  <span class="swatch-circle" style="background: #ffffff; border-color: #cbd5e1;"></span>
+                  <span class="swatch-name">Minimal</span>
+                </button>
+                <button type="button" class="theme-preset-card theme-swatch-item" data-theme-id="lavender-luxe" title="Lavanda">
+                  <span class="swatch-circle" style="background: #7c3aed; border-color: #c4b5fd;"></span>
+                  <span class="swatch-name">Lavanda</span>
+                </button>
+                <button type="button" class="theme-preset-card theme-swatch-item" data-theme-id="warm-coral" title="Coral">
+                  <span class="swatch-circle" style="background: #ea580c; border-color: #fdba74;"></span>
+                  <span class="swatch-name">Coral</span>
+                </button>
+                <button type="button" class="theme-preset-card theme-swatch-item active" data-theme-id="tech-dark" title="Tech Azul">
+                  <span class="swatch-circle" style="background: #3b82f6; border-color: #93c5fd;"></span>
+                  <span class="swatch-name">Tech</span>
+                </button>
+                <button type="button" class="theme-preset-card theme-swatch-item" data-theme-id="obsidian-emerald" title="Obsidiana">
+                  <span class="swatch-circle" style="background: #10b981; border-color: #6ee7b7;"></span>
+                  <span class="swatch-name">Esmeralda</span>
+                </button>
+
+                <div class="swatch-custom-picker-wrap">
+                  <label for="store-custom-accent-color" class="swatch-custom-label" title="Color personalizado">
+                    <input type="color" id="store-custom-accent-color" value="#10b981" class="swatch-color-input">
+                    <span class="swatch-custom-dot" style="background: #10b981;"></span>
+                  </label>
+                  <span class="swatch-name">Color</span>
+                </div>
               </div>
             </div>
 
-            <!-- Redes Sociales del Negocio (Opcional) -->
-            <div class="store-subsection-divider" style="margin: 22px 0 16px; border-top: 1px solid rgba(255, 255, 255, 0.08);"></div>
-            <h4 style="margin: 0 0 4px; font-size: 0.95rem; font-weight: 700; color: #f8fafc;">Redes Sociales del Negocio (Opcional)</h4>
-            <p style="margin: 0 0 12px; font-size: 0.78rem; color: #94a3b8;">Aparecerán con íconos directos para tus clientes debajo del eslogan de tu tienda.</p>
+            <!-- Redes Sociales en Acordeón Colapsable -->
+            <div class="store-subsection-divider" style="margin: 16px 0 10px; border-top: 1px solid rgba(255, 255, 255, 0.08);"></div>
+            <details class="compact-accordion" id="settings-socials-accordion">
+              <summary class="accordion-summary">
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><line x1="2" x2="22" y1="12" y2="12"/></svg>
+                  <span>Redes sociales del negocio (opcional)</span>
+                </div>
+                <span class="accordion-chevron">▾</span>
+              </summary>
+              <div class="accordion-content">
+                <div class="form-grid-2">
+                  <div class="editor-field-group">
+                    <label for="settings-social-instagram" class="field-label-sm">Instagram</label>
+                    <input type="text" id="settings-social-instagram" class="input-modern" placeholder="@mitienda.pe">
+                  </div>
+                  <div class="editor-field-group">
+                    <label for="settings-social-tiktok" class="field-label-sm">TikTok</label>
+                    <input type="text" id="settings-social-tiktok" class="input-modern" placeholder="@mitienda.pe">
+                  </div>
+                </div>
+                <div class="form-grid-2" style="margin-top: 8px;">
+                  <div class="editor-field-group">
+                    <label for="settings-social-facebook" class="field-label-sm">Facebook</label>
+                    <input type="text" id="settings-social-facebook" class="input-modern" placeholder="facebook.com/mitienda">
+                  </div>
+                  <div class="editor-field-group">
+                    <label for="settings-social-website" class="field-label-sm">Sitio Web / Link</label>
+                    <input type="text" id="settings-social-website" class="input-modern" placeholder="www.mitienda.com">
+                  </div>
+                </div>
+              </div>
+            </details>
 
-            <div class="form-grid-2">
-              <div class="editor-field-group">
-                <label for="settings-social-instagram" class="field-label-sm">Instagram</label>
-                <input type="text" id="settings-social-instagram" class="input-modern" placeholder="Ej: @mitienda.pe o link">
-              </div>
-              <div class="editor-field-group">
-                <label for="settings-social-tiktok" class="field-label-sm">TikTok</label>
-                <input type="text" id="settings-social-tiktok" class="input-modern" placeholder="Ej: @mitienda.pe o link">
-              </div>
-            </div>
-
-            <div class="form-grid-2" style="margin-top: 10px;">
-              <div class="editor-field-group">
-                <label for="settings-social-facebook" class="field-label-sm">Facebook</label>
-                <input type="text" id="settings-social-facebook" class="input-modern" placeholder="Ej: facebook.com/mitienda">
-              </div>
-              <div class="editor-field-group">
-                <label for="settings-social-website" class="field-label-sm">Sitio Web / Enlace</label>
-                <input type="text" id="settings-social-website" class="input-modern" placeholder="Ej: www.mitienda.com">
-              </div>
-            </div>
-
-            <button type="button" id="save-store-btn" class="btn-save-settings" style="margin-top: 18px;">Guardar Datos de Tienda</button>
+            <button type="button" id="save-store-btn" class="btn-save-settings-compact" style="margin-top: 14px;">Guardar cambios</button>
           </section>
         </div>
 
@@ -920,14 +870,11 @@
           </div>
         </main>
 
-        <!-- Barra Flotante Inferior del Carrito (Sticky Bottom Bar) -->
+        <!-- Barra Inferior de Pedido (Estilo Rectangular Limpio Emil Kowalski) -->
         <aside class="floating-cart-bar hidden" id="floating-cart-bar">
           <div class="cart-bar-clickable" id="open-cart-btn">
             <div class="cart-bar-left">
-              <div class="cart-icon-badge-wrap">
-                <span class="cart-bar-icon">🛍️</span>
-                <span class="cart-items-count" id="cart-items-count">0</span>
-              </div>
+              <span class="cart-bar-badge" id="cart-items-count">0</span>
               <div class="cart-bar-text-group">
                 <span class="cart-bar-label">Ver Pedido</span>
                 <span class="cart-bar-items-sub" id="cart-bar-subtext">0 productos</span>
@@ -935,7 +882,7 @@
             </div>
             <div class="cart-bar-right">
               <span class="cart-bar-total" id="cart-bar-total">S/ 0.00</span>
-              <span class="cart-bar-arrow">▶</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
             </div>
           </div>
         </aside>
@@ -958,8 +905,8 @@
         <div class="product-modal-scroll-area" id="product-modal-scroll-area">
           <div class="product-modal-media-header">
             <div class="product-modal-media-switcher hidden" id="detail-media-switcher">
-              <button type="button" class="media-switch-btn active" id="detail-switch-photo-btn">📷 Fotos</button>
-              <button type="button" class="media-switch-btn" id="detail-switch-video-btn">🎥 Video</button>
+              <button type="button" class="media-switch-btn active" id="detail-switch-photo-btn">Fotos</button>
+              <button type="button" class="media-switch-btn" id="detail-switch-video-btn">Video</button>
             </div>
             <div class="product-modal-carousel-container" id="detail-carousel-container">
               <div class="product-modal-carousel-track" id="detail-carousel-track">
@@ -992,13 +939,13 @@
             <h2 class="detail-title" id="detail-title">Nombre del Producto</h2>
             <div class="detail-price-highlight-row">
               <div class="detail-price" id="detail-price">S/ 0.00</div>
-              <span class="detail-listing-badge" id="detail-listing-badge">🛍️ Artículo</span>
+              <span class="detail-listing-badge" id="detail-listing-badge">Artículo</span>
             </div>
             <p class="detail-description" id="detail-desc">Descripción del producto.</p>
 
             <!-- Especificaciones Técnicas Estilo Marketplace -->
             <div class="detail-specs-container hidden" id="detail-specs-container">
-              <h4 class="specs-section-title">📋 Ficha Técnica / Especificaciones</h4>
+              <h4 class="specs-section-title">Especificaciones</h4>
               <div class="detail-specs-grid" id="detail-specs-grid"></div>
             </div>
 
@@ -1467,10 +1414,10 @@
       </div>
     </div>
 
-    <!-- TOAST DE NOTIFICACIÓN FLOTANTE -->
-    <div class="app-toast hidden" id="app-toast">
-      <span class="toast-icon" id="toast-icon">✨</span>
-      <span class="toast-message" id="toast-message">Mensaje informativo</span>
+    <!-- TOAST DE NOTIFICACIÓN FLOTANTE (ESTILO SONNER) -->
+    <div class="app-toast hidden" id="app-toast" aria-live="polite">
+      <span class="toast-icon hidden" id="toast-icon"></span>
+      <span class="toast-message" id="toast-message"></span>
     </div>
 
     <!-- Modal Crear Nueva Tienda -->

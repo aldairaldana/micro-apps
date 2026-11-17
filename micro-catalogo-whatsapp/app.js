@@ -1135,26 +1135,41 @@ const AppState = {
       customerView.setAttribute("data-theme-mode", mode);
       customerView.setAttribute("data-theme-preset", presetKey);
       customerView.style.setProperty("--store-accent", accent);
-      customerView.style.setProperty("--store-header-bg", preset.headerBg);
-      customerView.style.setProperty("--store-header-text", preset.headerText);
-      customerView.style.setProperty("--store-badge-bg", preset.badgeBg);
-      customerView.style.setProperty("--store-badge-text", preset.badgeText);
+      customerView.style.setProperty("--cust-accent", accent);
       if (mode === "light") {
+        customerView.style.setProperty("--cust-bg", "#f8fafc");
+        customerView.style.setProperty("--cust-surface", "#ffffff");
+        customerView.style.setProperty("--cust-surface-2", "#f1f5f9");
+        customerView.style.setProperty("--cust-text", "#09090b");
+        customerView.style.setProperty("--cust-muted", "#64748b");
+        customerView.style.setProperty("--cust-border", "rgba(15, 23, 42, 0.08)");
+        customerView.style.setProperty("--cust-accent-text", "#ffffff");
         customerView.classList.add("theme-light");
         customerView.classList.remove("theme-dark");
       } else {
+        customerView.style.setProperty("--cust-bg", "#090d16");
+        customerView.style.setProperty("--cust-surface", "#0f172a");
+        customerView.style.setProperty("--cust-surface-2", "#1e293b");
+        customerView.style.setProperty("--cust-text", "#f8fafc");
+        customerView.style.setProperty("--cust-muted", "#94a3b8");
+        customerView.style.setProperty("--cust-border", "rgba(255, 255, 255, 0.08)");
+        customerView.style.setProperty("--cust-accent-text", "#ffffff");
         customerView.classList.add("theme-dark");
         customerView.classList.remove("theme-light");
       }
     }
 
-    document.querySelectorAll(".theme-preset-card").forEach(card => {
+    document.querySelectorAll(".theme-preset-card, .theme-swatch-item").forEach(card => {
       card.classList.toggle("active", card.dataset.themeId === presetKey);
     });
 
     const customColorInput = document.getElementById("store-custom-accent-color");
     if (customColorInput && accent) {
       customColorInput.value = accent;
+    }
+    const customDot = document.querySelector(".swatch-custom-dot");
+    if (customDot && accent) {
+      customDot.style.background = accent;
     }
 
     const lightBtn = document.getElementById("store-theme-mode-light");
@@ -3611,7 +3626,7 @@ const StudioController = {
 
     let html = `
       <button type="button" class="catalog-chip-btn ${activeId === "all" ? "active" : ""}" data-catalog-id="all">
-        <span>✨ Todos</span>
+        <span>Todos</span>
         <span class="catalog-chip-count">${totalCount}</span>
       </button>
     `;
@@ -4719,7 +4734,7 @@ const CustomerUI = {
       });
 
     return [
-      { name: "all", label: "Todos", count: baseProds.length, icon: "✨" },
+      { name: "all", label: "Todos", count: baseProds.length, icon: "" },
       ...validCats
     ];
   },
@@ -4778,8 +4793,8 @@ const CustomerUI = {
         <div class="product-img-wrapper" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')">
           <img src="${p.img || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80'}" 
                alt="${escapeHtml(p.name)}" class="product-card-img" loading="lazy">
-          ${photosCount > 1 ? `<span class="badge-photo-count">📷 1/${photosCount}</span>` : ""}
-          ${p.videoUrl ? `<span class="badge-video-flag">🎥 Video</span>` : ""}
+          ${photosCount > 1 ? `<span class="badge-photo-count">1/${photosCount}</span>` : ""}
+          ${p.videoUrl ? `<span class="badge-video-flag">Video</span>` : ""}
           ${p.promo ? `<span class="badge-promo-flag">PROMO</span>` : ""}
           ${!isAvailable ? `<span class="badge-out-of-stock">AGOTADO</span>` : ""}
         </div>
@@ -4806,15 +4821,15 @@ const CustomerUI = {
               </button>
             ` : isVehicle ? `
               <button class="btn-inquire-direct" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')" type="button">
-                <span>🚗 Ver ficha / Consultar</span>
+                <span>Ver ficha</span>
               </button>
             ` : isDigital ? `
               <button class="add-product-btn" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')" type="button">
-                <span>⚡ Ver planes / Comprar</span>
+                <span>Ver opciones</span>
               </button>
             ` : hasVariants ? `
               <button class="add-product-btn" onclick="CustomerUI.openProductModal('${escapeHtml(p.id)}')" type="button">
-                <span>Ver opciones ➔</span>
+                <span>Ver opciones</span>
               </button>
             ` : `
               <button class="add-product-btn" onclick="CartController.addToCart('${escapeHtml(p.id)}', 1)" type="button">
@@ -6211,7 +6226,7 @@ const QRGenerator = {
 // ============================================================================
 const Toast = {
   timeoutId: null,
-  show(message, icon = "✨") {
+  show(message, icon = "") {
     const toast = document.getElementById("app-toast");
     const msgEl = document.getElementById("toast-message");
     const iconEl = document.getElementById("toast-icon");
@@ -6219,14 +6234,22 @@ const Toast = {
     if (!toast) return;
 
     if (msgEl) msgEl.textContent = message;
-    if (iconEl) iconEl.textContent = icon;
+    if (iconEl) {
+      if (icon) {
+        iconEl.textContent = icon;
+        iconEl.classList.remove("hidden");
+      } else {
+        iconEl.textContent = "";
+        iconEl.classList.add("hidden");
+      }
+    }
 
     toast.classList.remove("hidden");
 
     if (this.timeoutId) clearTimeout(this.timeoutId);
     this.timeoutId = setTimeout(() => {
       toast.classList.add("hidden");
-    }, 2800);
+    }, 2400);
   }
 };
 

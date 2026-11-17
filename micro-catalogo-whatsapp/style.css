@@ -1190,7 +1190,7 @@ img {
    =================================================================== */
 #customer-preview-view {
   position: relative;
-  background: var(--bg-deep);
+  background: var(--cust-bg, var(--bg-deep));
   min-height: 100vh;
   padding-bottom: calc(100px + var(--safe-bottom));
 }
@@ -1908,12 +1908,18 @@ body.has-preview-bar .sticky-nav-section {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(135deg, var(--primary) 0%, #00994d 100%);
-  color: #041409;
-  border-radius: var(--radius-pill);
-  padding: 12px 18px;
-  box-shadow: 0 10px 30px var(--primary-glow), 0 4px 12px rgba(0, 0, 0, 0.5);
+  background: var(--cust-accent, #111827);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 11px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28), 0 1px 2px rgba(0, 0, 0, 0.15);
   cursor: pointer;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.cart-bar-clickable:active {
+  transform: scale(0.98);
 }
 
 .cart-bar-left {
@@ -2972,33 +2978,37 @@ body.has-preview-bar .sticky-nav-section {
   gap: 8px;
 }
 
-/* TOAST */
+/* TOAST DE NOTIFICACIÓN FLOTANTE (ESTILO SONNER BY EMIL KOWALSKI) */
 .app-toast {
   position: fixed !important;
   top: 14px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
   width: auto !important;
-  max-width: min(92vw, 380px) !important;
+  max-width: min(92vw, 360px) !important;
   background: #18181b !important;
   color: #fafafa !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
   border-radius: 10px !important;
-  padding: 10px 14px !important;
+  padding: 9px 14px !important;
   font-size: 0.82rem !important;
   font-weight: 500 !important;
   line-height: 1.35 !important;
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
-  z-index: 2000 !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35) !important;
-  animation: slideToast 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 9999 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+  pointer-events: none !important;
+  transition: opacity 160ms cubic-bezier(0.23, 1, 0.32, 1), transform 160ms cubic-bezier(0.23, 1, 0.32, 1) !important;
 }
 
-@keyframes slideToast {
-  from { opacity: 0; transform: translate(-50%, -15px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
+.app-toast.hidden {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+  transform: translate(-50%, -10px) scale(0.96) !important;
 }
 
 .toast-message {
@@ -7441,69 +7451,238 @@ select option {
   color: #f8fafc;
 }
 
-/* 6. Modo Claro / Femenino / Boutique en Vista del Comprador */
+/* ===================================================================
+   6. ZERO-AI / EMIL KOWALSKI DESIGN ENGINEERING (CRAFT SYSTEM)
+   =================================================================== */
+
+/* Variables de Color Dinámicas por Tienda (Aislamiento Total de Modo Claro / Oscuro) */
 #customer-preview-view {
-  background: var(--store-bg, #0b0e14);
-  color: var(--store-text, #f8fafc);
-  transition: background-color 0.25s ease, color 0.25s ease;
+  --cust-bg: #090d16;
+  --cust-surface: #0f172a;
+  --cust-surface-2: #1e293b;
+  --cust-text: #f8fafc;
+  --cust-muted: #94a3b8;
+  --cust-border: rgba(255, 255, 255, 0.08);
+  --cust-border-subtle: rgba(255, 255, 255, 0.05);
+  --cust-accent: var(--store-accent, #3b82f6);
+  --cust-accent-text: #ffffff;
+  background: var(--cust-bg) !important;
+  color: var(--cust-text) !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-#customer-preview-view[data-theme-mode="light"] {
-  background: var(--store-bg, #f8fafc) !important;
-  color: var(--store-text, #0f172a) !important;
+#customer-preview-view[data-theme-mode="light"],
+#customer-preview-view.theme-light {
+  --cust-bg: #f8fafc;
+  --cust-surface: #ffffff;
+  --cust-surface-2: #f1f5f9;
+  --cust-text: #09090b;
+  --cust-muted: #64748b;
+  --cust-border: rgba(15, 23, 42, 0.08);
+  --cust-border-subtle: rgba(15, 23, 42, 0.05);
+  --cust-accent: var(--store-accent, #111827);
+  --cust-accent-text: #ffffff;
+  background: var(--cust-bg) !important;
+  color: var(--cust-text) !important;
 }
 
-#customer-preview-view[data-theme-mode="light"] .customer-top-header,
-#customer-preview-view[data-theme-mode="light"] .store-info-card,
-#customer-preview-view[data-theme-mode="light"] .customer-catalogs-nav,
-#customer-preview-view[data-theme-mode="light"] .category-tabs-container,
-#customer-preview-view[data-theme-mode="light"] .product-card,
-#customer-preview-view[data-theme-mode="light"] .customer-cart-bottom-bar,
-#customer-preview-view[data-theme-mode="light"] .sheet-content,
-#customer-preview-view[data-theme-mode="light"] .store-active-catalog-banner {
-  background: var(--store-card-bg, #ffffff) !important;
-  border-color: var(--store-border, rgba(0, 0, 0, 0.08)) !important;
-  color: var(--store-text, #0f172a) !important;
+/* Aplicación Estricta a Todo el Catálogo del Comprador */
+#customer-preview-view .store-info-card,
+#customer-preview-view .store-header,
+#customer-preview-view .catalog-header-card {
+  background: var(--cust-surface) !important;
+  border-color: var(--cust-border) !important;
+  color: var(--cust-text) !important;
 }
 
-#customer-preview-view[data-theme-mode="light"] .store-name,
-#customer-preview-view[data-theme-mode="light"] .product-name,
-#customer-preview-view[data-theme-mode="light"] .product-price,
-#customer-preview-view[data-theme-mode="light"] .search-input {
-  color: var(--store-text, #0f172a) !important;
+#customer-preview-view .store-name,
+#customer-preview-view .product-name,
+#customer-preview-view .product-price {
+  color: var(--cust-text) !important;
 }
 
-#customer-preview-view[data-theme-mode="light"] .store-tagline,
-#customer-preview-view[data-theme-mode="light"] .product-desc,
-#customer-preview-view[data-theme-mode="light"] .meta-item,
-#customer-preview-view[data-theme-mode="light"] .catalog-badge-label {
-  color: var(--store-text-muted, #64748b) !important;
+#customer-preview-view .store-tagline,
+#customer-preview-view .product-desc,
+#customer-preview-view .meta-item {
+  color: var(--cust-muted) !important;
 }
 
-#customer-preview-view[data-theme-mode="light"] .search-input {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
+/* Solución Definitiva a la Franja Negra: Sticky Nav, Buscador y Categorías */
+#customer-preview-view .sticky-nav-section {
+  background: var(--cust-bg) !important;
+  border-bottom: 1px solid var(--cust-border) !important;
 }
 
-#customer-preview-view[data-theme-mode="light"] .cat-tab-btn {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
-  color: #475569 !important;
+#customer-preview-view .search-input-wrapper {
+  background: var(--cust-surface) !important;
+  border: 1px solid var(--cust-border) !important;
 }
 
-#customer-preview-view[data-theme-mode="light"] .cat-tab-btn.active {
-  background: var(--store-accent, #111827) !important;
-  color: #ffffff !important;
-  border-color: var(--store-accent, #111827) !important;
+#customer-preview-view .product-search-input {
+  color: var(--cust-text) !important;
+}
+
+#customer-preview-view .search-icon {
+  color: var(--cust-muted) !important;
+}
+
+#customer-preview-view .view-toggle-btn {
+  background: var(--cust-surface) !important;
+  border-color: var(--cust-border) !important;
+  color: var(--cust-muted) !important;
+}
+
+#customer-preview-view .view-toggle-btn.active {
+  background: var(--cust-surface-2) !important;
+  color: var(--cust-text) !important;
+}
+
+#customer-preview-view .categories-scroll-track {
+  background: transparent !important;
+}
+
+#customer-preview-view .cat-tab-btn {
+  background: var(--cust-surface) !important;
+  border: 1px solid var(--cust-border) !important;
+  color: var(--cust-muted) !important;
+  border-radius: 8px !important;
+}
+
+#customer-preview-view .cat-tab-btn.active {
+  background: var(--cust-accent) !important;
+  color: var(--cust-accent-text) !important;
+  border-color: var(--cust-accent) !important;
+  box-shadow: none !important;
+}
+
+#customer-preview-view .catalog-main-content {
+  background: var(--cust-bg) !important;
+}
+
+#customer-preview-view .category-section-header h3 {
+  color: var(--cust-text) !important;
+}
+
+#customer-preview-view .product-card {
+  background: var(--cust-surface) !important;
+  border: 1px solid var(--cust-border) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+#customer-preview-view .product-img-wrapper {
+  background: var(--cust-surface-2) !important;
 }
 
 #customer-preview-view .add-product-btn {
-  background: var(--store-accent, var(--primary, #10b981)) !important;
-  border-color: var(--store-accent, var(--primary, #10b981)) !important;
+  background: var(--cust-accent) !important;
+  border-color: var(--cust-accent) !important;
+  color: var(--cust-accent-text) !important;
+  border-radius: 8px !important;
+}
+
+#customer-preview-view .quick-spec-pill {
+  background: var(--cust-surface-2) !important;
+  border: 1px solid var(--cust-border) !important;
+  color: var(--cust-muted) !important;
+  border-radius: 6px !important;
+}
+
+/* Barra Flotante de Pedido Rectangular Limpia (12px, sin óvalos ni neón) */
+.floating-cart-bar {
+  position: fixed !important;
+  bottom: calc(12px + var(--safe-bottom)) !important;
+  left: 12px !important;
+  right: 12px !important;
+  margin: 0 auto !important;
+  max-width: 440px !important;
+  width: auto !important;
+  transform: none !important;
+  z-index: 90 !important;
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1), opacity 200ms ease;
+}
+
+.floating-cart-bar.hidden {
+  display: none !important;
+}
+
+.cart-bar-clickable {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: var(--cust-accent, #111827) !important;
+  color: #ffffff !important;
+  border-radius: 12px !important;
+  padding: 11px 16px !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28), 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+  cursor: pointer !important;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1) !important;
+}
+
+.cart-bar-clickable:active {
+  transform: scale(0.98) !important;
+}
+
+.cart-bar-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 24px !important;
+  height: 24px !important;
+  padding: 0 6px !important;
+  border-radius: 6px !important;
+  background: rgba(0, 0, 0, 0.25) !important;
+  color: #ffffff !important;
+  font-size: 0.76rem !important;
+  font-weight: 700 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+/* Modal Detalle de Producto - Fix de recorte superior */
+#product-detail-modal .product-modal-card {
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  max-height: 90dvh !important;
+  background: var(--cust-surface, #0f172a) !important;
+  border: 1px solid var(--cust-border, rgba(255, 255, 255, 0.08)) !important;
+}
+
+#product-detail-modal .product-modal-media-header {
+  margin-top: 0 !important;
+  position: relative !important;
+  background: var(--cust-surface-2, #1e293b) !important;
+}
+
+#product-detail-modal .product-modal-carousel-container {
+  max-height: 280px !important;
+  min-height: 180px !important;
+  overflow: hidden !important;
+  background: var(--cust-surface-2, #1e293b) !important;
+}
+
+#product-detail-modal .detail-product-img {
+  max-height: 280px !important;
+  object-fit: contain !important;
+  background: transparent !important;
+}
+
+#product-detail-modal .product-close {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  z-index: 25 !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 8px !important;
+  background: rgba(0, 0, 0, 0.65) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
   color: #ffffff !important;
 }
 
-/* 7. Redes Sociales en la Vitrina del Comprador */
+/* Redes Sociales del Negocio en Vitrina */
 .store-social-links {
   display: flex;
   align-items: center;
@@ -7519,26 +7698,271 @@ select option {
   width: 36px;
   height: 36px;
   border-radius: 8px !important;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: inherit;
+  background: var(--cust-surface-2, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--cust-border, rgba(255, 255, 255, 0.12));
+  color: var(--cust-text, inherit);
   transition: all 0.2s ease;
   text-decoration: none;
 }
 
 .store-social-btn:hover {
-  background: var(--store-accent, #10b981);
+  background: var(--cust-accent, #111827);
   color: #ffffff;
   transform: translateY(-1px);
 }
 
-#customer-preview-view[data-theme-mode="light"] .store-social-btn {
-  background: rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.1);
-  color: #334155;
+/* ===================================================================
+   7. REDISEÑO COMPACTO DE MI TIENDA (ELIMINAR CAJAS GIGANTES)
+   =================================================================== */
+
+/* Selector de Rubro Compacto (40px de alto, 2 columnas) */
+.niche-selector-compact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-top: 8px;
 }
 
-#customer-preview-view[data-theme-mode="light"] .store-social-btn:hover {
-  background: var(--store-accent, #111827);
+.niche-selector-compact-grid .niche-card-btn {
+  height: 40px !important;
+  padding: 0 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 8px !important;
+  color: #cbd5e1 !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  transition: all 160ms cubic-bezier(0.23, 1, 0.32, 1) !important;
+}
+
+.niche-selector-compact-grid .niche-card-btn.active {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  color: #ffffff !important;
+}
+
+.niche-selector-compact-grid .niche-emoji {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.niche-selector-compact-grid .niche-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tira Horizontal de Swatches de Color Circulares de 32px */
+.theme-compact-wrapper {
+  margin-top: 6px;
+}
+
+.theme-compact-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.theme-mode-segmented {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.btn-theme-mode-seg {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.btn-theme-mode-seg.active {
+  background: rgba(255, 255, 255, 0.16);
   color: #ffffff;
+  font-weight: 700;
+}
+
+.theme-swatches-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 4px 0 6px;
+  scrollbar-width: none;
+}
+.theme-swatches-strip::-webkit-scrollbar { display: none; }
+
+.theme-swatch-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.swatch-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+.theme-swatch-item.active .swatch-circle {
+  box-shadow: 0 0 0 2px #0f172a, 0 0 0 4px var(--cust-accent, #3b82f6);
+  transform: scale(1.08);
+}
+
+.swatch-name {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.theme-swatch-item.active .swatch-name {
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.swatch-custom-picker-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.swatch-custom-label {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.swatch-color-input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.swatch-custom-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+/* Acordeón Compacto para Redes Sociales */
+.compact-accordion {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 160ms ease;
+}
+
+.accordion-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.accordion-summary::-webkit-details-marker { display: none; }
+
+.accordion-chevron {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  transition: transform 160ms ease;
+}
+
+.compact-accordion[open] .accordion-chevron {
+  transform: rotate(180deg);
+}
+
+.accordion-content {
+  padding: 0 12px 12px 12px;
+}
+
+.btn-save-settings-compact {
+  width: 100%;
+  height: 40px;
+  background: #27272a;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 140ms ease, transform 140ms ease;
+}
+
+.btn-save-settings-compact:hover {
+  background: #3f3f46;
+}
+
+.btn-save-settings-compact:active {
+  transform: scale(0.98);
+}
+
+/* ===================================================================
+   8. FUNDAMENTOS DE MOTION & TACTILE (EMIL KOWALSKI CRAFT)
+   =================================================================== */
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --radius-pill: 8px;
+}
+
+button, .product-card, .cat-tab-btn, .niche-card-btn, a {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+button:active, .cat-tab-btn:active, .niche-card-btn:active, .theme-swatch-item:active {
+  transform: scale(0.97);
+}
+
+.product-price, .cart-bar-total, .cart-items-count, .cart-bar-badge, .detail-price, .price-highlight {
+  font-variant-numeric: tabular-nums !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
