@@ -1203,19 +1203,38 @@ const AppState = {
     };
 
     const mode = this.shopConfig?.themeMode || "light";
-    const accent = this.shopConfig?.accentColor || preset.accent || "#3b82f6";
+    const rawAccent = this.shopConfig?.accentColor || preset.accent || "#16a34a";
+    const accent = rawAccent;
 
-    // Auto-cálculo de contraste para texto sobre el acento
-    let accentText = "#ffffff";
-    if (accent) {
-      const cleanHex = accent.replace("#", "");
-      if (cleanHex.length === 6) {
-        const r = parseInt(cleanHex.substr(0, 2), 16) || 0;
-        const g = parseInt(cleanHex.substr(2, 2), 16) || 0;
-        const b = parseInt(cleanHex.substr(4, 2), 16) || 0;
-        const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-        if (yiq >= 180) accentText = "#0f172a";
+    // Auto-cálculo de contraste y luminancia relativa estándar WCAG
+    let lum = 0.2;
+    let cleanHex = (rawAccent || "#16a34a").replace("#", "");
+    if (cleanHex.length === 3) {
+      cleanHex = cleanHex.split("").map(c => c + c).join("");
+    }
+    if (cleanHex.length === 6) {
+      const r = parseInt(cleanHex.substr(0, 2), 16) / 255;
+      const g = parseInt(cleanHex.substr(2, 2), 16) / 255;
+      const b = parseInt(cleanHex.substr(4, 2), 16) / 255;
+      lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+
+    let accentBg = rawAccent;
+    let accentFg = lum > 0.6 ? "#0f172a" : "#ffffff";
+    let priceColor = (mode === "dark") ? "#f8fafc" : "#0f172a";
+
+    if (mode === "dark") {
+      // Si el acento de la tienda es oscuro (como Minimal #111827 con lum < 0.25),
+      // en la vitrina oscura el botón se convierte en blanco con texto negro (#f8fafc / #0f172a)
+      // para evitar el botón oscuro invisible sobre fondo oscuro.
+      if (lum < 0.25) {
+        accentBg = "#f8fafc";
+        accentFg = "#0f172a";
       }
+      priceColor = "#f8fafc";
+    } else {
+      // Modo Claro: precio legible asegurado
+      priceColor = "#0f172a";
     }
 
     const themeVars = mode === "light" ? {
@@ -1228,9 +1247,12 @@ const AppState = {
       "--cust-border": "#e2e8f0",
       "--cust-border-subtle": "rgba(15, 23, 42, 0.05)",
       "--cust-input-bg": "#ffffff",
-      "--cust-accent": accent,
-      "--cust-accent-contrast": accentText,
-      "--cust-accent-text": accentText
+      "--cust-accent": rawAccent,
+      "--cust-accent-bg": accentBg,
+      "--cust-accent-fg": accentFg,
+      "--cust-accent-contrast": accentFg,
+      "--cust-accent-text": accentFg,
+      "--cust-price-color": priceColor
     } : {
       "--cust-bg": "#0b0d12",
       "--cust-surface": "#13161f",
@@ -1241,9 +1263,12 @@ const AppState = {
       "--cust-border": "rgba(255, 255, 255, 0.08)",
       "--cust-border-subtle": "rgba(255, 255, 255, 0.05)",
       "--cust-input-bg": "#161922",
-      "--cust-accent": accent,
-      "--cust-accent-contrast": accentText,
-      "--cust-accent-text": accentText
+      "--cust-accent": rawAccent,
+      "--cust-accent-bg": accentBg,
+      "--cust-accent-fg": accentFg,
+      "--cust-accent-contrast": accentFg,
+      "--cust-accent-text": accentFg,
+      "--cust-price-color": priceColor
     };
 
     if (mode === "light") {
@@ -1265,9 +1290,13 @@ const AppState = {
       if (!el) return;
       el.setAttribute("data-theme-mode", mode);
       el.setAttribute("data-theme-preset", presetKey);
-      el.style.setProperty("--store-accent", accent);
-      el.style.setProperty("--cust-accent", accent);
-      el.style.setProperty("--cust-accent-text", accentText);
+      el.style.setProperty("--store-accent", rawAccent);
+      el.style.setProperty("--cust-accent", rawAccent);
+      el.style.setProperty("--cust-accent-bg", accentBg);
+      el.style.setProperty("--cust-accent-fg", accentFg);
+      el.style.setProperty("--cust-accent-contrast", accentFg);
+      el.style.setProperty("--cust-accent-text", accentFg);
+      el.style.setProperty("--cust-price-color", priceColor);
       Object.entries(themeVars).forEach(([k, v]) => {
         el.style.setProperty(k, v);
       });
@@ -2455,6 +2484,42 @@ const ImageOptimizer = {
 };
 
 // ============================================================================
+// 3.5. TEMA GLOBAL DE LA APLICACIÓN (MODO CLARO / OSCURO PARA STUDIO Y REGISTRO)
+// ============================================================================
+const AppTheme = {
+  currentTheme: "light",
+  init() {
+    const saved = localStorage.getItem("tiendazap_app_theme");
+    this.currentTheme = (saved === "dark") ? "dark" : "light";
+    this.apply();
+  },
+  toggle() {
+    this.currentTheme = (this.currentTheme === "light") ? "dark" : "light";
+    localStorage.setItem("tiendazap_app_theme", this.currentTheme);
+    this.apply();
+    if (typeof Toast !== "undefined") {
+      Toast.show(`Modo ${this.currentTheme === "dark" ? "Oscuro" : "Claro"} activado`, this.currentTheme === "dark" ? "🌙" : "☀️");
+    }
+  },
+  apply() {
+    document.body.setAttribute("data-app-theme", this.currentTheme);
+    document.documentElement.setAttribute("data-app-theme", this.currentTheme);
+    const sunIcon = document.getElementById("app-theme-icon-sun");
+    const moonIcon = document.getElementById("app-theme-icon-moon");
+    if (sunIcon && moonIcon) {
+      if (this.currentTheme === "dark") {
+        sunIcon.classList.remove("hidden");
+        moonIcon.classList.add("hidden");
+      } else {
+        sunIcon.classList.add("hidden");
+        moonIcon.classList.remove("hidden");
+      }
+    }
+  }
+};
+window.AppTheme = AppTheme;
+
+// ============================================================================
 // 4. CONTROLADOR DE VISTAS (ONBOARDING vs STUDIO vs VISTA PREVIA CLIENTE)
 // ============================================================================
 const ViewController = {
@@ -2594,7 +2659,13 @@ const OnboardingWizard = {
         }
       }
     }
-    if (step === 1) {
+    if (step === 0) {
+      const resumeLink = document.getElementById("onboarding-btn-resume");
+      const hasExistingStore = !!(AppState.stores && AppState.stores.length > 0 && AppState.shopConfig?.name);
+      if (resumeLink) {
+        resumeLink.classList.toggle("hidden", !hasExistingStore);
+      }
+    } else if (step === 1) {
       const emailInp = document.getElementById("ob-owner-email");
       if (emailInp && !emailInp.value && AppState.merchant?.email) {
         emailInp.value = AppState.merchant.email;
@@ -2631,12 +2702,17 @@ const OnboardingWizard = {
       });
     }
 
-    // Pantalla 0: Ver tienda de demostración primero
-    const demoBtn = document.getElementById("onboarding-btn-demo");
-    if (demoBtn) {
-      demoBtn.addEventListener("click", (e) => {
+    // Pantalla 0: Entrar a mi panel (si ya existe tienda guardada)
+    const resumeBtn = document.getElementById("onboarding-btn-resume");
+    if (resumeBtn) {
+      resumeBtn.addEventListener("click", (e) => {
         e.preventDefault();
-        this.exploreDemoStore();
+        const screen = document.getElementById("onboarding-screen");
+        if (screen) {
+          screen.classList.add("hidden");
+          screen.classList.remove("active");
+        }
+        ViewController.showStudio();
       });
     }
 
@@ -6935,10 +7011,17 @@ window.Toast = Toast;
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
   try {
+    AppTheme.init();
     AppState.init();
     OnboardingWizard.init();
   } catch (err) {
     console.error("Error en AppState.init:", err);
+  }
+
+  // Conmutador Rápido de Tema Claro / Oscuro del Studio
+  const appThemeToggleBtn = document.getElementById("app-theme-toggle-btn");
+  if (appThemeToggleBtn) {
+    appThemeToggleBtn.addEventListener("click", () => AppTheme.toggle());
   }
 
   // 1. Switch de Vista Previa vs Studio
@@ -7821,11 +7904,39 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Compartir catálogo desde la vista del comprador (vitrina)
+  const shareCustomerAction = () => {
+    const url = window.location.href.split("#")[0];
+    const storeName = AppState.shopConfig?.name || "esta tienda";
+    const shareText = `🛍️ Mira el catálogo de ${storeName} aquí: ${url}`;
+    if (navigator.share) {
+      navigator.share({
+        title: storeName,
+        text: shareText,
+        url: url
+      }).catch(() => {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(() => {
+            Toast.show("Enlace copiado para compartir", "📋");
+          });
+        }
+      });
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => {
+        Toast.show("Enlace copiado para compartir", "📋");
+      }).catch(() => {
+        prompt("Enlace para compartir:", url);
+      });
+    } else {
+      prompt("Enlace para compartir:", url);
+    }
+  };
+
   // QR Modal del Comercio y Header en Preview
   const previewQrBtn = document.getElementById("preview-qr-btn");
   const previewShareBtn = document.getElementById("preview-share-btn");
   if (previewQrBtn) previewQrBtn.addEventListener("click", () => QRGenerator.openQRModal());
-  if (previewShareBtn) previewShareBtn.addEventListener("click", copyStoreLinkAction);
+  if (previewShareBtn) previewShareBtn.addEventListener("click", shareCustomerAction);
 
   const closeQrBtn = document.getElementById("close-qr-btn");
   const downloadQrBtn = document.getElementById("download-qr-btn");
