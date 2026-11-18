@@ -945,7 +945,7 @@ const STORE_THEME_PRESETS = {
   },
   "minimal-light": {
     id: "minimal-light",
-    name: "Minimalista Claro",
+    name: "Minimalista Blanco",
     mode: "light",
     accent: "#111827",
     headerBg: "#ffffff",
@@ -975,7 +975,7 @@ const STORE_THEME_PRESETS = {
   },
   "tech-dark": {
     id: "tech-dark",
-    name: "Tech & Licencias",
+    name: "Tech Azul",
     mode: "dark",
     accent: "#3b82f6",
     headerBg: "#0f172a",
@@ -985,7 +985,7 @@ const STORE_THEME_PRESETS = {
   },
   "obsidian-emerald": {
     id: "obsidian-emerald",
-    name: "Obsidiana Clásico",
+    name: "Esmeralda",
     mode: "dark",
     accent: "#10b981",
     headerBg: "#0b0e14",
@@ -994,6 +994,14 @@ const STORE_THEME_PRESETS = {
     badgeText: "#ffffff"
   }
 };
+
+// Aliases para máxima compatibilidad
+STORE_THEME_PRESETS["boutique"] = STORE_THEME_PRESETS["boutique-rose"];
+STORE_THEME_PRESETS["minimal"] = STORE_THEME_PRESETS["minimal-light"];
+STORE_THEME_PRESETS["lavanda"] = STORE_THEME_PRESETS["lavender-luxe"];
+STORE_THEME_PRESETS["coral"] = STORE_THEME_PRESETS["warm-coral"];
+STORE_THEME_PRESETS["tech"] = STORE_THEME_PRESETS["tech-dark"];
+STORE_THEME_PRESETS["esmeralda"] = STORE_THEME_PRESETS["obsidian-emerald"];
 
 // 2. ESTADO GLOBAL REACTIVO (APPSTATE)
 // ============================================================================
@@ -1123,44 +1131,76 @@ const AppState = {
   },
 
   applyStoreTheme() {
-    const presetKey = this.shopConfig?.themePreset || (this.activePreset === "tech" ? "tech-dark" : (this.activePreset === "fashion" || this.activePreset === "beauty" ? "boutique-rose" : "minimal-light"));
-    const preset = (typeof STORE_THEME_PRESETS !== "undefined" && STORE_THEME_PRESETS[presetKey]) ? STORE_THEME_PRESETS[presetKey] : {
-      id: "minimal-light", name: "Minimalista Claro", mode: "light", accent: "#111827", headerBg: "#ffffff", headerText: "#09090b", badgeBg: "#18181b", badgeText: "#ffffff"
+    const presetKey = this.shopConfig?.themePreset || (this.activePreset === "tech" ? "tech-dark" : "minimal-light");
+    const preset = (typeof STORE_THEME_PRESETS !== "undefined" && (STORE_THEME_PRESETS[presetKey] || STORE_THEME_PRESETS[presetKey.toLowerCase()])) ? (STORE_THEME_PRESETS[presetKey] || STORE_THEME_PRESETS[presetKey.toLowerCase()]) : {
+      id: "minimal-light", name: "Minimalista Blanco", mode: "light", accent: "#111827"
     };
-    const mode = this.shopConfig?.themeMode || preset.mode || "light";
-    const accent = this.shopConfig?.accentColor || preset.accent || "#10b981";
 
-    const customerView = document.getElementById("customer-preview-view");
-    if (customerView) {
-      customerView.setAttribute("data-theme-mode", mode);
-      customerView.setAttribute("data-theme-preset", presetKey);
-      customerView.style.setProperty("--store-accent", accent);
-      customerView.style.setProperty("--cust-accent", accent);
-      if (mode === "light") {
-        customerView.style.setProperty("--cust-bg", "#f8fafc");
-        customerView.style.setProperty("--cust-surface", "#ffffff");
-        customerView.style.setProperty("--cust-surface-2", "#f1f5f9");
-        customerView.style.setProperty("--cust-text", "#09090b");
-        customerView.style.setProperty("--cust-muted", "#64748b");
-        customerView.style.setProperty("--cust-border", "rgba(15, 23, 42, 0.08)");
-        customerView.style.setProperty("--cust-accent-text", "#ffffff");
-        customerView.classList.add("theme-light");
-        customerView.classList.remove("theme-dark");
-      } else {
-        customerView.style.setProperty("--cust-bg", "#090d16");
-        customerView.style.setProperty("--cust-surface", "#0f172a");
-        customerView.style.setProperty("--cust-surface-2", "#1e293b");
-        customerView.style.setProperty("--cust-text", "#f8fafc");
-        customerView.style.setProperty("--cust-muted", "#94a3b8");
-        customerView.style.setProperty("--cust-border", "rgba(255, 255, 255, 0.08)");
-        customerView.style.setProperty("--cust-accent-text", "#ffffff");
-        customerView.classList.add("theme-dark");
-        customerView.classList.remove("theme-light");
+    const mode = this.shopConfig?.themeMode || "light";
+    const accent = this.shopConfig?.accentColor || preset.accent || "#3b82f6";
+
+    // Auto-cálculo de contraste para texto sobre el acento
+    let accentText = "#ffffff";
+    if (accent) {
+      const cleanHex = accent.replace("#", "");
+      if (cleanHex.length === 6) {
+        const r = parseInt(cleanHex.substr(0, 2), 16) || 0;
+        const g = parseInt(cleanHex.substr(2, 2), 16) || 0;
+        const b = parseInt(cleanHex.substr(4, 2), 16) || 0;
+        const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+        if (yiq >= 180) accentText = "#0f172a";
       }
     }
 
+    const themeVars = mode === "light" ? {
+      "--cust-bg": "#f8fafc",
+      "--cust-surface": "#ffffff",
+      "--cust-surface-2": "#f1f5f9",
+      "--cust-text": "#0f172a",
+      "--cust-muted": "#64748b",
+      "--cust-border": "rgba(15, 23, 42, 0.09)",
+      "--cust-accent": accent,
+      "--cust-accent-text": accentText
+    } : {
+      "--cust-bg": "#0b0e14",
+      "--cust-surface": "#131722",
+      "--cust-surface-2": "#1b2130",
+      "--cust-text": "#f8fafc",
+      "--cust-muted": "#94a3b8",
+      "--cust-border": "rgba(255, 255, 255, 0.09)",
+      "--cust-accent": accent,
+      "--cust-accent-text": accentText
+    };
+
+    const targetElements = [
+      document.getElementById("customer-preview-view"),
+      document.getElementById("product-detail-modal"),
+      document.getElementById("cart-modal-overlay"),
+      document.getElementById("qr-modal")
+    ];
+
+    targetElements.forEach(el => {
+      if (!el) return;
+      el.setAttribute("data-theme-mode", mode);
+      el.setAttribute("data-theme-preset", presetKey);
+      el.style.setProperty("--store-accent", accent);
+      el.style.setProperty("--cust-accent", accent);
+      el.style.setProperty("--cust-accent-text", accentText);
+      Object.entries(themeVars).forEach(([k, v]) => {
+        el.style.setProperty(k, v);
+      });
+      if (mode === "light") {
+        el.classList.add("theme-light");
+        el.classList.remove("theme-dark");
+      } else {
+        el.classList.add("theme-dark");
+        el.classList.remove("theme-light");
+      }
+    });
+
     document.querySelectorAll(".theme-preset-card, .theme-swatch-item").forEach(card => {
-      card.classList.toggle("active", card.dataset.themeId === presetKey);
+      const cId = card.dataset.themeId;
+      card.classList.toggle("active", cId === presetKey || (preset.id && cId === preset.id));
     });
 
     const customColorInput = document.getElementById("store-custom-accent-color");
@@ -1237,6 +1277,7 @@ const AppState = {
     StudioController.populateSettingsTab();
     StudioController.updateVariantInputLabels();
     StudioController.renderCategoryFilters();
+    AppState.applyStoreTheme();
     CustomerUI.renderStoreHeader();
     CustomerUI.renderCategoryTabs();
     CustomerUI.renderProductCards();
@@ -1299,7 +1340,8 @@ const AppState = {
       StudioController.renderAll();
     }
     if (typeof CustomerUI !== "undefined") {
-      CustomerUI.renderStoreHeader();
+      AppState.applyStoreTheme();
+    CustomerUI.renderStoreHeader();
       CustomerUI.renderCategoryTabs();
       CustomerUI.renderProductCards();
     }
@@ -2203,6 +2245,7 @@ const AppState = {
     this.saveCart();
 
     StudioController.renderAll();
+    AppState.applyStoreTheme();
     CustomerUI.renderStoreHeader();
     CustomerUI.renderCategoryTabs();
     CustomerUI.renderProductCards();
@@ -2407,6 +2450,7 @@ const ViewController = {
       document.body.classList.remove("has-preview-bar");
     }
 
+    AppState.applyStoreTheme();
     CustomerUI.renderStoreHeader();
     CustomerUI.renderCategoryTabs();
     CustomerUI.renderProductCards();
@@ -2718,6 +2762,7 @@ const StudioController = {
     AppState.shopConfig.isOpen = !AppState.shopConfig.isOpen;
     AppState.saveConfig();
     this.renderTopStatus();
+    AppState.applyStoreTheme();
     CustomerUI.renderStoreHeader();
     Toast.show(`Tienda marcada como: ${AppState.shopConfig.isOpen ? "ABIERTA" : "CERRADA"}`, AppState.shopConfig.isOpen ? "🟢" : "🔴");
   },
@@ -2749,7 +2794,8 @@ const StudioController = {
 
       const bannerImg = document.getElementById("admin-banner-preview");
       if (bannerImg) bannerImg.src = compressedUrl;
-      CustomerUI.renderStoreHeader();
+      AppState.applyStoreTheme();
+    CustomerUI.renderStoreHeader();
       Toast.show("¡Foto de portada actualizada con éxito!", "📸");
     } catch (e) {
       alert("Error procesando foto de portada: " + e.message);
@@ -2765,7 +2811,8 @@ const StudioController = {
       AppState.saveConfig();
 
       this.syncAllLogoElements(compressedUrl);
-      CustomerUI.renderStoreHeader();
+      AppState.applyStoreTheme();
+    CustomerUI.renderStoreHeader();
       Toast.show("¡Logo de tu negocio actualizado al instante!", "✨");
     } catch (e) {
       alert("Error procesando logo: " + e.message);
@@ -3104,6 +3151,7 @@ const StudioController = {
     AppState.saveConfig();
     AppState.applyStoreTheme();
     this.populateStoreTab();
+    AppState.applyStoreTheme();
     CustomerUI.renderStoreHeader();
     Toast.show("¡Tienda y estilos guardados correctamente!", "🏪");
   },
@@ -3129,6 +3177,7 @@ const StudioController = {
 
     AppState.saveConfig();
     this.renderProductsList();
+    AppState.applyStoreTheme();
     CustomerUI.renderStoreHeader();
     CustomerUI.renderProductCards();
     CustomerUI.renderYapeCheckoutBox();
@@ -4377,6 +4426,7 @@ const StudioController = {
 
     AppState.saveConfig();
     this.renderProductsList();
+    AppState.applyStoreTheme();
     CustomerUI.renderStoreHeader();
     CustomerUI.renderProductCards();
     CustomerUI.renderYapeCheckoutBox();
@@ -4420,7 +4470,8 @@ const StudioController = {
           AppState.saveConfig();
           AppState.saveProducts();
           this.renderAll();
-          CustomerUI.renderStoreHeader();
+          AppState.applyStoreTheme();
+    CustomerUI.renderStoreHeader();
           CustomerUI.renderCategoryTabs();
           CustomerUI.renderProductCards();
           CustomerUI.renderYapeCheckoutBox();
@@ -5067,8 +5118,8 @@ const CustomerUI = {
       }
     }
     if (listBadge) {
-      const typeIcons = { vehicle: "🚗 Vehículo", digital: "⚡ Licencia / Digital", property: "🏠 Inmueble", item: "🛍️ Artículo" };
-      listBadge.textContent = isDigitalProd ? "⚡ Licencia / Digital" : (typeIcons[product.listingType] || "🛍️ Artículo");
+      const typeLabels = { vehicle: "Vehículo", digital: "Digital / Licencia", property: "Inmueble", item: "Artículo" };
+      listBadge.textContent = isDigitalProd ? "Digital / Licencia" : (typeLabels[product.listingType] || "Artículo");
       listBadge.classList.remove("hidden");
     }
 
@@ -6332,7 +6383,8 @@ document.addEventListener("DOMContentLoaded", () => {
     liveStoreName.addEventListener("input", (e) => {
       AppState.shopConfig.name = e.target.value.trim() || "Mi Tienda";
       AppState.saveConfig();
-      CustomerUI.renderStoreHeader();
+      AppState.applyStoreTheme();
+    CustomerUI.renderStoreHeader();
     });
   }
 
@@ -6340,7 +6392,8 @@ document.addEventListener("DOMContentLoaded", () => {
     liveStoreTagline.addEventListener("input", (e) => {
       AppState.shopConfig.tagline = e.target.value.trim();
       AppState.saveConfig();
-      CustomerUI.renderStoreHeader();
+      AppState.applyStoreTheme();
+    CustomerUI.renderStoreHeader();
     });
   }
 
@@ -6630,11 +6683,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!themeId || (typeof STORE_THEME_PRESETS !== "undefined" && !STORE_THEME_PRESETS[themeId])) return;
       const preset = STORE_THEME_PRESETS[themeId];
       AppState.shopConfig.themePreset = themeId;
-      AppState.shopConfig.themeMode = preset.mode;
+      // Respetar el themeMode actual elegido por el usuario (no forzar a oscuro a menos que el usuario pulse Oscuro)
+      if (!AppState.shopConfig.themeMode) {
+        AppState.shopConfig.themeMode = preset.mode || "light";
+      }
       AppState.shopConfig.accentColor = preset.accent;
       AppState.saveConfig();
       AppState.applyStoreTheme();
-      Toast.show(`Estilo aplicado: ${preset.name}`, "🎨");
+      Toast.show(`Estilo aplicado: ${preset.name}`, "");
     });
   });
 
@@ -6646,7 +6702,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     customAccentColorInput.addEventListener("change", () => {
       AppState.saveConfig();
-      Toast.show("Color de botón actualizado", "🎨");
+      Toast.show("Color de botón actualizado", "");
     });
   }
 
@@ -6657,7 +6713,7 @@ document.addEventListener("DOMContentLoaded", () => {
       AppState.shopConfig.themeMode = "light";
       AppState.saveConfig();
       AppState.applyStoreTheme();
-      Toast.show("Modo Claro activado", "☀️");
+      Toast.show("Modo Claro activado", "");
     });
   }
   if (themeModeDarkBtn) {
@@ -6665,7 +6721,7 @@ document.addEventListener("DOMContentLoaded", () => {
       AppState.shopConfig.themeMode = "dark";
       AppState.saveConfig();
       AppState.applyStoreTheme();
-      Toast.show("Modo Oscuro activado", "🌙");
+      Toast.show("Modo Oscuro activado", "");
     });
   }
 
@@ -7185,7 +7241,8 @@ document.addEventListener("DOMContentLoaded", () => {
         url.searchParams.delete("cat");
         window.history.replaceState({}, "", url.toString());
       } catch (err) {}
-      CustomerUI.renderStoreHeader();
+      AppState.applyStoreTheme();
+    CustomerUI.renderStoreHeader();
       CustomerUI.renderCategoryTabs();
       CustomerUI.renderProductCards();
       Toast.show("Mostrando toda la tienda", "🏪");

@@ -7513,28 +7513,51 @@ select option {
   border-bottom: 1px solid var(--cust-border) !important;
 }
 
-#customer-preview-view .search-input-wrapper {
-  background: var(--cust-surface) !important;
+#customer-preview-view .search-input-wrapper,
+#customer-preview-view .customer-search-box {
+  background: var(--cust-surface-2) !important;
   border: 1px solid var(--cust-border) !important;
+  border-radius: 8px !important;
 }
 
-#customer-preview-view .product-search-input {
+#customer-preview-view .product-search-input,
+#customer-preview-view #customer-search-input {
+  background: transparent !important;
   color: var(--cust-text) !important;
+  border: none !important;
+}
+
+#customer-preview-view .product-search-input::placeholder,
+#customer-preview-view #customer-search-input::placeholder {
+  color: var(--cust-muted) !important;
 }
 
 #customer-preview-view .search-icon {
   color: var(--cust-muted) !important;
 }
 
+#customer-preview-view .catalog-view-toggle,
+#customer-preview-view .view-mode-toggle {
+  background: var(--cust-surface-2) !important;
+  border: 1px solid var(--cust-border) !important;
+  border-radius: 8px !important;
+  padding: 2px !important;
+}
+
 #customer-preview-view .view-toggle-btn {
-  background: var(--cust-surface) !important;
-  border-color: var(--cust-border) !important;
+  background: transparent !important;
   color: var(--cust-muted) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 5px 8px !important;
+  cursor: pointer !important;
 }
 
 #customer-preview-view .view-toggle-btn.active {
-  background: var(--cust-surface-2) !important;
+  background: var(--cust-surface) !important;
   color: var(--cust-text) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid var(--cust-border) !important;
 }
 
 #customer-preview-view .categories-scroll-track {
@@ -7639,32 +7662,128 @@ select option {
   font-variant-numeric: tabular-nums !important;
 }
 
-/* Modal Detalle de Producto - Fix de recorte superior */
-#product-detail-modal .product-modal-card {
+/* Modal Detalle de Producto - Adaptación Total a Modo Claro / Oscuro & Acento */
+#product-detail-modal .product-modal-card,
+#product-detail-modal .detail-modal-card {
   border-radius: 14px !important;
   overflow: hidden !important;
   max-height: 90dvh !important;
-  background: var(--cust-surface, #0f172a) !important;
-  border: 1px solid var(--cust-border, rgba(255, 255, 255, 0.08)) !important;
+  background: var(--cust-surface, #ffffff) !important;
+  color: var(--cust-text, #0f172a) !important;
+  border: 1px solid var(--cust-border, rgba(15, 23, 42, 0.09)) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25) !important;
 }
 
-#product-detail-modal .product-modal-media-header {
+#product-detail-modal .product-modal-scroll-area,
+#product-detail-modal .product-modal-body {
+  background: var(--cust-surface, #ffffff) !important;
+  color: var(--cust-text, #0f172a) !important;
+}
+
+#product-detail-modal .product-modal-media-header,
+#product-detail-modal .product-modal-carousel-container {
   margin-top: 0 !important;
   position: relative !important;
-  background: var(--cust-surface-2, #1e293b) !important;
-}
-
-#product-detail-modal .product-modal-carousel-container {
   max-height: 280px !important;
   min-height: 180px !important;
   overflow: hidden !important;
-  background: var(--cust-surface-2, #1e293b) !important;
+  background: var(--cust-surface-2, #f1f5f9) !important;
 }
 
 #product-detail-modal .detail-product-img {
   max-height: 280px !important;
   object-fit: contain !important;
   background: transparent !important;
+}
+
+#product-detail-modal .detail-title {
+  color: var(--cust-text, #0f172a) !important;
+}
+
+#product-detail-modal .detail-description {
+  color: var(--cust-muted, #64748b) !important;
+}
+
+#product-detail-modal .detail-price {
+  color: var(--cust-accent, #3b82f6) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+#product-detail-modal .detail-listing-badge,
+#product-detail-modal .detail-category-chip,
+#product-detail-modal .detail-condition-badge {
+  background: var(--cust-surface-2, #f1f5f9) !important;
+  color: var(--cust-muted, #64748b) !important;
+  border: 1px solid var(--cust-border, rgba(15, 23, 42, 0.09)) !important;
+  border-radius: 6px !important;
+}
+
+#product-detail-modal .detail-specs-container,
+#product-detail-modal .detail-specs-box {
+  background: var(--cust-surface-2, #f1f5f9) !important;
+  border: 1px solid var(--cust-border, rgba(15, 23, 42, 0.09)) !important;
+  border-radius: 10px !important;
+}
+
+#product-detail-modal .specs-section-title {
+  color: var(--cust-text, #0f172a) !important;
+}
+
+#product-detail-modal .spec-item,
+#product-detail-modal .detail-spec-row {
+  background: var(--cust-surface, #ffffff) !important;
+  border: 1px solid var(--cust-border, rgba(15, 23, 42, 0.09)) !important;
+  color: var(--cust-text, #0f172a) !important;
+  border-radius: 8px !important;
+}
+
+#product-detail-modal .spec-label {
+  color: var(--cust-muted, #64748b) !important;
+}
+
+#product-detail-modal .spec-value {
+  color: var(--cust-text, #0f172a) !important;
+}
+
+#product-detail-modal .quantity-stepper,
+#product-detail-modal .qty-box {
+  background: var(--cust-surface-2, #f1f5f9) !important;
+  border: 1px solid var(--cust-border, rgba(15, 23, 42, 0.09)) !important;
+  border-radius: 8px !important;
+}
+
+#product-detail-modal .quantity-stepper .step-btn {
+  background: transparent !important;
+  color: var(--cust-text, #0f172a) !important;
+}
+
+#product-detail-modal .quantity-stepper .step-val {
+  color: var(--cust-text, #0f172a) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+#product-detail-modal #modal-product-note,
+#product-detail-modal .input-modern {
+  background: var(--cust-surface-2, #f1f5f9) !important;
+  color: var(--cust-text, #0f172a) !important;
+  border: 1px solid var(--cust-border, rgba(15, 23, 42, 0.09)) !important;
+  border-radius: 8px !important;
+}
+
+#product-detail-modal .product-modal-footer,
+#product-detail-modal #detail-modal-footer {
+  background: var(--cust-surface, #ffffff) !important;
+  border-top: 1px solid var(--cust-border, rgba(15, 23, 42, 0.09)) !important;
+}
+
+#product-detail-modal #modal-add-to-cart-btn,
+#product-detail-modal .btn-save-product {
+  background: var(--cust-accent, #3b82f6) !important;
+  color: var(--cust-accent-text, #ffffff) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  border: none !important;
+  font-weight: 700 !important;
 }
 
 #product-detail-modal .product-close {
@@ -7675,11 +7794,145 @@ select option {
   width: 34px !important;
   height: 34px !important;
   border-radius: 8px !important;
-  background: rgba(0, 0, 0, 0.65) !important;
+  background: rgba(0, 0, 0, 0.6) !important;
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
   color: #ffffff !important;
+}
+
+/* Modal Carrito & Checkout Express - Adaptación Total a Modo Claro / Oscuro & Acento */
+#cart-modal-overlay #cart-modal-card,
+#cart-modal-overlay .cart-modal-card,
+#cart-modal-overlay .bottom-sheet-card {
+  background: var(--cust-surface, #ffffff) !important;
+  color: var(--cust-text, #0f172a) !important;
+  border: 1px solid var(--cust-border, rgba(15, 23, 42, 0.09)) !important;
+  border-bottom: none !important;
+}
+
+#cart-modal-overlay .sheet-header {
+  background: var(--cust-surface, #ffffff) !important;
+  border-bottom: 1px solid var(--cust-border, rgba(15, 23, 42, 0.09)) !important;
+}
+
+#cart-modal-overlay .sheet-title {
+  color: var(--cust-text, #0f172a) !important;
+}
+
+#cart-modal-overlay .sheet-subtitle {
+  color: var(--cust-muted, #64748b) !important;
+}
+
+#cart-modal-overlay .sheet-scroll-body {
+  background: var(--cust-surface, #ffffff) !important;
+}
+
+#cart-modal-overlay .cart-item-card {
+  background: var(--cust-surface-2, #f1f5f9) !important;
+  border: 1px solid var(--cust-border, rgba(15, 23, 42, 0.09)) !important;
+  border-radius: 10px !important;
+}
+
+#cart-modal-overlay .cart-item-title {
+  color: var(--cust-text, #0f172a) !important;
+}
+
+#cart-modal-overlay .cart-item-price {
+  color: var(--cust-accent, #3b82f6) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+#cart-modal-overlay .checkout-block {
+  background: var(--cust-surface-2, #f1f5f9) !important;
+  border: 1px solid var(--cust-border, rgba(15, 23, 42, 0.09)) !important;
+  border-radius: 10px !important;
+}
+
+#cart-modal-overlay .block-label {
+  color: var(--cust-text, #0f172a) !important;
+}
+
+#cart-modal-overlay .toggle-card {
+  background: var(--cust-surface, #ffffff) !important;
+  border: 1px solid var(--cust-border, rgba(15, 23, 42, 0.09)) !important;
+  color: var(--cust-text, #0f172a) !important;
+  border-radius: 8px !important;
+}
+
+#cart-modal-overlay .toggle-card.active {
+  background: var(--cust-surface, #ffffff) !important;
+  border: 2px solid var(--cust-accent, #3b82f6) !important;
+  color: var(--cust-text, #0f172a) !important;
+}
+
+#cart-modal-overlay .form-input,
+#cart-modal-overlay .form-textarea {
+  background: var(--cust-surface, #ffffff) !important;
+  border: 1px solid var(--cust-border, rgba(15, 23, 42, 0.09)) !important;
+  color: var(--cust-text, #0f172a) !important;
+  border-radius: 8px !important;
+}
+
+#cart-modal-overlay .form-group label {
+  color: var(--cust-muted, #64748b) !important;
+}
+
+#cart-modal-overlay .payment-pill-card {
+  background: var(--cust-surface, #ffffff) !important;
+  border: 1px solid var(--cust-border, rgba(15, 23, 42, 0.09)) !important;
+  color: var(--cust-text, #0f172a) !important;
+  border-radius: 8px !important;
+}
+
+#cart-modal-overlay .payment-pill-card.active {
+  background: var(--cust-surface, #ffffff) !important;
+  border: 2px solid var(--cust-accent, #3b82f6) !important;
+  color: var(--cust-text, #0f172a) !important;
+}
+
+#cart-modal-overlay .order-summary-box {
+  background: var(--cust-surface-2, #f1f5f9) !important;
+  border: 1px solid var(--cust-border, rgba(15, 23, 42, 0.09)) !important;
+  border-radius: 10px !important;
+}
+
+#cart-modal-overlay .summary-line {
+  color: var(--cust-muted, #64748b) !important;
+}
+
+#cart-modal-overlay .summary-line.total-line {
+  color: var(--cust-text, #0f172a) !important;
+}
+
+#cart-modal-overlay .highlight-total {
+  color: var(--cust-accent, #3b82f6) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+#cart-modal-overlay .sheet-footer {
+  background: var(--cust-surface, #ffffff) !important;
+  border-top: 1px solid var(--cust-border, rgba(15, 23, 42, 0.09)) !important;
+}
+
+#cart-modal-overlay #send-whatsapp-order-btn,
+#cart-modal-overlay .btn-whatsapp-hero {
+  background: var(--cust-accent, #3b82f6) !important;
+  color: var(--cust-accent-text, #ffffff) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+#cart-modal-overlay #send-whatsapp-order-btn .wa-main-text,
+#cart-modal-overlay #send-whatsapp-order-btn .wa-arrow,
+#cart-modal-overlay #send-whatsapp-order-btn .whatsapp-btn-icon {
+  color: var(--cust-accent-text, #ffffff) !important;
+}
+
+#cart-modal-overlay #send-whatsapp-order-btn .wa-sub-text {
+  color: var(--cust-accent-text, #ffffff) !important;
+  opacity: 0.88 !important;
 }
 
 /* Redes Sociales del Negocio en Vitrina */
@@ -7744,6 +7997,14 @@ select option {
   background: rgba(255, 255, 255, 0.1) !important;
   border-color: rgba(255, 255, 255, 0.28) !important;
   color: #ffffff !important;
+}
+
+.niche-selector-compact-grid .niche-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  stroke: currentColor;
+  display: block;
 }
 
 .niche-selector-compact-grid .niche-emoji {
