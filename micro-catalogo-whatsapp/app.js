@@ -2618,10 +2618,6 @@ const ViewController = {
     CustomerUI.updateCartBar();
     CustomerUI.renderYapeCheckoutBox();
     window.scrollTo({ top: 0, behavior: "smooth" });
-
-    if (!AppState.isCustomerOnlyMode) {
-      Toast.show("Modo Vista Previa: Así ven tu tienda tus clientes", "👁️");
-    }
   },
 
   showCustomerView() {

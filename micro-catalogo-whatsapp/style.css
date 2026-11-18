@@ -9187,3 +9187,381 @@ button:active, .cat-tab-btn:active, .niche-card-btn:active, .theme-swatch-item:a
     scroll-behavior: auto !important;
   }
 }
+
+/* ===================================================================
+   9. CORRECCIONES QUIRÚRGICAS DE MODO CLARO EN EL STUDIO (TIENDAZAP)
+   =================================================================== */
+
+/* 1. Inputs, Buscador y Slug (eliminar cajas negras sobre tarjetas blancas) */
+body[data-app-theme="light"] input,
+body[data-app-theme="light"] select,
+body[data-app-theme="light"] textarea,
+body[data-app-theme="light"] .input-modern,
+body[data-app-theme="light"] .textarea-modern,
+body[data-app-theme="light"] .spec-input,
+body[data-app-theme="light"] .schema-field-input,
+body[data-app-theme="light"] .schema-field-select,
+body[data-app-theme="light"] .search-input-field,
+body[data-app-theme="light"] #studio-search-input,
+body[data-app-theme="light"] #settings-slug-input,
+body[data-app-theme="light"] #settings-store-slug,
+body[data-app-theme="light"] #live-store-email,
+body[data-app-theme="light"] #live-store-hours,
+body[data-app-theme="light"] #live-store-address,
+body[data-app-theme="light"] #live-store-name,
+body[data-app-theme="light"] #live-store-tagline,
+body[data-app-theme="light"] #live-store-phone,
+body[data-app-theme="light"] #yape-phone-input,
+body[data-app-theme="light"] #yape-name-input,
+body[data-app-theme="light"] #delivery-cost-input,
+body[data-app-theme="light"] #delivery-time-input,
+body[data-app-theme="light"] .editor-currency-select,
+[data-app-theme="light"] .input-modern,
+[data-app-theme="light"] .search-input-field,
+[data-app-theme="light"] #studio-search-input,
+[data-app-theme="light"] #settings-slug-input,
+[data-app-theme="light"] #settings-store-slug,
+[data-app-theme="light"] #live-store-email,
+[data-app-theme="light"] #live-store-hours,
+[data-app-theme="light"] #live-store-address,
+[data-app-theme="light"] textarea,
+[data-app-theme="light"] select {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  color-scheme: light !important;
+}
+
+body[data-app-theme="light"] select option,
+[data-app-theme="light"] select option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] input::placeholder,
+body[data-app-theme="light"] textarea::placeholder,
+body[data-app-theme="light"] .input-modern::placeholder,
+[data-app-theme="light"] input::placeholder,
+[data-app-theme="light"] textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Enlace de tu tienda: barra gris clara con texto oscuro */
+body[data-app-theme="light"] .store-link-input-row,
+[data-app-theme="light"] .store-link-input-row {
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body[data-app-theme="light"] .store-link-display-text,
+body[data-app-theme="light"] #highlight-store-url,
+[data-app-theme="light"] .store-link-display-text,
+[data-app-theme="light"] #highlight-store-url {
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] .store-link-card-title,
+[data-app-theme="light"] .store-link-card-title {
+  color: #475569 !important;
+}
+
+body[data-app-theme="light"] .btn-dual-action,
+[data-app-theme="light"] .btn-dual-action {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] .btn-dual-action svg,
+[data-app-theme="light"] .btn-dual-action svg {
+  stroke: #0f172a !important;
+}
+
+body[data-app-theme="light"] .store-search-wrapper,
+body[data-app-theme="light"] .studio-search-wrapper,
+[data-app-theme="light"] .studio-search-wrapper {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+/* 2. Botón Cambiar Logo (legible sobre fondo claro) */
+body[data-app-theme="light"] #change-logo-btn,
+body[data-app-theme="light"] .btn-compact-change-logo,
+body[data-app-theme="light"] .btn-change-logo,
+body[data-app-theme="light"] .change-logo-btn,
+body[data-app-theme="light"] .btn-alt-sm,
+[data-app-theme="light"] #change-logo-btn,
+[data-app-theme="light"] .btn-compact-change-logo,
+[data-app-theme="light"] .btn-change-logo,
+[data-app-theme="light"] .change-logo-btn,
+[data-app-theme="light"] .btn-alt-sm {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+body[data-app-theme="light"] #change-logo-btn:hover,
+body[data-app-theme="light"] .btn-compact-change-logo:hover,
+[data-app-theme="light"] #change-logo-btn:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] #change-logo-btn svg,
+body[data-app-theme="light"] .btn-compact-change-logo svg,
+[data-app-theme="light"] #change-logo-btn svg {
+  stroke: #0f172a !important;
+}
+
+/* 3. Rubro de la Tienda (.niche-card-btn) */
+body[data-app-theme="light"] .niche-card-btn,
+body[data-app-theme="light"] .niche-selector-compact-grid .niche-card-btn,
+[data-app-theme="light"] .niche-card-btn,
+[data-app-theme="light"] .niche-selector-compact-grid .niche-card-btn {
+  background: #f8fafc !important;
+  color: #334155 !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body[data-app-theme="light"] .niche-card-btn svg,
+body[data-app-theme="light"] .niche-selector-compact-grid .niche-icon,
+[data-app-theme="light"] .niche-card-btn svg {
+  stroke: #334155 !important;
+}
+
+body[data-app-theme="light"] .niche-card-btn.active,
+body[data-app-theme="light"] .niche-selector-compact-grid .niche-card-btn.active,
+[data-app-theme="light"] .niche-card-btn.active,
+[data-app-theme="light"] .niche-selector-compact-grid .niche-card-btn.active {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+}
+
+body[data-app-theme="light"] .niche-card-btn.active svg,
+body[data-app-theme="light"] .niche-selector-compact-grid .niche-card-btn.active .niche-icon,
+[data-app-theme="light"] .niche-card-btn.active svg {
+  stroke: #ffffff !important;
+}
+
+/* 4. Sección Tema y Color & Acordeón de Redes Sociales */
+body[data-app-theme="light"] #view-store h3,
+body[data-app-theme="light"] #view-store h4,
+body[data-app-theme="light"] #view-products h3,
+body[data-app-theme="light"] #view-products h4,
+body[data-app-theme="light"] #view-payments h3,
+body[data-app-theme="light"] #view-payments h4,
+body[data-app-theme="light"] .compact-section-title,
+body[data-app-theme="light"] .section-card-title,
+[data-app-theme="light"] .compact-section-title {
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] .theme-mode-segmented,
+[data-app-theme="light"] .theme-mode-segmented {
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body[data-app-theme="light"] .btn-theme-mode-seg,
+[data-app-theme="light"] .btn-theme-mode-seg {
+  color: #475569 !important;
+}
+
+body[data-app-theme="light"] .btn-theme-mode-seg.active,
+[data-app-theme="light"] .btn-theme-mode-seg.active {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08) !important;
+}
+
+body[data-app-theme="light"] .swatch-name,
+[data-app-theme="light"] .swatch-name {
+  color: #475569 !important;
+}
+
+body[data-app-theme="light"] .theme-swatch-item.active .swatch-name,
+[data-app-theme="light"] .theme-swatch-item.active .swatch-name {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+body[data-app-theme="light"] .swatch-custom-label,
+[data-app-theme="light"] .swatch-custom-label {
+  border-color: #cbd5e1 !important;
+  background: #f1f5f9 !important;
+}
+
+body[data-app-theme="light"] .compact-accordion,
+[data-app-theme="light"] .compact-accordion {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body[data-app-theme="light"] .accordion-summary,
+[data-app-theme="light"] .accordion-summary {
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] .accordion-chevron,
+[data-app-theme="light"] .accordion-chevron {
+  color: #64748b !important;
+}
+
+body[data-app-theme="light"] .btn-save-settings-compact,
+[data-app-theme="light"] .btn-save-settings-compact {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border: 1px solid #0f172a !important;
+}
+
+/* 5. Tarjeta de Producto en Pestaña Productos (.apple-studio-prod-card) */
+body[data-app-theme="light"] .apple-studio-prod-card,
+[data-app-theme="light"] .apple-studio-prod-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+}
+
+body[data-app-theme="light"] .apple-studio-prod-card:hover,
+[data-app-theme="light"] .apple-studio-prod-card:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+body[data-app-theme="light"] .apple-prod-title,
+[data-app-theme="light"] .apple-prod-title {
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] .apple-prod-meta-cat,
+[data-app-theme="light"] .apple-prod-meta-cat {
+  color: #64748b !important;
+}
+
+body[data-app-theme="light"] .apple-sku-pill,
+[data-app-theme="light"] .apple-sku-pill {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body[data-app-theme="light"] .apple-price-chip,
+[data-app-theme="light"] .apple-price-chip {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+body[data-app-theme="light"] .apple-stock-chip.in-stock,
+[data-app-theme="light"] .apple-stock-chip.in-stock {
+  background: #dcfce7 !important;
+  color: #166534 !important;
+  border: 1px solid #bbf7d0 !important;
+}
+
+body[data-app-theme="light"] .apple-btn-explicit-edit,
+[data-app-theme="light"] .apple-btn-explicit-edit {
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border: 1px solid #bfdbfe !important;
+}
+
+body[data-app-theme="light"] .apple-icon-btn.danger,
+[data-app-theme="light"] .apple-icon-btn.danger {
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+  border: 1px solid #fecaca !important;
+}
+
+body[data-app-theme="light"] .editor-cat-pill,
+[data-app-theme="light"] .editor-cat-pill {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body[data-app-theme="light"] .editor-cat-pill.active,
+[data-app-theme="light"] .editor-cat-pill.active {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+}
+
+body[data-app-theme="light"] #editor-quick-add-catalog-btn,
+body[data-app-theme="light"] .btn-add-product-quick,
+[data-app-theme="light"] #editor-quick-add-catalog-btn,
+[data-app-theme="light"] .btn-add-product-quick {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+/* 6. Barra de Navegación Inferior (.studio-bottom-nav) en Modo Claro */
+body[data-app-theme="light"] .studio-bottom-nav,
+[data-app-theme="light"] .studio-bottom-nav {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+body[data-app-theme="light"] .studio-bottom-nav-btn,
+[data-app-theme="light"] .studio-bottom-nav-btn {
+  color: #64748b !important;
+}
+
+body[data-app-theme="light"] .studio-bottom-nav-btn svg,
+[data-app-theme="light"] .studio-bottom-nav-btn svg {
+  stroke: #64748b !important;
+}
+
+body[data-app-theme="light"] .studio-bottom-nav-btn.active,
+[data-app-theme="light"] .studio-bottom-nav-btn.active {
+  color: #16a34a !important;
+}
+
+body[data-app-theme="light"] .studio-bottom-nav-btn.active svg,
+[data-app-theme="light"] .studio-bottom-nav-btn.active svg {
+  stroke: #16a34a !important;
+}
+
+/* 7. Cobros y Envíos (Pestaña 3) en Modo Claro */
+body[data-app-theme="light"] .cloud-backup-card,
+[data-app-theme="light"] .cloud-backup-card {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body[data-app-theme="light"] .cloud-card-title,
+[data-app-theme="light"] .cloud-card-title {
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] .cloud-card-desc,
+[data-app-theme="light"] .cloud-card-desc {
+  color: #475569 !important;
+}
+
+body[data-app-theme="light"] .btn-action-outline,
+body[data-app-theme="light"] #btn-copy-portable-link,
+[data-app-theme="light"] .btn-action-outline,
+[data-app-theme="light"] #btn-copy-portable-link {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+/* 8. Botón de Compartir en Cabecera de Vitrina (Siempre Legible) */
+.header-icon-btn,
+#preview-share-btn.header-icon-btn {
+  background: rgba(15, 23, 42, 0.72) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.header-icon-btn svg,
+#preview-share-btn svg {
+  stroke: #ffffff !important;
+  color: #ffffff !important;
+}
