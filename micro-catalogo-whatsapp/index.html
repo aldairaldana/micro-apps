@@ -41,7 +41,7 @@
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800;900&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=20261016-apple-v25">
+  <link rel="stylesheet" href="style.css?v=20261118-v30-wsp">
 </head>
 
 <body>
@@ -120,7 +120,7 @@
           </div>
         </div>
 
-        <!-- PASO 1 DE 3: Identidad de tu tienda -->
+        <!-- PASO 1 DE 4: Tu Cuenta y Negocio -->
         <div class="onboarding-step-view hidden" id="onboarding-step-1">
           <div class="onboarding-card">
             <div class="onboarding-step-header">
@@ -131,42 +131,58 @@
                 <span>Atrás</span>
               </button>
               <div class="onboarding-step-indicator">
-                <span>Paso 1 de 3</span>
-                <div class="onboarding-progress-bar"><div class="onboarding-progress-fill" style="width: 33.3%;"></div></div>
+                <span>Paso 1 de 4</span>
+                <div class="onboarding-progress-bar"><div class="onboarding-progress-fill" style="width: 25%;"></div></div>
               </div>
             </div>
 
             <div class="onboarding-card-body">
-              <h2 class="onboarding-step-title">¿Cómo se llama tu negocio o marca?</h2>
+              <h2 class="onboarding-step-title">Tu Cuenta y Negocio</h2>
+              <p class="onboarding-step-desc">Configura la identidad base de tu catálogo digital.</p>
 
               <div class="onboarding-field">
-                <label for="onboarding-store-name" class="field-label-sm">Nombre de tu tienda *</label>
-                <input type="text" id="onboarding-store-name" class="input-modern onboarding-input-lg" placeholder="Ej: Nova Store, Don Licencias, Moda Lima..." autocomplete="off">
-                <div class="onboarding-slug-preview">
-                  <span>tiendazap.pages.dev/</span><strong id="onboarding-slug-text">tu-marca</strong>
-                </div>
-                <div id="onboarding-name-error" class="onboarding-error-msg hidden">Escribe el nombre de tu tienda para continuar</div>
+                <label for="ob-owner-email" class="field-label-sm">Tu correo electrónico (Propietario) *</label>
+                <input type="email" id="ob-owner-email" class="input-modern onboarding-input-lg" placeholder="tu-correo@gmail.com" autocomplete="email">
+                <span class="field-hint" style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px; display: flex; align-items: center; gap: 4px;">
+                  🔒 Para guardar y recuperar tus tiendas
+                </span>
+                <div id="ob-email-error" class="onboarding-error-msg hidden">Ingresa un correo electrónico válido para continuar</div>
               </div>
 
               <div class="onboarding-field">
-                <label class="field-label-sm">Moneda principal *</label>
-                <div class="currency-toggle-cards">
-                  <button type="button" class="currency-card-btn active" data-currency="S/">
-                    <span class="currency-sym">S/</span>
-                    <span class="currency-name">Soles</span>
-                  </button>
-                  <button type="button" class="currency-card-btn" data-currency="US$">
-                    <span class="currency-sym">US$</span>
-                    <span class="currency-name">Dólares</span>
-                  </button>
+                <label for="ob-store-name" class="field-label-sm">Nombre de tu tienda *</label>
+                <input type="text" id="ob-store-name" class="input-modern onboarding-input-lg" placeholder="Ej: Nova Store, Don Licencias, Moda Lima..." autocomplete="off">
+                <div class="onboarding-slug-preview">
+                  <span>tiendazap.pages.dev/</span><strong id="ob-slug-preview">tu-marca</strong>
                 </div>
-                <input type="hidden" id="onboarding-selected-currency" value="S/">
+                <div id="ob-name-error" class="onboarding-error-msg hidden">Escribe el nombre de tu tienda para continuar</div>
+              </div>
+
+              <div class="onboarding-field">
+                <label class="field-label-sm">Rubro principal *</label>
+                <div class="ob-niche-chips-grid" id="ob-niche-chips">
+                  <button type="button" class="ob-niche-chip active" data-niche="sneakers">👟 Zapatillas</button>
+                  <button type="button" class="ob-niche-chip" data-niche="fashion">👗 Moda</button>
+                  <button type="button" class="ob-niche-chip" data-niche="tech">💻 Tecnología / Licencias</button>
+                  <button type="button" class="ob-niche-chip" data-niche="beauty">💄 Belleza</button>
+                  <button type="button" class="ob-niche-chip" data-niche="watches">⌚ Relojes</button>
+                  <button type="button" class="ob-niche-chip" data-niche="food">🍔 Comida</button>
+                  <button type="button" class="ob-niche-chip" data-niche="vehicles">🚗 Vehículos</button>
+                  <button type="button" class="ob-niche-chip" data-niche="general">🛍️ General</button>
+                </div>
+                <input type="hidden" id="ob-selected-niche" value="sneakers">
+              </div>
+
+              <div class="onboarding-field">
+                <label for="ob-store-desc" class="field-label-sm">Descripción breve / Eslogan de la tienda</label>
+                <input type="text" id="ob-store-desc" class="input-modern" placeholder="Las mejores zapatillas urbanas y deportivas con envíos a todo el Perú 👟">
+                <span class="field-hint" style="color: #94a3b8; font-size: 0.74rem; margin-top: 3px; display: block;">Puedes editar esta sugerencia en cualquier momento.</span>
               </div>
             </div>
 
             <div class="onboarding-actions">
-              <button type="button" id="onboarding-btn-step1-next" class="btn-primary-onboard">
-                <span>Siguiente: Elegir rubro</span>
+              <button type="button" id="ob-btn-step1-next" class="btn-primary-onboard">
+                <span>Siguiente: Perfil de Empresa</span>
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M5 12h14M12 5l7 7-7 7"></path>
                 </svg>
@@ -175,7 +191,7 @@
           </div>
         </div>
 
-        <!-- PASO 2 DE 3: Rubro principal sincronizado con NICHE_DATA -->
+        <!-- PASO 2 DE 4: Perfil de Empresa (Estilo WhatsApp Business — Todo Opcional) -->
         <div class="onboarding-step-view hidden" id="onboarding-step-2">
           <div class="onboarding-card">
             <div class="onboarding-step-header">
@@ -186,88 +202,93 @@
                 <span>Atrás</span>
               </button>
               <div class="onboarding-step-indicator">
-                <span>Paso 2 de 3</span>
-                <div class="onboarding-progress-bar"><div class="onboarding-progress-fill" style="width: 66.6%;"></div></div>
+                <span>Paso 2 de 4</span>
+                <div class="onboarding-progress-bar"><div class="onboarding-progress-fill" style="width: 50%;"></div></div>
               </div>
             </div>
 
             <div class="onboarding-card-body">
-              <h2 class="onboarding-step-title">¿Qué vendes principalmente?</h2>
-              <p class="onboarding-step-desc">Adaptaremos las categorías y fichas de producto a tu negocio.</p>
+              <h2 class="onboarding-step-title">Perfil de Empresa</h2>
+              <p class="onboarding-step-desc" style="color: #94a3b8; font-size: 0.82rem; margin-top: 2px;">
+                Opcional: puedes subir tu logo y portada ahora o configurarlos después en Mi Tienda.
+              </p>
 
-              <div class="onboarding-niche-grid" id="onboarding-niche-grid">
-                <!-- 8 rubros canónicos de NICHE_DATA -->
-                <button type="button" class="niche-card-select active" data-niche="sneakers">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M3 17h18v-3l-4-4h-4l-3 4H3zM3 17v2h18v-2"></path>
-                  </svg>
-                  <span>Zapatillas & Calzado</span>
-                </button>
-                <button type="button" class="niche-card-select" data-niche="beauty">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M10 2h4v4h-4zM6 8h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V8z"></path>
-                    <circle cx="12" cy="15" r="2"></circle>
-                  </svg>
-                  <span>Perfumes & Belleza</span>
-                </button>
-                <button type="button" class="niche-card-select" data-niche="watches">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="7"></circle>
-                    <polyline points="12 9 12 12 14 14"></polyline>
-                    <path d="M9 2h6M9 22h6"></path>
-                  </svg>
-                  <span>Relojes & Joyas</span>
-                </button>
-                <button type="button" class="niche-card-select" data-niche="fashion">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M6 3l6 4 6-4v5l-6 4-6-4V3zM2 9l4 2v10H2V9zM18 11l4-2v12h-4V11z"></path>
-                  </svg>
-                  <span>Ropa & Moda</span>
-                </button>
-                <button type="button" class="niche-card-select" data-niche="food">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"></path>
-                  </svg>
-                  <span>Postres & Comida</span>
-                </button>
-                <button type="button" class="niche-card-select" data-niche="tech">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="2" y="3" width="20" height="14" rx="2"></rect>
-                    <path d="M8 21h8M12 17v4"></path>
-                  </svg>
-                  <span>Tecnología & Software</span>
-                </button>
-                <button type="button" class="niche-card-select" data-niche="vehicles">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="3" y="11" width="18" height="6" rx="2"></rect>
-                    <circle cx="7.5" cy="17.5" r="2.5"></circle>
-                    <circle cx="16.5" cy="17.5" r="2.5"></circle>
-                    <path d="M5 11l2-5h10l2 5"></path>
-                  </svg>
-                  <span>Vehículos & Autos</span>
-                </button>
-                <button type="button" class="niche-card-select" data-niche="general">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"></path>
-                  </svg>
-                  <span>Tienda General</span>
-                </button>
+              <!-- Logo y Portada (Opcionales con vista previa instantánea) -->
+              <div class="ob-media-row">
+                <div class="ob-media-col ob-logo-col">
+                  <label class="field-label-sm">Logo (Opcional)</label>
+                  <div class="ob-upload-box ob-upload-logo" id="ob-logo-box" title="Toca para subir tu logo">
+                    <img id="ob-logo-preview" class="ob-preview-img ob-preview-logo hidden" alt="Vista previa Logo">
+                    <div id="ob-logo-placeholder" class="ob-placeholder-inner">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 8v8M8 12h8"></path>
+                      </svg>
+                      <span>Subir logo</span>
+                    </div>
+                    <input type="file" id="ob-logo-file" accept="image/*" class="hidden">
+                  </div>
+                </div>
+
+                <div class="ob-media-col ob-banner-col">
+                  <label class="field-label-sm">Portada (Opcional)</label>
+                  <div class="ob-upload-box ob-upload-banner" id="ob-banner-box" title="Toca para subir foto de portada">
+                    <img id="ob-banner-preview" class="ob-preview-img ob-preview-banner hidden" alt="Vista previa Portada">
+                    <div id="ob-banner-placeholder" class="ob-placeholder-inner">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                      </svg>
+                      <span>Subir portada</span>
+                    </div>
+                    <input type="file" id="ob-banner-file" accept="image/*" class="hidden">
+                  </div>
+                </div>
               </div>
-              <input type="hidden" id="onboarding-selected-niche" value="sneakers">
+
+              <!-- Correo de atención de la tienda -->
+              <div class="onboarding-field">
+                <div class="field-label-row">
+                  <label for="ob-store-email" class="field-label-sm">Correo de atención de la tienda <span class="quick-optional">(Opcional)</span></label>
+                  <button type="button" id="ob-btn-copy-owner-email" class="btn-copy-wa-yape">Usar mi correo de registro</button>
+                </div>
+                <input type="email" id="ob-store-email" class="input-modern" placeholder="contacto@mitienda.pe">
+              </div>
+
+              <!-- Dirección o zona de atención -->
+              <div class="onboarding-field">
+                <label for="ob-store-address" class="field-label-sm">Dirección o zona de atención <span class="quick-optional">(Opcional)</span></label>
+                <input type="text" id="ob-store-address" class="input-modern" placeholder="Ej: Av. Larco 450, Miraflores o Atención 100% Online">
+              </div>
+
+              <!-- Horario de atención -->
+              <div class="onboarding-field">
+                <label for="ob-store-hours" class="field-label-sm">Horario de atención <span class="quick-optional">(Opcional)</span></label>
+                <div class="ob-quick-chips-row" id="ob-hours-chips">
+                  <button type="button" class="ob-chip-btn" data-hours="Lun-Sáb 9am - 8pm">Lun-Sáb 9am - 8pm</button>
+                  <button type="button" class="ob-chip-btn" data-hours="24/7 Online">24/7 Online</button>
+                  <button type="button" class="ob-chip-btn" data-hours="Lun-Dom 10am - 9pm">Lun-Dom 10am - 9pm</button>
+                </div>
+                <input type="text" id="ob-store-hours" class="input-modern" placeholder="Ej: Lun-Sáb 9am - 8pm" style="margin-top: 6px;">
+              </div>
             </div>
 
             <div class="onboarding-actions">
-              <button type="button" id="onboarding-btn-step2-next" class="btn-primary-onboard">
-                <span>Siguiente: Tu WhatsApp</span>
+              <button type="button" id="ob-btn-step2-next" class="btn-primary-onboard">
+                <span>Continuar</span>
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M5 12h14M12 5l7 7-7 7"></path>
                 </svg>
+              </button>
+              <button type="button" id="ob-btn-step2-skip" class="btn-ghost-onboard">
+                <span>Completar esto después →</span>
               </button>
             </div>
           </div>
         </div>
 
-        <!-- PASO 3 DE 3: WhatsApp y Yape/Plin -->
+        <!-- PASO 3 DE 4: WhatsApp y Cobros -->
         <div class="onboarding-step-view hidden" id="onboarding-step-3">
           <div class="onboarding-card">
             <div class="onboarding-step-header">
@@ -278,40 +299,139 @@
                 <span>Atrás</span>
               </button>
               <div class="onboarding-step-indicator">
-                <span>Paso 3 de 3</span>
+                <span>Paso 3 de 4</span>
+                <div class="onboarding-progress-bar"><div class="onboarding-progress-fill" style="width: 75%;"></div></div>
+              </div>
+            </div>
+
+            <div class="onboarding-card-body">
+              <h2 class="onboarding-step-title">WhatsApp y Cobros</h2>
+              <p class="onboarding-step-desc">Tus clientes te enviarán los pedidos directamente a este número.</p>
+
+              <div class="onboarding-field">
+                <label for="ob-store-phone" class="field-label-sm">Número de WhatsApp para pedidos *</label>
+                <div class="onboarding-phone-wrap">
+                  <div class="onboarding-phone-prefix">
+                    <span>+51</span>
+                  </div>
+                  <input type="tel" inputmode="numeric" id="ob-store-phone" class="input-modern onboarding-input-lg onboarding-phone-input" placeholder="987 654 321" maxlength="15">
+                </div>
+                <div id="ob-phone-error" class="onboarding-error-msg hidden">Ingresa un número de 9 dígitos para recibir pedidos</div>
+              </div>
+
+              <div class="onboarding-field">
+                <label class="field-label-sm">Moneda *</label>
+                <div class="currency-toggle-cards">
+                  <button type="button" class="currency-card-btn active" data-currency="S/">
+                    <span class="currency-sym">S/</span>
+                    <span class="currency-name">Soles</span>
+                  </button>
+                  <button type="button" class="currency-card-btn" data-currency="US$">
+                    <span class="currency-sym">US$</span>
+                    <span class="currency-name">Dólares</span>
+                  </button>
+                </div>
+                <input type="hidden" id="ob-selected-currency" value="S/">
+              </div>
+
+              <div class="onboarding-field">
+                <div class="field-label-row">
+                  <label for="ob-store-yape" class="field-label-sm">Número Yape / Plin <span class="quick-optional">(Opcional)</span></label>
+                  <button type="button" id="ob-btn-copy-wa" class="btn-copy-wa-yape">Usar mismo número</button>
+                </div>
+                <input type="tel" inputmode="numeric" id="ob-store-yape" class="input-modern" placeholder="Ej: 987 654 321 (para transferencias)">
+              </div>
+
+              <div class="onboarding-field" style="margin-top: 8px;">
+                <label for="ob-store-yape-name" class="field-label-sm">Titular de Yape / Plin <span class="quick-optional">(Opcional)</span></label>
+                <input type="text" id="ob-store-yape-name" class="input-modern" placeholder="Ej: Juan Pérez">
+              </div>
+            </div>
+
+            <div class="onboarding-actions">
+              <button type="button" id="ob-btn-step3-next" class="btn-primary-onboard">
+                <span>Siguiente: Primer Producto</span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14M12 5l7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PASO 4 DE 4: Crea tu Primer Producto (Opcional) -->
+        <div class="onboarding-step-view hidden" id="onboarding-step-4">
+          <div class="onboarding-card">
+            <div class="onboarding-step-header">
+              <button type="button" class="onboarding-back-btn" data-back-to="3" aria-label="Atrás">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                </svg>
+                <span>Atrás</span>
+              </button>
+              <div class="onboarding-step-indicator">
+                <span>Paso 4 de 4</span>
                 <div class="onboarding-progress-bar"><div class="onboarding-progress-fill" style="width: 100%;"></div></div>
               </div>
             </div>
 
             <div class="onboarding-card-body">
-              <h2 class="onboarding-step-title">¿A qué WhatsApp enviaremos tus pedidos?</h2>
+              <h2 class="onboarding-step-title">Publica tu primer producto</h2>
+              <p class="onboarding-step-desc" style="color: #94a3b8; font-size: 0.82rem; margin-top: 2px;">
+                Opcional: puedes publicar tu primer artículo ahora o crearlo después desde el Studio.
+              </p>
 
+              <!-- Foto del producto (opcional) -->
               <div class="onboarding-field">
-                <label for="onboarding-store-phone" class="field-label-sm">Número de WhatsApp *</label>
-                <div class="onboarding-phone-wrap">
-                  <div class="onboarding-phone-prefix">
-                    <span>+51</span>
+                <label class="field-label-sm">Foto del producto <span class="quick-optional">(Opcional)</span></label>
+                <div class="ob-prod-media-box" id="ob-prod-img-box" title="Toca para subir una foto de tu producto">
+                  <img id="ob-prod-img-preview" class="ob-prod-preview-img hidden" alt="Vista previa producto">
+                  <div id="ob-prod-img-placeholder" class="ob-placeholder-inner">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                      <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                      <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    <span>Subir foto del producto</span>
                   </div>
-                  <input type="tel" inputmode="numeric" id="onboarding-store-phone" class="input-modern onboarding-input-lg onboarding-phone-input" placeholder="987 654 321" maxlength="15">
+                  <input type="file" id="ob-prod-file-input" accept="image/*" class="hidden">
                 </div>
-                <div id="onboarding-phone-error" class="onboarding-error-msg hidden">Ingresa un número de 9 dígitos para recibir pedidos</div>
               </div>
 
+              <!-- Nombre del producto -->
               <div class="onboarding-field">
-                <div class="field-label-row">
-                  <label for="onboarding-store-yape" class="field-label-sm">Número Yape / Plin <span class="quick-optional">(Opcional)</span></label>
-                  <button type="button" id="onboarding-btn-copy-wa" class="btn-copy-wa-yape">Usar mismo número</button>
+                <label for="ob-prod-name" class="field-label-sm">Nombre del producto</label>
+                <input type="text" id="ob-prod-name" class="input-modern" placeholder="Ej: Nike Dunk Low Retro, Licencia Windows 11...">
+              </div>
+
+              <!-- Precio y Categoría -->
+              <div class="form-grid-2">
+                <div class="onboarding-field">
+                  <label for="ob-prod-price" class="field-label-sm">Precio (<span id="ob-prod-curr-sym">S/</span>)</label>
+                  <input type="number" step="0.01" min="0" id="ob-prod-price" class="input-modern" placeholder="0.00">
                 </div>
-                <input type="tel" inputmode="numeric" id="onboarding-store-yape" class="input-modern" placeholder="Ej: 987 654 321 (para transferencias)">
+                <div class="onboarding-field">
+                  <label for="ob-prod-cat" class="field-label-sm">Categoría</label>
+                  <input type="text" id="ob-prod-cat" class="input-modern" placeholder="Zapatillas">
+                </div>
+              </div>
+
+              <!-- Descripción breve -->
+              <div class="onboarding-field">
+                <label for="ob-prod-desc" class="field-label-sm">Descripción breve <span class="quick-optional">(Opcional)</span></label>
+                <input type="text" id="ob-prod-desc" class="input-modern" placeholder="Ej: Tallas disponibles 38 al 42, 100% original con caja">
               </div>
             </div>
 
             <div class="onboarding-actions">
-              <button type="button" id="onboarding-submit-btn" class="btn-primary-onboard">
-                <span>Crear mi tienda ahora</span>
+              <button type="button" id="ob-btn-save-prod" class="btn-primary-onboard">
+                <span>Guardar producto y abrir mi tienda</span>
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M5 12h14M12 5l7 7-7 7"></path>
                 </svg>
+              </button>
+              <button type="button" id="ob-btn-skip-prod" class="btn-ghost-onboard">
+                <span>Saltar y crear productos después</span>
               </button>
             </div>
           </div>
@@ -326,12 +446,12 @@
 
       <!-- Header Superior del Administrador (Estilo Apple Studio) -->
       <!-- Cabecera Compacta del Administrador (< 120px de alto) -->
-      <header class="studio-compact-header">
+      <header class="studio-compact-header studio-top-bar">
         <div class="studio-header-top-row">
           <div class="studio-store-pill-dropdown-wrap">
             <div class="studio-store-pill-dropdown" id="store-switcher-trigger" title="Cambiar o ver tiendas">
               <img id="admin-logo-preview"
-                src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=120&q=80"
+                src=""
                 alt="Logo" class="studio-mini-logo">
               <span class="studio-header-store-name" id="studio-store-name-display">Mi Tienda</span>
               <svg class="dropdown-arrow-icon" viewBox="0 0 24 24" width="14" height="14" fill="none"
@@ -357,26 +477,18 @@
                   </svg>
                   <span>+ Crear nueva tienda</span>
                 </button>
+                <button type="button" id="dropdown-reopen-wizard-btn" class="dropdown-btn-create" style="margin-top: 6px; background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+                  <span style="font-size: 1.05rem;">🪄</span>
+                  <span>Asistente WhatsApp Business</span>
+                </button>
               </div>
             </div>
           </div>
 
           <div class="studio-header-right-actions">
-            <!-- Botón Crear Nueva Tienda Rápido -->
-            <button type="button" id="studio-header-create-store-btn" class="studio-header-create-btn" title="Crear nueva tienda">
-              <span>+ Crear tienda</span>
-            </button>
-
-            <!-- Switch Tienda Abierta / Cerrada -->
-            <button type="button" id="toggle-store-status-btn" class="apple-status-pill open"
-              title="Estado de la vitrina">
-              <span class="apple-status-dot"></span>
-              <span id="quick-status-label">Abierto</span>
-            </button>
-
-            <!-- Botón Ver Tienda de Clientes -->
-            <button type="button" id="open-preview-btn" class="studio-btn-preview" title="Ver catálogo como cliente">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <!-- Botón Ver Tienda de Clientes (Compacto, sin desbordamiento en celular) -->
+            <button type="button" id="studio-preview-btn" class="studio-btn-preview" title="Ver catálogo como cliente">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                 <circle cx="12" cy="12" r="3" />
               </svg>
@@ -444,40 +556,50 @@
           <section class="settings-section-card">
             <h3 class="section-card-title">Identidad y Portada de tu Tienda</h3>
 
-
-            <!-- Banner / Portada -->
+            <!-- Banner / Portada con botón de alto contraste -->
             <div class="settings-banner-preview-box">
               <img id="admin-banner-preview"
                 src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80"
                 alt="Portada de tu tienda" class="settings-banner-img">
-              <button type="button" id="change-banner-btn" class="btn-secondary-compact change-banner-btn">
-                <span>📷 Cambiar Portada</span>
+              <button type="button" id="change-banner-btn" class="btn-secondary-compact change-banner-btn" title="Subir nueva foto de portada">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px;">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                  <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+                <span>Cambiar Portada</span>
               </button>
               <input type="file" id="banner-file-input" accept="image/*" class="hidden">
             </div>
 
-            <!-- Avatar & Nombre -->
-            <div class="settings-identity-grid">
-              <div class="settings-logo-wrap">
+            <!-- Avatar & Botón Cambiar Logo Horizontal Compacto -->
+            <div class="settings-logo-horizontal-row">
+              <div class="settings-logo-avatar-box">
                 <img id="admin-logo-preview-settings"
-                  src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80"
-                  alt="Logo" class="settings-logo-img">
-                <button type="button" id="change-logo-btn" class="btn-secondary-compact change-logo-btn">
-                  <span>📷 Cambiar Logo</span>
-                </button>
-                <input type="file" id="logo-file-input" accept="image/*" class="hidden">
+                  src=""
+                  alt="Logo de la tienda" class="settings-logo-img">
               </div>
+              <div class="settings-logo-info-box">
+                <button type="button" id="change-logo-btn" class="btn-compact-change-logo" title="Subir logo de tu tienda">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                  </svg>
+                  <span>Cambiar Logo</span>
+                </button>
+                <span class="settings-logo-subtext">Recomendado: 400×400px (JPG, PNG o WebP)</span>
+              </div>
+              <input type="file" id="logo-file-input" accept="image/*" class="hidden">
+            </div>
 
-              <div class="settings-names-col">
-                <div class="editor-field-group">
-                  <label for="live-store-name" class="field-label-sm">Nombre comercial *</label>
-                  <input type="text" id="live-store-name" class="input-modern"
-                    placeholder="Nombre comercial de tu tienda">
-                </div>
-                <div class="editor-field-group">
-                  <label for="live-store-tagline" class="field-label-sm">Eslogan o descripción breve</label>
-                  <input type="text" id="live-store-tagline" class="input-modern" placeholder="Eslogan de tu catálogo">
-                </div>
+            <div class="settings-names-col" style="margin-top: 14px;">
+              <div class="editor-field-group">
+                <label for="live-store-name" class="field-label-sm">Nombre comercial *</label>
+                <input type="text" id="live-store-name" class="input-modern"
+                  placeholder="Nombre comercial de tu tienda">
+              </div>
+              <div class="editor-field-group" style="margin-top: 8px;">
+                <label for="live-store-tagline" class="field-label-sm">Eslogan o descripción breve</label>
+                <input type="text" id="live-store-tagline" class="input-modern" placeholder="Eslogan de tu catálogo">
               </div>
             </div>
 
@@ -489,6 +611,60 @@
               </div>
               <span class="field-hint">Tus clientes verán este nombre en su enlace seguro. Solo letras minúsculas,
                 números y guiones.</span>
+            </div>
+          </section>
+
+          <!-- Card de Perfil de Empresa (Estilo WhatsApp Business) -->
+          <section class="settings-section-card business-profile-card">
+            <div class="section-card-header-row">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <h3 class="section-card-title" style="margin-bottom: 0;">Perfil de Empresa</h3>
+                <button type="button" id="btn-reopen-wizard-settings" class="btn-secondary-compact" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; background: rgba(56, 189, 248, 0.1);">
+                  🪄 Abrir Asistente
+                </button>
+              </div>
+              <div class="store-status-switch-wrap">
+                <span class="status-switch-label">Estado de atención:</span>
+                <button type="button" id="toggle-store-status-btn" class="apple-status-pill open"
+                  title="Cambiar estado de atención (Abierto / Cerrado)">
+                  <span class="apple-status-dot"></span>
+                  <span id="quick-status-label">Abierto</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-grid-2" style="margin-top: 12px;">
+              <div class="editor-field-group">
+                <label for="live-store-email" class="field-label-sm">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px;">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  Correo de la tienda
+                </label>
+                <input type="email" id="live-store-email" class="input-modern" placeholder="contacto@mitienda.pe">
+              </div>
+              <div class="editor-field-group">
+                <label for="live-store-hours" class="field-label-sm">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  Horario de atención
+                </label>
+                <input type="text" id="live-store-hours" class="input-modern" placeholder="Ej: Lun-Sáb 9am - 8pm">
+              </div>
+            </div>
+
+            <div class="editor-field-group" style="margin-top: 10px;">
+              <label for="live-store-address" class="field-label-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px;">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Dirección / Ubicación
+              </label>
+              <input type="text" id="live-store-address" class="input-modern" placeholder="Ej: Av. Larco 450, Miraflores o Atención 100% Online">
             </div>
           </section>
 
@@ -1174,6 +1350,9 @@
               </div>
 
               <p class="store-tagline" id="store-tagline">Eslogan del negocio</p>
+
+              <!-- Fila discreta estilo perfil de WhatsApp Business (Horario, Dirección, Correo) -->
+              <div class="store-business-profile-line hidden" id="store-business-profile-line"></div>
 
               <!-- Redes Sociales del Negocio en Vitrina -->
               <div class="store-social-links hidden" id="store-social-links"></div>
@@ -1913,7 +2092,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
-  <script src="app.js?v=20261109-v29"></script>
+  <script src="app.js?v=20261118-v30-wsp"></script>
 </body>
 
 </html>

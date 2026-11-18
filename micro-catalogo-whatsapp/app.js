@@ -39,6 +39,72 @@ function slugifyStoreName(name) {
     .replace(/^-+|-+$/g, "") || "tienda";
 }
 
+function getStoreInitials(name) {
+  if (!name || typeof name !== "string") return "TZ";
+  const clean = name.trim();
+  if (!clean) return "TZ";
+  const words = clean.split(/[\s_\-]+/).filter(Boolean);
+  if (words.length >= 2) {
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }
+  const upperMatches = clean.match(/[A-Z]/g);
+  if (upperMatches && upperMatches.length >= 2) {
+    return (upperMatches[0] + upperMatches[1]).toUpperCase();
+  }
+  const lower = clean.toLowerCase();
+  const commonPrefixes = [
+    "oscar", "carlos", "juan", "luis", "pedro", "jorge", "diego", "mario",
+    "victor", "cesar", "david", "jose", "maria", "ana", "alex", "hugo",
+    "tienda", "store", "shop", "moda", "zap", "urban", "mega", "super"
+  ];
+  for (const p of commonPrefixes) {
+    if (lower.startsWith(p) && lower.length > p.length) {
+      return (p[0] + lower[p.length]).toUpperCase();
+    }
+  }
+  return clean.slice(0, 2).toUpperCase();
+}
+
+function getStoreInitialsAvatar(name, bgColor = "#1e293b", textColor = "#f8fafc", size = 120) {
+  const initials = getStoreInitials(name);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <rect width="${size}" height="${size}" rx="${size / 2}" fill="${bgColor}"/>
+    <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="${textColor}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="${Math.round(size * 0.42)}px" letter-spacing="0.5px">${initials}</text>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+function getEffectiveStoreLogo(shopConfig) {
+  const cfg = shopConfig || (typeof AppState !== "undefined" ? AppState.shopConfig : {}) || {};
+  const url = cfg.logoUrl;
+  if (!url || typeof url !== "string" || !url.trim() || url.includes("photo-1568901346375-23c9450c58cd")) {
+    return getStoreInitialsAvatar(cfg.name || "Mi Tienda");
+  }
+  return url;
+}
+
+const NICHE_DEFAULT_TAGLINES = {
+  sneakers: "Las mejores zapatillas urbanas y deportivas con envíos a todo el Perú 👟",
+  fashion: "Moda, prendas exclusivas y tendencias con envíos a todo el país ✨",
+  tech: "Licencias originales de software con activación inmediata y soporte ⚡💻",
+  beauty: "Perfumes y cosméticos de alta calidad 100% garantizados 💄",
+  watches: "Relojes y joyería fina con garantía y envíos seguros ⌚",
+  food: "Comida deliciosa y postres preparados al momento directo a tu mesa 🍔",
+  vehicles: "Venta de autos seminuevos garantizados y trato directo 🚗",
+  general: "Tu catálogo digital de confianza con envíos rápidos y garantía 🛍️"
+};
+
+const NICHE_DEFAULT_PROD_CATS = {
+  sneakers: "Zapatillas",
+  fashion: "Ropa & Moda",
+  tech: "Licencias & Software",
+  beauty: "Perfumes & Belleza",
+  watches: "Relojes",
+  food: "Platos & Postres",
+  vehicles: "Vehículos",
+  general: "General"
+};
+
 // ============================================================================
 // 0. MEDIASTORE (INDEXEDDB WRAPPER PARA FOTOS Y VIDEOS LOCALES EN EL CELULAR)
 // ============================================================================
@@ -1367,7 +1433,7 @@ const AppState = {
     return true;
   },
 
-  createNewStore({ name, preset, phone, currency, yapePhone }) {
+  createNewStore({ name, preset, phone, currency, yapePhone, yapeName, email, address, hours, tagline, logoUrl, bannerUrl }) {
     if (!this.storesList) this.initStores();
     this.saveCurrentStoreState();
 
@@ -1379,16 +1445,19 @@ const AppState = {
     const initialConfig = {
       name: cleanName,
       storeSlug: slug,
-      tagline: `Catálogo oficial de ${cleanName}`,
+      tagline: tagline || `Catálogo oficial de ${cleanName}`,
       phone: phone || "",
       currency: currency || (normPreset === "vehicles" ? "US$" : "S/"),
       deliveryCost: (normPreset === "tech" || normPreset === "vehicles") ? 0 : 5,
       deliveryTime: normPreset === "tech" ? "Inmediato" : "24-48h",
       isOpen: true,
-      logoUrl: "",
-      bannerUrl: "",
+      logoUrl: logoUrl || "",
+      bannerUrl: bannerUrl || "",
+      email: email || "",
+      address: address || "",
+      hours: hours || "",
       yapePhone: yapePhone || "",
-      yapeName: "",
+      yapeName: yapeName || "",
       yapeQrUrl: "",
       yapeEnabled: !!yapePhone,
       googleSheetUrl: "",
@@ -1497,6 +1566,7 @@ const AppState = {
   // Registro del Propietario / Comerciante
   merchant: {
     name: "",
+    email: "",
     contact: "",
     pin: ""
   },
@@ -1640,6 +1710,9 @@ const AppState = {
                 isOpen: data.cfg.io !== false,
                 logoUrl: data.cfg.l || "",
                 bannerUrl: data.cfg.b || "",
+                email: data.cfg.em || "",
+                address: data.cfg.addr || "",
+                hours: data.cfg.hrs || "",
                 yapePhone: data.cfg.yp || "",
                 yapeName: data.cfg.yn || "",
                 yapeQrUrl: data.cfg.yq || "",
@@ -1805,9 +1878,15 @@ const AppState = {
       } else {
         // MODO CLIENTE (El dueño de negocio que crea su catálogo)
         const stepParam = urlParams.get("step");
-        if (modeParam === "studio") {
+        const wizardParam = urlParams.get("wizard") || urlParams.get("onboarding") || urlParams.get("nuevo");
+        const resetParam = urlParams.get("reset");
+
+        if (resetParam === "true" || resetParam === "1") {
+          localStorage.removeItem("tiendazap_onboarding_done");
+          ViewController.showOnboarding(0);
+        } else if (modeParam === "studio") {
           ViewController.showStudio();
-        } else if (stepParam !== null) {
+        } else if (stepParam !== null || wizardParam !== null) {
           ViewController.showOnboarding(parseInt(stepParam, 10) || 0);
         } else if (!isDone) {
           // Iniciar como app de 0 con el Asistente estilo WhatsApp Business
@@ -2491,6 +2570,9 @@ const ViewController = {
 // ============================================================================
 const OnboardingWizard = {
   currentStep: 0,
+  uploadedLogo: "",
+  uploadedBanner: "",
+  uploadedProdImg: "",
 
   goToStep(step) {
     this.currentStep = step;
@@ -2499,8 +2581,8 @@ const OnboardingWizard = {
       obScreen.classList.remove("hidden");
       obScreen.classList.add("active");
     }
-    // Mostrar únicamente la pantalla solicitada (0 a 3)
-    for (let i = 0; i <= 3; i++) {
+    // Mostrar únicamente la pantalla solicitada (0 a 4)
+    for (let i = 0; i <= 4; i++) {
       const stepEl = document.getElementById(`onboarding-step-${i}`);
       if (stepEl) {
         if (i === step) {
@@ -2513,12 +2595,26 @@ const OnboardingWizard = {
       }
     }
     if (step === 1) {
-      const nameInp = document.getElementById("onboarding-store-name");
+      const emailInp = document.getElementById("ob-owner-email");
+      if (emailInp && !emailInp.value && AppState.merchant?.email) {
+        emailInp.value = AppState.merchant.email;
+      }
+      const nameInp = document.getElementById("ob-store-name");
       if (nameInp) setTimeout(() => nameInp.focus(), 150);
+    } else if (step === 2) {
+      const storeEmailInp = document.getElementById("ob-store-email");
+      const ownerEmailInp = document.getElementById("ob-owner-email");
+      if (storeEmailInp && !storeEmailInp.value && ownerEmailInp && ownerEmailInp.value) {
+        storeEmailInp.value = ownerEmailInp.value;
+      }
     } else if (step === 3) {
-      const phoneInp = document.getElementById("onboarding-store-phone");
+      const phoneInp = document.getElementById("ob-store-phone");
       if (phoneInp) setTimeout(() => phoneInp.focus(), 150);
+    } else if (step === 4) {
+      const prodNameInp = document.getElementById("ob-prod-name");
+      if (prodNameInp) setTimeout(() => prodNameInp.focus(), 150);
     }
+    window.scrollTo({ top: 0, behavior: "smooth" });
   },
 
   init() {
@@ -2553,10 +2649,23 @@ const OnboardingWizard = {
       });
     });
 
-    // Paso 1: Nombre de la tienda y vista previa de slug
-    const nameInput = document.getElementById("onboarding-store-name");
-    const slugPreview = document.getElementById("onboarding-slug-text");
-    const nameError = document.getElementById("onboarding-name-error");
+    // ------------------------------------------------------------------------
+    // PASO 1: Tu Cuenta y Negocio
+    // ------------------------------------------------------------------------
+    const ownerEmailInp = document.getElementById("ob-owner-email");
+    const emailError = document.getElementById("ob-email-error");
+    if (ownerEmailInp) {
+      ownerEmailInp.addEventListener("input", () => {
+        if (ownerEmailInp.value.trim() && emailError) {
+          emailError.classList.add("hidden");
+          ownerEmailInp.classList.remove("input-error");
+        }
+      });
+    }
+
+    const nameInput = document.getElementById("ob-store-name") || document.getElementById("onboarding-store-name");
+    const slugPreview = document.getElementById("ob-slug-preview") || document.getElementById("onboarding-slug-text");
+    const nameError = document.getElementById("ob-name-error") || document.getElementById("onboarding-name-error");
     if (nameInput) {
       nameInput.addEventListener("input", () => {
         const val = nameInput.value.trim();
@@ -2570,25 +2679,66 @@ const OnboardingWizard = {
       });
     }
 
-    // Paso 1: Selección de Moneda (Soles / Dólares)
-    const currencyButtons = document.querySelectorAll(".currency-card-btn");
-    const currencyHidden = document.getElementById("onboarding-selected-currency");
-    currencyButtons.forEach(btn => {
-      btn.addEventListener("click", (e) => {
+    // Chips de Rubro Principal (8 rubros canónicos)
+    const nicheChips = document.querySelectorAll(".ob-niche-chip, .niche-card-select");
+    const nicheHidden = document.getElementById("ob-selected-niche") || document.getElementById("onboarding-selected-niche");
+    const storeDescInp = document.getElementById("ob-store-desc");
+    const prodCatInp = document.getElementById("ob-prod-cat");
+    const currSymStep4 = document.getElementById("ob-prod-curr-sym");
+
+    nicheChips.forEach(chip => {
+      chip.addEventListener("click", (e) => {
         e.preventDefault();
-        currencyButtons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        if (currencyHidden) currencyHidden.value = btn.getAttribute("data-currency") || "S/";
+        nicheChips.forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        const chosen = chip.getAttribute("data-niche") || "sneakers";
+        if (nicheHidden) nicheHidden.value = chosen;
+
+        // Autocompletar sugerencia amigable si está vacío o tiene una sugerencia previa
+        if (storeDescInp) {
+          const currentVal = storeDescInp.value.trim();
+          const isDefaultTagline = Object.values(NICHE_DEFAULT_TAGLINES).includes(currentVal);
+          if (!currentVal || isDefaultTagline) {
+            storeDescInp.value = NICHE_DEFAULT_TAGLINES[chosen] || "";
+          }
+        }
+
+        // Prellenar categoría en Paso 4
+        if (prodCatInp) {
+          prodCatInp.value = NICHE_DEFAULT_PROD_CATS[chosen] || "General";
+        }
+
+        // Auto-switch a US$ si eligen vehículos
+        if (chosen === "vehicles") {
+          const currencyHidden = document.getElementById("ob-selected-currency") || document.getElementById("onboarding-selected-currency");
+          if (currencyHidden) currencyHidden.value = "US$";
+          document.querySelectorAll(".currency-card-btn").forEach(b => {
+            b.classList.toggle("active", b.getAttribute("data-currency") === "US$");
+          });
+          if (currSymStep4) currSymStep4.textContent = "US$";
+        }
       });
     });
 
     // Paso 1: Botón Siguiente
-    const step1Next = document.getElementById("onboarding-btn-step1-next");
+    const step1Next = document.getElementById("ob-btn-step1-next") || document.getElementById("onboarding-btn-step1-next");
     if (step1Next) {
       step1Next.addEventListener("click", (e) => {
         e.preventDefault();
-        const val = nameInput ? nameInput.value.trim() : "";
-        if (!val) {
+        const emailVal = ownerEmailInp ? ownerEmailInp.value.trim() : "";
+        const nameVal = nameInput ? nameInput.value.trim() : "";
+
+        if (!emailVal || !emailVal.includes("@")) {
+          if (emailError) emailError.classList.remove("hidden");
+          if (ownerEmailInp) {
+            ownerEmailInp.classList.add("input-error");
+            ownerEmailInp.focus();
+          }
+          return;
+        }
+        if (emailError) emailError.classList.add("hidden");
+
+        if (!nameVal) {
           if (nameError) nameError.classList.remove("hidden");
           if (nameInput) {
             nameInput.classList.add("input-error");
@@ -2597,54 +2747,118 @@ const OnboardingWizard = {
           return;
         }
         if (nameError) nameError.classList.add("hidden");
+
+        // Guardar email del propietario
+        AppState.merchant.email = emailVal;
+        AppState.saveMerchant();
+
         this.goToStep(2);
       });
     }
 
-    // Paso 2: Selección de Rubro (8 canónicos de NICHE_DATA)
-    const nicheCards = document.querySelectorAll(".niche-card-select");
-    const nicheHidden = document.getElementById("onboarding-selected-niche");
-    nicheCards.forEach(card => {
-      card.addEventListener("click", (e) => {
-        e.preventDefault();
-        nicheCards.forEach(c => c.classList.remove("active"));
-        card.classList.add("active");
-        const chosen = card.getAttribute("data-niche") || "sneakers";
-        if (nicheHidden) nicheHidden.value = chosen;
-        // Ajuste inteligente: si eligen vehículos, sugerir US$
-        if (chosen === "vehicles" && currencyHidden && currencyHidden.value === "S/") {
-          const usdBtn = document.querySelector('.currency-card-btn[data-currency="US$"]');
-          if (usdBtn) {
-            currencyButtons.forEach(b => b.classList.remove("active"));
-            usdBtn.classList.add("active");
-            currencyHidden.value = "US$";
+    // ------------------------------------------------------------------------
+    // PASO 2: Perfil de Empresa (WhatsApp Business — Todo Opcional)
+    // ------------------------------------------------------------------------
+    // Logo Upload
+    const logoBox = document.getElementById("ob-logo-box");
+    const logoFile = document.getElementById("ob-logo-file");
+    const logoPreview = document.getElementById("ob-logo-preview");
+    const logoPlaceholder = document.getElementById("ob-logo-placeholder");
+    if (logoBox && logoFile) {
+      logoBox.addEventListener("click", () => logoFile.click());
+      logoFile.addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          Toast.show("Optimizando logo...", "⏳");
+          const compressed = await ImageOptimizer.compressImage(file, 400, 0.88);
+          this.uploadedLogo = compressed;
+          if (logoPreview) {
+            logoPreview.src = compressed;
+            logoPreview.classList.remove("hidden");
           }
+          if (logoPlaceholder) logoPlaceholder.classList.add("hidden");
+          Toast.show("¡Logo listo para tu tienda!", "✨");
+        } catch (err) {
+          alert("Error al cargar logo: " + err.message);
+        }
+      });
+    }
+
+    // Banner Upload
+    const bannerBox = document.getElementById("ob-banner-box");
+    const bannerFile = document.getElementById("ob-banner-file");
+    const bannerPreview = document.getElementById("ob-banner-preview");
+    const bannerPlaceholder = document.getElementById("ob-banner-placeholder");
+    if (bannerBox && bannerFile) {
+      bannerBox.addEventListener("click", () => bannerFile.click());
+      bannerFile.addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          Toast.show("Optimizando portada...", "⏳");
+          const compressed = await ImageOptimizer.compressImage(file, 1200, 0.85);
+          this.uploadedBanner = compressed;
+          if (bannerPreview) {
+            bannerPreview.src = compressed;
+            bannerPreview.classList.remove("hidden");
+          }
+          if (bannerPlaceholder) bannerPlaceholder.classList.add("hidden");
+          Toast.show("¡Foto de portada lista!", "📸");
+        } catch (err) {
+          alert("Error al cargar portada: " + err.message);
+        }
+      });
+    }
+
+    // Botón copiar correo del propietario al correo de la tienda
+    const copyOwnerEmailBtn = document.getElementById("ob-btn-copy-owner-email");
+    const storeEmailInp = document.getElementById("ob-store-email");
+    if (copyOwnerEmailBtn && storeEmailInp) {
+      copyOwnerEmailBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const em = (ownerEmailInp ? ownerEmailInp.value.trim() : "") || AppState.merchant?.email || "";
+        if (em) {
+          storeEmailInp.value = em;
+          Toast.show("Correo de registro aplicado a tu tienda", "✅");
+        }
+      });
+    }
+
+    // Chips rápidos de horario
+    const hoursChips = document.querySelectorAll(".ob-chip-btn");
+    const storeHoursInp = document.getElementById("ob-store-hours");
+    hoursChips.forEach(chip => {
+      chip.addEventListener("click", (e) => {
+        e.preventDefault();
+        const val = chip.getAttribute("data-hours");
+        if (storeHoursInp && val) {
+          storeHoursInp.value = val;
         }
       });
     });
 
-    // Paso 2: Botón Siguiente
-    const step2Next = document.getElementById("onboarding-btn-step2-next");
+    // Paso 2: Botón Continuar y Saltar
+    const step2Next = document.getElementById("ob-btn-step2-next");
     if (step2Next) {
       step2Next.addEventListener("click", (e) => {
         e.preventDefault();
         this.goToStep(3);
       });
     }
-
-    // Paso 3: Copiar WhatsApp a Yape
-    const copyWaBtn = document.getElementById("onboarding-btn-copy-wa");
-    const phoneInput = document.getElementById("onboarding-store-phone");
-    const yapeInput = document.getElementById("onboarding-store-yape");
-    const phoneError = document.getElementById("onboarding-phone-error");
-    if (copyWaBtn && phoneInput && yapeInput) {
-      copyWaBtn.addEventListener("click", (e) => {
+    const step2Skip = document.getElementById("ob-btn-step2-skip");
+    if (step2Skip) {
+      step2Skip.addEventListener("click", (e) => {
         e.preventDefault();
-        yapeInput.value = phoneInput.value.trim();
-        Toast.show("Número copiado a Yape / Plin", "✅");
+        this.goToStep(3);
       });
     }
 
+    // ------------------------------------------------------------------------
+    // PASO 3: WhatsApp y Cobros
+    // ------------------------------------------------------------------------
+    const phoneInput = document.getElementById("ob-store-phone") || document.getElementById("onboarding-store-phone");
+    const phoneError = document.getElementById("ob-phone-error") || document.getElementById("onboarding-phone-error");
     if (phoneInput) {
       phoneInput.addEventListener("input", () => {
         const raw = phoneInput.value.replace(/[^0-9]/g, "");
@@ -2655,21 +2869,109 @@ const OnboardingWizard = {
       });
     }
 
-    // Paso 3: Botón Final Crear Mi Tienda
-    const submitBtn = document.getElementById("onboarding-submit-btn");
-    if (submitBtn) {
-      submitBtn.addEventListener("click", (e) => {
+    // Moneda (S/ o US$)
+    const currencyButtons = document.querySelectorAll(".currency-card-btn");
+    const currencyHidden = document.getElementById("ob-selected-currency") || document.getElementById("onboarding-selected-currency");
+    currencyButtons.forEach(btn => {
+      btn.addEventListener("click", (e) => {
         e.preventDefault();
-        this.submitOnboarding();
+        currencyButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const curr = btn.getAttribute("data-currency") || "S/";
+        if (currencyHidden) currencyHidden.value = curr;
+        if (currSymStep4) currSymStep4.textContent = curr;
+      });
+    });
+
+    // Copiar WhatsApp a Yape
+    const copyWaBtn = document.getElementById("ob-btn-copy-wa") || document.getElementById("onboarding-btn-copy-wa");
+    const yapeInput = document.getElementById("ob-store-yape") || document.getElementById("onboarding-store-yape");
+    if (copyWaBtn && phoneInput && yapeInput) {
+      copyWaBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        yapeInput.value = phoneInput.value.trim();
+        Toast.show("Número copiado a Yape / Plin", "✅");
+      });
+    }
+
+    // Paso 3: Botón Siguiente
+    const step3Next = document.getElementById("ob-btn-step3-next") || document.getElementById("onboarding-btn-step2-next");
+    if (step3Next) {
+      step3Next.addEventListener("click", (e) => {
+        e.preventDefault();
+        const rawPhone = (phoneInput ? phoneInput.value : "").replace(/[^0-9]/g, "");
+        if (rawPhone.length < 9) {
+          if (phoneError) phoneError.classList.remove("hidden");
+          if (phoneInput) {
+            phoneInput.classList.add("input-error");
+            phoneInput.focus();
+          }
+          return;
+        }
+        if (phoneError) phoneError.classList.add("hidden");
+        this.goToStep(4);
+      });
+    }
+
+    // ------------------------------------------------------------------------
+    // PASO 4: Crea tu Primer Producto (Opcional)
+    // ------------------------------------------------------------------------
+    const prodImgBox = document.getElementById("ob-prod-img-box");
+    const prodImgFile = document.getElementById("ob-prod-file-input");
+    const prodImgPreview = document.getElementById("ob-prod-img-preview");
+    const prodImgPlaceholder = document.getElementById("ob-prod-img-placeholder");
+    if (prodImgBox && prodImgFile) {
+      prodImgBox.addEventListener("click", () => prodImgFile.click());
+      prodImgFile.addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          Toast.show("Optimizando foto de producto...", "⏳");
+          const compressed = await ImageOptimizer.compressImage(file, 800, 0.82);
+          this.uploadedProdImg = compressed;
+          if (prodImgPreview) {
+            prodImgPreview.src = compressed;
+            prodImgPreview.classList.remove("hidden");
+          }
+          if (prodImgPlaceholder) prodImgPlaceholder.classList.add("hidden");
+          Toast.show("Foto del producto lista", "📸");
+        } catch (err) {
+          alert("Error procesando foto de producto: " + err.message);
+        }
+      });
+    }
+
+    // Botón Guardar Producto y Abrir Mi Tienda
+    const btnSaveProd = document.getElementById("ob-btn-save-prod");
+    if (btnSaveProd) {
+      btnSaveProd.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.finishOnboarding(true);
+      });
+    }
+
+    // Botón Saltar y Crear Productos Después
+    const btnSkipProd = document.getElementById("ob-btn-skip-prod");
+    if (btnSkipProd) {
+      btnSkipProd.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.finishOnboarding(false);
       });
     }
 
     // Retrocompatibilidad con IDs anteriores
-    const legacyBtn = document.getElementById("btn-quick-create-store");
-    if (legacyBtn) {
-      legacyBtn.addEventListener("click", (e) => {
+    const legacySubmitBtn = document.getElementById("onboarding-submit-btn");
+    if (legacySubmitBtn) {
+      legacySubmitBtn.addEventListener("click", (e) => {
         e.preventDefault();
-        this.submitOnboarding();
+        this.finishOnboarding(false);
+      });
+    }
+    const legacyQuickBtn = document.getElementById("btn-quick-create-store");
+    if (legacyQuickBtn) {
+      legacyQuickBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.finishOnboarding(false);
       });
     }
   },
@@ -2688,45 +2990,82 @@ const OnboardingWizard = {
     Toast.show("Modo demostración activo. Puedes crear tu tienda arriba cuando quieras.", "🏪");
   },
 
-  submitOnboarding() {
-    const nameInput = document.getElementById("onboarding-store-name");
-    const name = nameInput ? nameInput.value.trim() : "";
+  finishOnboarding(withProduct = false) {
+    const ownerEmail = (document.getElementById("ob-owner-email")?.value || "").trim();
+    const nameInput = document.getElementById("ob-store-name") || document.getElementById("onboarding-store-name");
+    const name = nameInput ? nameInput.value.trim() : "Mi Tienda";
     if (!name) {
       this.goToStep(1);
-      const nameError = document.getElementById("onboarding-name-error");
-      if (nameError) nameError.classList.remove("hidden");
-      if (nameInput) {
-        nameInput.classList.add("input-error");
-        nameInput.focus();
-      }
       return;
     }
 
-    const phoneInput = document.getElementById("onboarding-store-phone");
+    const phoneInput = document.getElementById("ob-store-phone") || document.getElementById("onboarding-store-phone");
     const rawPhone = (phoneInput ? phoneInput.value : "").replace(/[^0-9]/g, "");
-    if (rawPhone.length < 9) {
-      const phoneError = document.getElementById("onboarding-phone-error");
-      if (phoneError) phoneError.classList.remove("hidden");
-      if (phoneInput) {
-        phoneInput.classList.add("input-error");
-        phoneInput.focus();
-      }
-      return;
-    }
+    const cleanPhone = rawPhone.startsWith("51") ? rawPhone : (rawPhone ? `51${rawPhone}` : "");
 
-    const cleanPhone = rawPhone.startsWith("51") ? rawPhone : `51${rawPhone}`;
-    const niche = document.getElementById("onboarding-selected-niche")?.value || "sneakers";
-    const currency = document.getElementById("onboarding-selected-currency")?.value || (niche === "vehicles" ? "US$" : "S/");
-    const yapeInput = document.getElementById("onboarding-store-yape");
+    const niche = document.getElementById("ob-selected-niche")?.value || document.getElementById("onboarding-selected-niche")?.value || "sneakers";
+    const currency = document.getElementById("ob-selected-currency")?.value || document.getElementById("onboarding-selected-currency")?.value || (niche === "vehicles" ? "US$" : "S/");
+    const yapeInput = document.getElementById("ob-store-yape") || document.getElementById("onboarding-store-yape");
     const yapePhone = yapeInput ? yapeInput.value.replace(/[^0-9]/g, "") : "";
+    const yapeName = document.getElementById("ob-store-yape-name")?.value.trim() || "";
+
+    const storeEmail = document.getElementById("ob-store-email")?.value.trim() || ownerEmail;
+    const storeAddress = document.getElementById("ob-store-address")?.value.trim() || "";
+    const storeHours = document.getElementById("ob-store-hours")?.value.trim() || "";
+    const storeDesc = document.getElementById("ob-store-desc")?.value.trim() || NICHE_DEFAULT_TAGLINES[niche] || `Catálogo oficial de ${name}`;
+
+    // Guardar correo del propietario en AppState.merchant
+    if (ownerEmail) {
+      AppState.merchant.email = ownerEmail;
+      AppState.saveMerchant();
+    }
 
     const newStore = AppState.createNewStore({
       name,
       preset: niche,
       phone: cleanPhone,
       currency,
-      yapePhone
+      yapePhone,
+      yapeName,
+      email: storeEmail,
+      address: storeAddress,
+      hours: storeHours,
+      tagline: storeDesc,
+      logoUrl: this.uploadedLogo || "",
+      bannerUrl: this.uploadedBanner || ""
     });
+
+    // Crear producto opcional del Paso 4 si se ingresó nombre
+    let createdFirstProd = false;
+    if (withProduct) {
+      const prodName = document.getElementById("ob-prod-name")?.value.trim();
+      const prodPriceRaw = document.getElementById("ob-prod-price")?.value;
+      const prodCat = document.getElementById("ob-prod-cat")?.value.trim() || NICHE_DEFAULT_PROD_CATS[niche] || "General";
+      const prodDesc = document.getElementById("ob-prod-desc")?.value.trim() || "";
+
+      if (prodName) {
+        const prodPrice = parseFloat(prodPriceRaw) || 0;
+        const newProduct = {
+          id: "prod_" + Date.now(),
+          sku: "PROD-001",
+          name: prodName,
+          price: prodPrice,
+          currency: currency,
+          category: prodCat,
+          catalogId: "cat_main",
+          desc: prodDesc,
+          img: this.uploadedProdImg || "",
+          images: this.uploadedProdImg ? [this.uploadedProdImg] : [],
+          available: true,
+          listingType: (niche === "tech" || niche === "digital") ? "digital" : (niche === "vehicles" ? "vehicle" : "item"),
+          createdAt: Date.now()
+        };
+        AppState.products = [newProduct];
+        AppState.saveProducts();
+        AppState.syncActiveStoreToList();
+        createdFirstProd = true;
+      }
+    }
 
     localStorage.setItem("tiendazap_onboarding_done", "true");
     AppState.isDemoExploring = false;
@@ -2743,14 +3082,22 @@ const OnboardingWizard = {
       StudioController.renderStoreDropdown();
       StudioController.renderCatalogsBar();
       StudioController.renderProductsList();
-      StudioController.populateSettingsTab();
+      StudioController.populateStoreTab();
     }
 
-    Toast.show(`¡Listo! Tu tienda «${name}» fue creada`, "✅");
+    if (createdFirstProd) {
+      Toast.show(`¡Listo! Tu tienda y tu primer producto fueron creados`, "✅");
+    } else {
+      Toast.show(`¡Listo! Tu tienda «${name}» fue creada`, "✅");
+    }
+  },
+
+  submitOnboarding() {
+    this.finishOnboarding(false);
   },
 
   submitQuickSetup() {
-    this.submitOnboarding();
+    this.finishOnboarding(false);
   },
 
   skip() {
@@ -2955,16 +3302,21 @@ const StudioController = {
   },
 
   syncAllLogoElements(url) {
-    const finalUrl = url || AppState.shopConfig?.logoUrl || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80";
+    const finalUrl = url || getEffectiveStoreLogo(AppState.shopConfig);
     const el1 = document.getElementById("admin-logo-preview");
     const el2 = document.getElementById("admin-logo-preview-settings");
     const el3 = document.getElementById("settings-logo-preview");
     const el4 = document.getElementById("store-logo-img");
+    const el5 = document.getElementById("studio-store-logo-display");
 
     if (el1) el1.src = finalUrl;
     if (el2) el2.src = finalUrl;
     if (el3) el3.src = finalUrl;
     if (el4) el4.src = finalUrl;
+    if (el5) el5.src = finalUrl;
+
+    const nameDisplay = document.getElementById("studio-store-name-display");
+    if (nameDisplay) nameDisplay.textContent = AppState.shopConfig?.name || "Mi Tienda";
   },
 
   renderTopStatus() {
@@ -2998,7 +3350,7 @@ const StudioController = {
     const highlightUrl = document.getElementById("highlight-store-url");
 
     if (bannerImg) bannerImg.src = AppState.shopConfig.bannerUrl || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80";
-    if (logoImg) logoImg.src = AppState.shopConfig.logoUrl || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80";
+    if (logoImg) logoImg.src = getEffectiveStoreLogo(AppState.shopConfig);
     if (nameInput) nameInput.value = AppState.shopConfig.name || "";
     if (taglineInput) taglineInput.value = AppState.shopConfig.tagline || "";
     if (highlightUrl) {
@@ -3170,7 +3522,7 @@ const StudioController = {
     list.innerHTML = AppState.storesList.map(store => {
       const isActive = store.slug === currentSlug || store.id === AppState.currentStoreId;
       const prodCount = Array.isArray(store.products) ? store.products.length : 0;
-      const logoUrl = store.config?.logoUrl || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=120&q=80";
+      const logoUrl = getEffectiveStoreLogo(store.config || { name: store.name });
       const nicheLabel = getNicheLabelEs(store.preset || store.config?.niche || "general");
       const canDelete = AppState.storesList.length > 1 && !isActive;
 
@@ -3261,7 +3613,7 @@ const StudioController = {
     const slugInput = document.getElementById("settings-slug-input") || document.getElementById("settings-store-slug");
 
     if (bannerEl && AppState.shopConfig.bannerUrl) bannerEl.src = AppState.shopConfig.bannerUrl;
-    if (logoEl && AppState.shopConfig.logoUrl) logoEl.src = AppState.shopConfig.logoUrl;
+    if (logoEl) logoEl.src = getEffectiveStoreLogo(AppState.shopConfig);
     if (nameInput) nameInput.value = AppState.shopConfig.name || "";
     if (taglineInput) taglineInput.value = AppState.shopConfig.tagline || "";
     const slug = AppState.getStoreSlug();
@@ -3271,6 +3623,14 @@ const StudioController = {
     if (highlightUrl) {
       highlightUrl.textContent = `${APP_BRAND.domainHint}/${slug}`;
     }
+
+    const emailInp = document.getElementById("live-store-email");
+    const addrInp = document.getElementById("live-store-address");
+    const hoursInp = document.getElementById("live-store-hours");
+    if (emailInp) emailInp.value = AppState.shopConfig.email || "";
+    if (addrInp) addrInp.value = AppState.shopConfig.address || "";
+    if (hoursInp) hoursInp.value = AppState.shopConfig.hours || "";
+    this.renderTopStatus();
 
     document.querySelectorAll(".niche-card-btn").forEach(btn => {
       btn.classList.toggle("active", btn.getAttribute("data-niche") === AppState.activePreset);
@@ -3335,6 +3695,9 @@ const StudioController = {
     const nameInp = document.getElementById("live-store-name");
     const tagInp = document.getElementById("live-store-tagline");
     const slugInp = document.getElementById("settings-slug-input") || document.getElementById("settings-store-slug");
+    const emailInp = document.getElementById("live-store-email");
+    const addrInp = document.getElementById("live-store-address");
+    const hoursInp = document.getElementById("live-store-hours");
 
     if (nameInp && nameInp.value.trim()) {
       AppState.shopConfig.name = nameInp.value.trim();
@@ -3344,6 +3707,15 @@ const StudioController = {
     }
     if (slugInp && slugInp.value.trim()) {
       AppState.shopConfig.storeSlug = slugifyStoreName(slugInp.value.trim());
+    }
+    if (emailInp) {
+      AppState.shopConfig.email = emailInp.value.trim();
+    }
+    if (addrInp) {
+      AppState.shopConfig.address = addrInp.value.trim();
+    }
+    if (hoursInp) {
+      AppState.shopConfig.hours = hoursInp.value.trim();
     }
 
     // Guardar rubro activo
@@ -3417,7 +3789,7 @@ const StudioController = {
     container.innerHTML = AppState.storesList.map(store => {
       const isActive = store.slug === currentSlug || store.id === AppState.currentStoreId;
       const prodCount = Array.isArray(store.products) ? store.products.length : 0;
-      const logoUrl = store.config?.logoUrl || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=120&q=80";
+      const logoUrl = getEffectiveStoreLogo(store.config || { name: store.name });
       const nicheLabel = getNicheLabelEs(store.preset || store.config?.niche || "general");
       const shortUrl = `${window.location.origin}/${encodeURIComponent(store.slug)}`;
 
@@ -4726,9 +5098,48 @@ const CustomerUI = {
     const deliveryCostPill = document.getElementById("delivery-cost-pill");
 
     if (bannerEl) bannerEl.src = shop.bannerUrl || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80";
-    if (logoEl) logoEl.src = shop.logoUrl || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80";
+    if (logoEl) logoEl.src = getEffectiveStoreLogo(shop);
     if (nameEl) nameEl.textContent = shop.name || "Mi Tienda Digital";
     if (taglineEl) taglineEl.textContent = shop.tagline || "Catálogo y pedidos directos por WhatsApp";
+
+    // Perfil comercial estilo WhatsApp Business (Horario, Dirección, Correo)
+    const profileLineEl = document.getElementById("store-business-profile-line");
+    if (profileLineEl) {
+      const items = [];
+      if (shop.hours && shop.hours.trim()) {
+        items.push(`
+          <span class="store-profile-item" title="Horario de atención">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>${escapeHtml(shop.hours.trim())}</span>
+          </span>
+        `);
+      }
+      if (shop.address && shop.address.trim()) {
+        items.push(`
+          <span class="store-profile-item" title="Ubicación o zona de atención">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>${escapeHtml(shop.address.trim())}</span>
+          </span>
+        `);
+      }
+      if (shop.email && shop.email.trim()) {
+        const cleanMail = shop.email.trim();
+        items.push(`
+          <span class="store-profile-item" title="Correo de atención">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <a href="mailto:${escapeHtml(cleanMail)}" class="store-profile-link">${escapeHtml(cleanMail)}</a>
+          </span>
+        `);
+      }
+
+      if (items.length > 0) {
+        profileLineEl.innerHTML = items.join('<span class="store-profile-sep">•</span>');
+        profileLineEl.classList.remove("hidden");
+      } else {
+        profileLineEl.innerHTML = "";
+        profileLineEl.classList.add("hidden");
+      }
+    }
 
     const slug = AppState.getStoreSlug();
     const sealEl = document.getElementById("seal-slug-text");
@@ -6342,7 +6753,10 @@ const QRGenerator = {
         tm: AppState.shopConfig.themeMode || "light",
         ac: AppState.shopConfig.accentColor || "#3b82f6",
         tp: AppState.shopConfig.themePreset || "minimal-light",
-        soc: AppState.shopConfig.socials || {}
+        soc: AppState.shopConfig.socials || {},
+        em: AppState.shopConfig.email || "",
+        addr: AppState.shopConfig.address || "",
+        hrs: AppState.shopConfig.hours || ""
       },
       cats: AppState.categories,
       catalogs: AppState.catalogs,
@@ -6529,14 +6943,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 1. Switch de Vista Previa vs Studio
   const openPreviewBtn = document.getElementById("open-preview-btn");
+  const studioPreviewBtn = document.getElementById("studio-preview-btn");
   const closePreviewBtn = document.getElementById("close-preview-btn");
 
-  if (openPreviewBtn) {
-    openPreviewBtn.addEventListener("click", () => {
-      AppState.saveCurrentStoreState();
-      ViewController.showCustomerPreview();
-    });
-  }
+  const handleOpenPreview = () => {
+    AppState.saveCurrentStoreState();
+    ViewController.showCustomerPreview();
+  };
+
+  if (openPreviewBtn) openPreviewBtn.addEventListener("click", handleOpenPreview);
+  if (studioPreviewBtn) studioPreviewBtn.addEventListener("click", handleOpenPreview);
   if (closePreviewBtn) closePreviewBtn.addEventListener("click", () => ViewController.showStudio());
 
   // 2. Switch Rápido de Tienda Abierta / Cerrada en el Topbar
@@ -6593,7 +7009,36 @@ document.addEventListener("DOMContentLoaded", () => {
       AppState.shopConfig.tagline = e.target.value.trim();
       AppState.saveConfig();
       AppState.applyStoreTheme();
-    CustomerUI.renderStoreHeader();
+      CustomerUI.renderStoreHeader();
+    });
+  }
+
+  // 5.1 Edición En Vivo de Datos Comerciales estilo WhatsApp Business
+  const liveStoreEmail = document.getElementById("live-store-email");
+  const liveStoreAddress = document.getElementById("live-store-address");
+  const liveStoreHours = document.getElementById("live-store-hours");
+
+  if (liveStoreEmail) {
+    liveStoreEmail.addEventListener("input", (e) => {
+      AppState.shopConfig.email = e.target.value.trim();
+      AppState.saveConfig();
+      CustomerUI.renderStoreHeader();
+    });
+  }
+
+  if (liveStoreAddress) {
+    liveStoreAddress.addEventListener("input", (e) => {
+      AppState.shopConfig.address = e.target.value.trim();
+      AppState.saveConfig();
+      CustomerUI.renderStoreHeader();
+    });
+  }
+
+  if (liveStoreHours) {
+    liveStoreHours.addEventListener("input", (e) => {
+      AppState.shopConfig.hours = e.target.value.trim();
+      AppState.saveConfig();
+      CustomerUI.renderStoreHeader();
     });
   }
 
@@ -7837,6 +8282,23 @@ document.addEventListener("DOMContentLoaded", () => {
   if (dropdownCreateBtn) {
     dropdownCreateBtn.addEventListener("click", () => {
       StudioController.openCreateStoreModal();
+    });
+  }
+
+  // Botón Abrir Asistente WhatsApp Business desde el desplegable
+  const dropdownWizardBtn = document.getElementById("dropdown-reopen-wizard-btn");
+  if (dropdownWizardBtn) {
+    dropdownWizardBtn.addEventListener("click", () => {
+      StudioController.closeStoreDropdown();
+      ViewController.showOnboarding(1);
+    });
+  }
+
+  // Botón Abrir Asistente desde Perfil de Empresa en Mi Tienda
+  const settingsWizardBtn = document.getElementById("btn-reopen-wizard-settings");
+  if (settingsWizardBtn) {
+    settingsWizardBtn.addEventListener("click", () => {
+      ViewController.showOnboarding(1);
     });
   }
 
