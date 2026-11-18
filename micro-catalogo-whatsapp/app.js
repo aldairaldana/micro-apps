@@ -2487,76 +2487,274 @@ const ViewController = {
 };
 
 // ============================================================================
-// 5. ASISTENTE DESDE CERO ESTILO APPLE (APPLE INVITATION & ONBOARDING)
+// 5. ASISTENTE ONBOARDING GUIADO PASO A PASO (BIENVENIDA AMIGABLE)
 // ============================================================================
 const OnboardingWizard = {
+  currentStep: 0,
+
   goToStep(step) {
+    this.currentStep = step;
     const obScreen = document.getElementById("onboarding-screen");
     if (obScreen) {
       obScreen.classList.remove("hidden");
       obScreen.classList.add("active");
     }
+    // Mostrar únicamente la pantalla solicitada (0 a 3)
+    for (let i = 0; i <= 3; i++) {
+      const stepEl = document.getElementById(`onboarding-step-${i}`);
+      if (stepEl) {
+        if (i === step) {
+          stepEl.classList.remove("hidden");
+          stepEl.classList.add("active");
+        } else {
+          stepEl.classList.add("hidden");
+          stepEl.classList.remove("active");
+        }
+      }
+    }
+    if (step === 1) {
+      const nameInp = document.getElementById("onboarding-store-name");
+      if (nameInp) setTimeout(() => nameInp.focus(), 150);
+    } else if (step === 3) {
+      const phoneInp = document.getElementById("onboarding-store-phone");
+      if (phoneInp) setTimeout(() => phoneInp.focus(), 150);
+    }
   },
 
   init() {
-    this.bindQuickSetup();
+    this.bindEvents();
   },
 
-  bindQuickSetup() {
-    const chipsContainer = document.getElementById("quick-niche-chips");
-    const nicheHidden = document.getElementById("quick-selected-niche");
-    if (chipsContainer && nicheHidden) {
-      chipsContainer.querySelectorAll(".quick-niche-chip").forEach(chip => {
-        chip.addEventListener("click", () => {
-          chipsContainer.querySelectorAll(".quick-niche-chip").forEach(c => c.classList.remove("active"));
-          chip.classList.add("active");
-          nicheHidden.value = chip.dataset.niche || "apparel";
-        });
-      });
-    }
-
-    const form = document.getElementById("quick-setup-form");
-    if (form) {
-      form.addEventListener("submit", (e) => {
+  bindEvents() {
+    // Pantalla 0: Comenzar paso a paso
+    const startBtn = document.getElementById("onboarding-btn-start");
+    if (startBtn) {
+      startBtn.addEventListener("click", (e) => {
         e.preventDefault();
-        this.submitQuickSetup();
+        this.goToStep(1);
+      });
+    }
+
+    // Pantalla 0: Ver tienda de demostración primero
+    const demoBtn = document.getElementById("onboarding-btn-demo");
+    if (demoBtn) {
+      demoBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.exploreDemoStore();
+      });
+    }
+
+    // Botones de Atrás (data-back-to)
+    document.querySelectorAll(".onboarding-back-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const backTo = parseInt(btn.getAttribute("data-back-to") || "0", 10);
+        this.goToStep(backTo);
+      });
+    });
+
+    // Paso 1: Nombre de la tienda y vista previa de slug
+    const nameInput = document.getElementById("onboarding-store-name");
+    const slugPreview = document.getElementById("onboarding-slug-text");
+    const nameError = document.getElementById("onboarding-name-error");
+    if (nameInput) {
+      nameInput.addEventListener("input", () => {
+        const val = nameInput.value.trim();
+        if (slugPreview) {
+          slugPreview.textContent = val ? slugifyStoreName(val) : "tu-marca";
+        }
+        if (val && nameError) {
+          nameError.classList.add("hidden");
+          nameInput.classList.remove("input-error");
+        }
+      });
+    }
+
+    // Paso 1: Selección de Moneda (Soles / Dólares)
+    const currencyButtons = document.querySelectorAll(".currency-card-btn");
+    const currencyHidden = document.getElementById("onboarding-selected-currency");
+    currencyButtons.forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        currencyButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        if (currencyHidden) currencyHidden.value = btn.getAttribute("data-currency") || "S/";
+      });
+    });
+
+    // Paso 1: Botón Siguiente
+    const step1Next = document.getElementById("onboarding-btn-step1-next");
+    if (step1Next) {
+      step1Next.addEventListener("click", (e) => {
+        e.preventDefault();
+        const val = nameInput ? nameInput.value.trim() : "";
+        if (!val) {
+          if (nameError) nameError.classList.remove("hidden");
+          if (nameInput) {
+            nameInput.classList.add("input-error");
+            nameInput.focus();
+          }
+          return;
+        }
+        if (nameError) nameError.classList.add("hidden");
+        this.goToStep(2);
+      });
+    }
+
+    // Paso 2: Selección de Rubro (8 canónicos de NICHE_DATA)
+    const nicheCards = document.querySelectorAll(".niche-card-select");
+    const nicheHidden = document.getElementById("onboarding-selected-niche");
+    nicheCards.forEach(card => {
+      card.addEventListener("click", (e) => {
+        e.preventDefault();
+        nicheCards.forEach(c => c.classList.remove("active"));
+        card.classList.add("active");
+        const chosen = card.getAttribute("data-niche") || "sneakers";
+        if (nicheHidden) nicheHidden.value = chosen;
+        // Ajuste inteligente: si eligen vehículos, sugerir US$
+        if (chosen === "vehicles" && currencyHidden && currencyHidden.value === "S/") {
+          const usdBtn = document.querySelector('.currency-card-btn[data-currency="US$"]');
+          if (usdBtn) {
+            currencyButtons.forEach(b => b.classList.remove("active"));
+            usdBtn.classList.add("active");
+            currencyHidden.value = "US$";
+          }
+        }
+      });
+    });
+
+    // Paso 2: Botón Siguiente
+    const step2Next = document.getElementById("onboarding-btn-step2-next");
+    if (step2Next) {
+      step2Next.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.goToStep(3);
+      });
+    }
+
+    // Paso 3: Copiar WhatsApp a Yape
+    const copyWaBtn = document.getElementById("onboarding-btn-copy-wa");
+    const phoneInput = document.getElementById("onboarding-store-phone");
+    const yapeInput = document.getElementById("onboarding-store-yape");
+    const phoneError = document.getElementById("onboarding-phone-error");
+    if (copyWaBtn && phoneInput && yapeInput) {
+      copyWaBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        yapeInput.value = phoneInput.value.trim();
+        Toast.show("Número copiado a Yape / Plin", "✅");
+      });
+    }
+
+    if (phoneInput) {
+      phoneInput.addEventListener("input", () => {
+        const raw = phoneInput.value.replace(/[^0-9]/g, "");
+        if (raw.length >= 9 && phoneError) {
+          phoneError.classList.add("hidden");
+          phoneInput.classList.remove("input-error");
+        }
+      });
+    }
+
+    // Paso 3: Botón Final Crear Mi Tienda
+    const submitBtn = document.getElementById("onboarding-submit-btn");
+    if (submitBtn) {
+      submitBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.submitOnboarding();
+      });
+    }
+
+    // Retrocompatibilidad con IDs anteriores
+    const legacyBtn = document.getElementById("btn-quick-create-store");
+    if (legacyBtn) {
+      legacyBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.submitOnboarding();
       });
     }
   },
 
-  submitQuickSetup() {
-    const nameInput = document.getElementById("quick-store-name");
+  exploreDemoStore() {
+    localStorage.setItem("tiendazap_onboarding_done", "true");
+    AppState.isDemoExploring = true;
+    const obScreen = document.getElementById("onboarding-screen");
+    if (obScreen) {
+      obScreen.classList.add("hidden");
+      obScreen.classList.remove("active");
+    }
+    ViewController.showStudio();
+    const headerCreateBtn = document.getElementById("studio-header-create-store-btn");
+    if (headerCreateBtn) headerCreateBtn.classList.remove("hidden");
+    Toast.show("Modo demostración activo. Puedes crear tu tienda arriba cuando quieras.", "🏪");
+  },
+
+  submitOnboarding() {
+    const nameInput = document.getElementById("onboarding-store-name");
     const name = nameInput ? nameInput.value.trim() : "";
     if (!name) {
-      Toast.show("Por favor ingresa el nombre de tu tienda", "⚠️");
-      if (nameInput) nameInput.focus();
+      this.goToStep(1);
+      const nameError = document.getElementById("onboarding-name-error");
+      if (nameError) nameError.classList.remove("hidden");
+      if (nameInput) {
+        nameInput.classList.add("input-error");
+        nameInput.focus();
+      }
       return;
     }
 
-    const niche = document.getElementById("quick-selected-niche")?.value || "apparel";
-    const curr = document.getElementById("quick-store-currency")?.value || "S/";
-    const phone = document.getElementById("quick-store-phone")?.value.trim() || "";
-    const yape = document.getElementById("quick-yape-phone")?.value.trim() || "";
+    const phoneInput = document.getElementById("onboarding-store-phone");
+    const rawPhone = (phoneInput ? phoneInput.value : "").replace(/[^0-9]/g, "");
+    if (rawPhone.length < 9) {
+      const phoneError = document.getElementById("onboarding-phone-error");
+      if (phoneError) phoneError.classList.remove("hidden");
+      if (phoneInput) {
+        phoneInput.classList.add("input-error");
+        phoneInput.focus();
+      }
+      return;
+    }
 
-    AppState.createNewStore({
+    const cleanPhone = rawPhone.startsWith("51") ? rawPhone : `51${rawPhone}`;
+    const niche = document.getElementById("onboarding-selected-niche")?.value || "sneakers";
+    const currency = document.getElementById("onboarding-selected-currency")?.value || (niche === "vehicles" ? "US$" : "S/");
+    const yapeInput = document.getElementById("onboarding-store-yape");
+    const yapePhone = yapeInput ? yapeInput.value.replace(/[^0-9]/g, "") : "";
+
+    const newStore = AppState.createNewStore({
       name,
       preset: niche,
-      phone,
-      currency: curr,
-      yapePhone: yape
+      phone: cleanPhone,
+      currency,
+      yapePhone
     });
 
     localStorage.setItem("tiendazap_onboarding_done", "true");
+    AppState.isDemoExploring = false;
+
+    const obScreen = document.getElementById("onboarding-screen");
+    if (obScreen) {
+      obScreen.classList.add("hidden");
+      obScreen.classList.remove("active");
+    }
+
     ViewController.showStudio();
-    Toast.show(`¡Bienvenido a ${name}! Tienda lista para vender`, "🎉");
+    if (typeof StudioController !== "undefined") {
+      StudioController.switchStudioTab("products");
+      StudioController.renderStoreDropdown();
+      StudioController.renderCatalogsBar();
+      StudioController.renderProductsList();
+      StudioController.populateSettingsTab();
+    }
+
+    Toast.show(`¡Listo! Tu tienda «${name}» fue creada`, "✅");
+  },
+
+  submitQuickSetup() {
+    this.submitOnboarding();
   },
 
   skip() {
-    localStorage.setItem("tiendazap_onboarding_done", "true");
-    if (!AppState.shopConfig.name) {
-      AppState.applyPreset("apparel");
-    }
-    ViewController.showStudio();
+    this.exploreDemoStore();
   },
 
   resetFromScratch() {
@@ -5310,20 +5508,13 @@ const CustomerUI = {
           const prodCurrency = product.currency || AppState.shopConfig.currency || "US$";
           const formattedPrice = Number(product.price).toLocaleString('es-PE', {minimumFractionDigits: 2});
           
-          let msg = `Hola *${AppState.shopConfig.name}*, vi tu publicación en TiendaZap:
-
-`;
-          msg += `🚗 *${product.name}*
-`;
-          if (product.condition) msg += `• *Condición:* ${product.condition}
-`;
-          if (product.location) msg += `• *Ubicación:* ${product.location}
-`;
-          msg += `💰 *Precio:* ${prodCurrency} ${formattedPrice}
-`;
-          msg += `🔗 *Ver Ficha:* ${prodUrl}
-
-`;
+          const itemLabel = product.listingType === "vehicle" ? "Vehículo" : (product.listingType === "property" ? "Inmueble" : "Producto");
+          let msg = `Hola *${AppState.shopConfig.name}*, vi tu publicación en TiendaZap:\n\n`;
+          msg += `• *${itemLabel}:* ${product.name}\n`;
+          if (product.condition) msg += `• *Condición:* ${product.condition}\n`;
+          if (product.location) msg += `• *Ubicación:* ${product.location}\n`;
+          msg += `• *Precio:* ${prodCurrency} ${formattedPrice}\n`;
+          msg += `• *Ver ficha:* ${prodUrl}\n\n`;
           msg += `${currentInquiry}`;
 
           window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, "_blank");
@@ -5789,36 +5980,36 @@ const WhatsAppOrder = {
     });
 
     const cleanStoreUrl = QRGenerator.getCleanDisplayUrl();
-    let msg = `🛍️ *Catálogo Oficial de ${shop.name}*\n`;
-    msg += `🔒 *Enlace seguro:* ${cleanStoreUrl}\n\n`;
+    let msg = `*Catálogo Oficial de ${shop.name}*\n`;
+    msg += `• *Enlace de tienda:* ${cleanStoreUrl}\n\n`;
     msg += `*NUEVO PEDIDO — ${shop.name.toUpperCase()}*\n`;
-    msg += `📅 *Fecha:* ${dateStr}\n`;
-    msg += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    msg += `• *Fecha:* ${dateStr}\n`;
+    msg += `-------------------------------------\n\n`;
 
-    msg += `👤 *DATOS DEL CLIENTE:*\n`;
+    msg += `*DATOS DEL CLIENTE:*\n`;
     msg += `• *Nombre:* ${clientData.name}\n`;
     msg += `• *Teléfono:* ${clientData.phone}\n`;
 
     if (clientData.deliveryMode === "digital") {
-      msg += `• *Modalidad:* ⚡ Envío Digital Inmediato (WhatsApp / Correo)\n`;
+      msg += `• *Modalidad:* Envío Digital Inmediato (WhatsApp / Correo)\n`;
       msg += `• *Contacto Digital:* ${clientData.address || clientData.phone}\n`;
     } else if (clientData.deliveryMode === "delivery") {
-      msg += `• *Modalidad:* 🛵 Envío a Domicilio\n`;
+      msg += `• *Modalidad:* Envío a Domicilio\n`;
       msg += `• *Dirección:* ${clientData.address}\n`;
       if (clientData.gpsCoords) {
         msg += `• *Ubicación GPS:* https://maps.google.com/?q=${clientData.gpsCoords}\n`;
       }
     } else if (clientData.deliveryMode === "dinein") {
-      msg += `• *Modalidad:* 🍽️ Consumo en Mesa (${clientData.tableNumber || "Mesa Local"})\n`;
+      msg += `• *Modalidad:* Consumo en Mesa (${clientData.tableNumber || "Mesa Local"})\n`;
     } else {
-      msg += `• *Modalidad:* 🛍️ Retiro en Local\n`;
+      msg += `• *Modalidad:* Retiro en Local\n`;
     }
 
     if (clientData.notes && clientData.notes.trim()) {
       msg += `• *Notas:* ${clientData.notes.trim()}\n`;
     }
 
-    msg += `\n📦 *DETALLE DE PRODUCTOS:*\n`;
+    msg += `\n*DETALLE DE PRODUCTOS:*\n`;
     items.forEach((item, idx) => {
       const unitPrice = CartController.getUnitPrice(item.product, item.selectedSize, item.selectedColor);
       const itemSub = (unitPrice * item.quantity).toFixed(2);
@@ -5831,40 +6022,40 @@ const WhatsAppOrder = {
 
       msg += `${idx + 1}. *${item.quantity}x* ${skuTag}${item.product.name}${variantText} — ${currency} ${itemSub}\n`;
       if (item.note) {
-        msg += `   └ _Nota: ${item.note}_\n`;
+        msg += `   └ Nota: ${item.note}\n`;
       }
     });
 
-    msg += `\n━━━━━━━━━━━━━━━━━━━━━\n`;
-    msg += `💳 *Subtotal:* ${currency} ${CartController.getSubtotal().toFixed(2)}\n`;
+    msg += `\n-------------------------------------\n`;
+    msg += `• *Subtotal:* ${currency} ${CartController.getSubtotal().toFixed(2)}\n`;
 
     if (clientData.deliveryMode === "delivery") {
-      msg += `🛵 *Envío:* ${currency} ${CartController.getDeliveryCost().toFixed(2)}\n`;
+      msg += `• *Envío:* ${currency} ${CartController.getDeliveryCost().toFixed(2)}\n`;
     } else if (clientData.deliveryMode === "digital") {
-      msg += `⚡ *Envío:* Gratis (Digital)\n`;
+      msg += `• *Envío:* Gratis (Digital)\n`;
     }
 
-    msg += `💰 *TOTAL A PAGAR: ${currency} ${CartController.getGrandTotal().toFixed(2)}*\n`;
-    msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+    msg += `• *TOTAL A PAGAR: ${currency} ${CartController.getGrandTotal().toFixed(2)}*\n`;
+    msg += `-------------------------------------\n`;
 
     // Sección de Método de Pago y Comprobante de Yape
     if (clientData.paymentMethod === "Yape / Plin") {
-      msg += `💵 *Método de Pago:* 📱 Yape / Plin\n`;
+      msg += `• *Método de Pago:* Yape / Plin\n`;
       if (shop.yapePhone) msg += `• *Número de Yape:* ${shop.yapePhone}\n`;
       if (shop.yapeName) msg += `• *Titular:* ${shop.yapeName}\n`;
       if (AppState.buyerVoucherBase64) {
-        msg += `📎 *COMPROBANTE:* ✅ Adjuntado por el cliente (te enviará la captura a este chat).\n`;
+        msg += `• *Comprobante:* Adjuntado por el cliente (enviará la captura por este chat).\n`;
       } else {
-        msg += `📎 *COMPROBANTE:* ⚠️ Pendiente de adjuntar captura por este chat.\n`;
+        msg += `• *Comprobante:* Pendiente de adjuntar captura por este chat.\n`;
       }
     } else {
-      msg += `💵 *Método de Pago:* ${clientData.paymentMethod}\n`;
+      msg += `• *Método de Pago:* ${clientData.paymentMethod}\n`;
       if (clientData.paymentMethod === "Efectivo" && clientData.cashChange) {
-        msg += `👉 *Paga con:* ${currency} ${clientData.cashChange}\n`;
+        msg += `• *Paga con:* ${currency} ${clientData.cashChange}\n`;
       }
     }
 
-    msg += `\n_Generado vía TiendaZap Studio_ ⚡`;
+    msg += `\n_Generado vía TiendaZap Studio_`;
     return msg;
   },
 
@@ -6331,6 +6522,7 @@ window.Toast = Toast;
 document.addEventListener("DOMContentLoaded", () => {
   try {
     AppState.init();
+    OnboardingWizard.init();
   } catch (err) {
     console.error("Error en AppState.init:", err);
   }
@@ -7751,6 +7943,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Botón rápido en la cabecera del Studio para crear tienda
+  const studioHeaderCreateBtn = document.getElementById("studio-header-create-store-btn");
+  if (studioHeaderCreateBtn) {
+    studioHeaderCreateBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      StudioController.openCreateStoreModal();
+    });
+  }
+
   // Confirmar creación de tienda (soporta IDs canónicos y alias)
   const confirmCreateStoreBtns = [
     document.getElementById("btn-confirm-create-store"),
@@ -7758,7 +7959,8 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
   confirmCreateStoreBtns.forEach(btn => {
     if (btn) {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
         const nameInput = document.getElementById("modal-new-store-name");
         const name = nameInput ? nameInput.value.trim() : "";
         if (!name) {
@@ -7766,19 +7968,28 @@ document.addEventListener("DOMContentLoaded", () => {
           if (nameInput) nameInput.focus();
           return;
         }
+        const phoneInput = document.getElementById("modal-new-store-phone");
+        const rawPhone = (phoneInput ? phoneInput.value : "").replace(/[^0-9]/g, "");
+        if (rawPhone.length < 9) {
+          Toast.show("Ingresa un WhatsApp válido de al menos 9 dígitos", "⚠️");
+          if (phoneInput) phoneInput.focus();
+          return;
+        }
+        const cleanPhone = rawPhone.startsWith("51") ? rawPhone : `51${rawPhone}`;
+
         const rawPreset = modalSelectedNiche?.value || "tech";
         const preset = AppState.normalizePresetKey(rawPreset);
-        const currency = document.getElementById("modal-new-store-currency")?.value || "S/";
-        const phone = document.getElementById("modal-new-store-phone")?.value.trim() || "";
+        const currency = document.getElementById("modal-new-store-currency")?.value || (preset === "vehicles" ? "US$" : "S/");
         const yape = document.getElementById("modal-new-store-yape")?.value.trim() || "";
 
-        AppState.createNewStore({ name, preset, phone, currency, yapePhone: yape });
+        AppState.createNewStore({ name, preset, phone: cleanPhone, currency, yapePhone: yape });
         StudioController.closeCreateStoreModal();
         StudioController.renderStoreDropdown();
         StudioController.switchStudioTab("products");
         StudioController.renderCatalogsBar();
         StudioController.renderProductsList();
-        Toast.show("✨ Tienda «" + name + "» creada y activa", "🏪");
+        StudioController.populateSettingsTab();
+        Toast.show(`¡Listo! Tu tienda «${name}» fue creada`, "✅");
       });
     }
   });
