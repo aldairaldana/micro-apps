@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>TiendaZap Studio — Administrador de Catálogo & WhatsApp</title>
-  <meta name="description" content="Panel de administración profesional para crear y gestionar tu catálogo digital y pedidos por WhatsApp en segundos.">
+  <meta name="description"
+    content="Panel de administración profesional para crear y gestionar tu catálogo digital y pedidos por WhatsApp en segundos.">
   <meta name="theme-color" content="#0b0f19">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,14 +19,14 @@
   <!-- Limpiador activo de cachés y Service Workers antiguos -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
         for (let reg of registrations) {
           reg.unregister();
         }
       });
     }
     if ('caches' in window) {
-      caches.keys().then(function(names) {
+      caches.keys().then(function (names) {
         for (let name of names) {
           caches.delete(name);
         }
@@ -34,10 +37,13 @@
   <!-- Fuentes Tipográficas Profesionales -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800;900&display=swap"
+    rel="stylesheet">
 
   <link rel="stylesheet" href="style.css?v=20261016-apple-v25">
 </head>
+
 <body>
 
   <!-- Contenedor Maestro de la Aplicación -->
@@ -63,27 +69,29 @@
               <span>TiendaZap Studio</span>
             </div>
             <h1 class="quick-brand-title">Crea tu tienda en 30 segundos</h1>
-            <p class="quick-brand-desc">Publica tu catálogo con fotos, precios y especificaciones. Recibe pedidos directos en tu WhatsApp sin intermediarios ni comisiones.</p>
+            <p class="quick-brand-desc">Publica tu catálogo con fotos, precios y especificaciones. Recibe pedidos
+              directos en tu WhatsApp sin intermediarios ni comisiones.</p>
           </div>
 
           <form id="quick-setup-form" class="quick-setup-form" onsubmit="return false;">
             <!-- Nombre de la tienda -->
             <div class="editor-field-group">
               <label for="quick-store-name" class="field-label-sm">Nombre de tu tienda o marca *</label>
-              <input type="text" id="quick-store-name" class="input-modern" required placeholder="Ej: Don Licencias, Nova Motors, Moda Lima...">
+              <input type="text" id="quick-store-name" class="input-modern" required
+                placeholder="Ej: Don Licencias, Nova Motors, Moda Lima...">
             </div>
 
             <!-- Rubro del negocio -->
             <div class="editor-field-group">
               <label class="field-label-sm">¿Qué rubro vendes principalmente? *</label>
               <div class="quick-niche-chips" id="quick-niche-chips">
-                <button type="button" class="quick-niche-chip active" data-niche="apparel">🛍️ Ropa / Zapatillas</button>
-                <button type="button" class="quick-niche-chip" data-niche="digital">⚡ Software / Licencias</button>
-                <button type="button" class="quick-niche-chip" data-niche="vehicles">🚗 Vehículos / Autos</button>
-                <button type="button" class="quick-niche-chip" data-niche="properties">🏠 Inmuebles / Alquiler</button>
-                <button type="button" class="quick-niche-chip" data-niche="burger">🍔 Comida / Restaurante</button>
-                <button type="button" class="quick-niche-chip" data-niche="watches">⌚ Relojes / Joyas</button>
-                <button type="button" class="quick-niche-chip" data-niche="general">📦 Comercio General</button>
+                <button type="button" class="quick-niche-chip active" data-niche="apparel">Ropa & Calzado</button>
+                <button type="button" class="quick-niche-chip" data-niche="digital">Software & Licencias</button>
+                <button type="button" class="quick-niche-chip" data-niche="vehicles">Vehículos & Autos</button>
+                <button type="button" class="quick-niche-chip" data-niche="properties">Inmuebles & Alquiler</button>
+                <button type="button" class="quick-niche-chip" data-niche="burger">Comida & Restaurantes</button>
+                <button type="button" class="quick-niche-chip" data-niche="watches">Relojes & Joyas</button>
+                <button type="button" class="quick-niche-chip" data-niche="general">Comercio General</button>
               </div>
               <input type="hidden" id="quick-selected-niche" value="apparel">
             </div>
@@ -105,8 +113,10 @@
 
             <!-- Yape opcional -->
             <div class="editor-field-group">
-              <label for="quick-yape-phone" class="field-label-sm">Número Yape / Plin <span class="quick-optional">(Opcional)</span></label>
-              <input type="tel" id="quick-yape-phone" class="input-modern" placeholder="Ej: 987654321 (para transferencias directas)">
+              <label for="quick-yape-phone" class="field-label-sm">Número Yape / Plin <span
+                  class="quick-optional">(Opcional)</span></label>
+              <input type="tel" id="quick-yape-phone" class="input-modern"
+                placeholder="Ej: 987654321 (para transferencias directas)">
             </div>
 
             <!-- Botón Submit -->
@@ -132,9 +142,14 @@
         <div class="studio-header-top-row">
           <div class="studio-store-pill-dropdown-wrap">
             <div class="studio-store-pill-dropdown" id="store-switcher-trigger" title="Cambiar o ver tiendas">
-              <img id="admin-logo-preview" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=120&q=80" alt="Logo" class="studio-mini-logo">
+              <img id="admin-logo-preview"
+                src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=120&q=80"
+                alt="Logo" class="studio-mini-logo">
               <span class="studio-header-store-name" id="studio-store-name-display">Mi Tienda</span>
-              <svg class="dropdown-arrow-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+              <svg class="dropdown-arrow-icon" viewBox="0 0 24 24" width="14" height="14" fill="none"
+                stroke="currentColor" stroke-width="2.5">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
             </div>
 
             <!-- Menú Desplegable Flotante Elegante de Tiendas -->
@@ -148,7 +163,10 @@
               </div>
               <div class="dropdown-menu-footer">
                 <button type="button" id="dropdown-create-store-btn" class="dropdown-btn-create">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
                   <span>+ Crear nueva tienda</span>
                 </button>
               </div>
@@ -157,7 +175,8 @@
 
           <div class="studio-header-right-actions">
             <!-- Switch Tienda Abierta / Cerrada -->
-            <button type="button" id="toggle-store-status-btn" class="apple-status-pill open" title="Estado de la vitrina">
+            <button type="button" id="toggle-store-status-btn" class="apple-status-pill open"
+              title="Estado de la vitrina">
               <span class="apple-status-dot"></span>
               <span id="quick-status-label">Abierto</span>
             </button>
@@ -165,8 +184,8 @@
             <!-- Botón Ver Tienda de Clientes -->
             <button type="button" id="open-preview-btn" class="studio-btn-preview" title="Ver catálogo como cliente">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
               </svg>
               <span>Ver vitrina</span>
             </button>
@@ -189,24 +208,40 @@
               <span class="store-link-icon">🔗</span>
               <span class="store-link-display-text" id="highlight-store-url">tiendazap.pages.dev/tu-tienda</span>
               <button type="button" id="store-copy-link-btn" class="btn-copy-integrated" title="Copiar enlace">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
+                  <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+                </svg>
                 <span>Copiar</span>
               </button>
             </div>
 
             <div class="store-link-dual-grid">
               <button type="button" id="store-share-btn" class="btn-dual-action" title="Compartir catálogo">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="18" cy="5" r="3" />
+                  <circle cx="6" cy="12" r="3" />
+                  <circle cx="18" cy="19" r="3" />
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                </svg>
                 <span>Compartir</span>
               </button>
-              <button type="button" id="store-open-qr-btn" class="btn-dual-action" title="Ver código QR para imprimir o mostrar">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <button type="button" id="store-open-qr-btn" class="btn-dual-action"
+                title="Ver código QR para imprimir o mostrar">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7" />
+                  <rect x="14" y="3" width="7" height="7" />
+                  <rect x="14" y="14" width="7" height="7" />
+                  <rect x="3" y="14" width="7" height="7" />
+                </svg>
                 <span>Código QR</span>
               </button>
             </div>
 
             <div class="portable-link-discreet-row">
-              <button type="button" id="btn-copy-portable-link" class="btn-portable-link-subtle" title="Generar enlace sin depender del almacenamiento local">
+              <button type="button" id="btn-copy-portable-link" class="btn-portable-link-subtle"
+                title="Generar enlace sin depender del almacenamiento local">
                 <span>📤 Generar enlace portátil con catálogo embebido (#d=...)</span>
               </button>
             </div>
@@ -215,11 +250,13 @@
           <!-- Card de Identidad Visual y Diseño de la Tienda -->
           <section class="settings-section-card">
             <h3 class="section-card-title">Identidad y Portada de tu Tienda</h3>
-            
+
 
             <!-- Banner / Portada -->
             <div class="settings-banner-preview-box">
-              <img id="admin-banner-preview" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80" alt="Portada de tu tienda" class="settings-banner-img">
+              <img id="admin-banner-preview"
+                src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80"
+                alt="Portada de tu tienda" class="settings-banner-img">
               <button type="button" id="change-banner-btn" class="btn-secondary-compact change-banner-btn">
                 <span>📷 Cambiar Portada</span>
               </button>
@@ -229,7 +266,9 @@
             <!-- Avatar & Nombre -->
             <div class="settings-identity-grid">
               <div class="settings-logo-wrap">
-                <img id="admin-logo-preview-settings" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80" alt="Logo" class="settings-logo-img">
+                <img id="admin-logo-preview-settings"
+                  src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80"
+                  alt="Logo" class="settings-logo-img">
                 <button type="button" id="change-logo-btn" class="btn-secondary-compact change-logo-btn">
                   <span>📷 Cambiar Logo</span>
                 </button>
@@ -239,7 +278,8 @@
               <div class="settings-names-col">
                 <div class="editor-field-group">
                   <label for="live-store-name" class="field-label-sm">Nombre comercial *</label>
-                  <input type="text" id="live-store-name" class="input-modern" placeholder="Nombre comercial de tu tienda">
+                  <input type="text" id="live-store-name" class="input-modern"
+                    placeholder="Nombre comercial de tu tienda">
                 </div>
                 <div class="editor-field-group">
                   <label for="live-store-tagline" class="field-label-sm">Eslogan o descripción breve</label>
@@ -254,82 +294,136 @@
                 <span class="slug-domain-prefix" id="settings-slug-prefix">tiendazap.pages.dev/</span>
                 <input type="text" id="settings-store-slug" class="input-modern" placeholder="flores-vanesa">
               </div>
-              <span class="field-hint">Tus clientes verán este nombre en su enlace seguro. Solo letras minúsculas, números y guiones.</span>
+              <span class="field-hint">Tus clientes verán este nombre en su enlace seguro. Solo letras minúsculas,
+                números y guiones.</span>
             </div>
           </section>
 
           <!-- Card de Rubro Comercial WhatsApp Business (Diseño Compacto) -->
           <section class="settings-section-card">
             <h3 class="section-card-title">Rubro de la Tienda</h3>
-            
+
             <div class="niche-selector-compact-grid">
               <button type="button" class="niche-card-btn active" data-niche="sneakers">
-                <svg class="niche-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 13h17l-1.5 5.5a2 2 0 0 1-1.9 1.5H6.9a2 2 0 0 1-1.9-1.5L3.5 13z"></path><path d="M3.5 13c0-3 2-6 5.5-6h4c1 0 2 1 2 2v4"></path></svg>
+                <svg class="niche-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3.5 13h17l-1.5 5.5a2 2 0 0 1-1.9 1.5H6.9a2 2 0 0 1-1.9-1.5L3.5 13z"></path>
+                  <path d="M3.5 13c0-3 2-6 5.5-6h4c1 0 2 1 2 2v4"></path>
+                </svg>
                 <span class="niche-label">Zapatillas & Calzado</span>
               </button>
               <button type="button" class="niche-card-btn" data-niche="beauty">
-                <svg class="niche-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z"></path></svg>
+                <svg class="niche-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path
+                    d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z">
+                  </path>
+                </svg>
                 <span class="niche-label">Perfumes & Belleza</span>
               </button>
               <button type="button" class="niche-card-btn" data-niche="watches">
-                <svg class="niche-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="7"></circle><polyline points="12 9 12 12 13.5 13.5"></polyline><path d="M16.5 5h-9l-1 2h11l-1-2z"></path><path d="M16.5 19h-9l-1-2h11l-1 2z"></path></svg>
+                <svg class="niche-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="7"></circle>
+                  <polyline points="12 9 12 12 13.5 13.5"></polyline>
+                  <path d="M16.5 5h-9l-1 2h11l-1-2z"></path>
+                  <path d="M16.5 19h-9l-1-2h11l-1 2z"></path>
+                </svg>
                 <span class="niche-label">Relojes & Joyas</span>
               </button>
               <button type="button" class="niche-card-btn" data-niche="fashion">
-                <svg class="niche-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path></svg>
+                <svg class="niche-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path
+                    d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z">
+                  </path>
+                </svg>
                 <span class="niche-label">Ropa & Moda</span>
               </button>
               <button type="button" class="niche-card-btn" data-niche="food">
-                <svg class="niche-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="2" x2="6" y2="4"></line><line x1="10" y1="2" x2="10" y2="4"></line><line x1="14" y1="2" x2="14" y2="4"></line></svg>
+                <svg class="niche-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                  <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                  <line x1="6" y1="2" x2="6" y2="4"></line>
+                  <line x1="10" y1="2" x2="10" y2="4"></line>
+                  <line x1="14" y1="2" x2="14" y2="4"></line>
+                </svg>
                 <span class="niche-label">Postres & Comida</span>
               </button>
               <button type="button" class="niche-card-btn" data-niche="tech">
-                <svg class="niche-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                <svg class="niche-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
                 <span class="niche-label">Tecnología & Software</span>
               </button>
               <button type="button" class="niche-card-btn" data-niche="vehicles">
-                <svg class="niche-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg>
+                <svg class="niche-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path
+                    d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2">
+                  </path>
+                  <circle cx="7" cy="17" r="2"></circle>
+                  <circle cx="17" cy="17" r="2"></circle>
+                </svg>
                 <span class="niche-label">Vehículos & Autos</span>
               </button>
               <button type="button" class="niche-card-btn" data-niche="general">
-                <svg class="niche-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                <svg class="niche-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
                 <span class="niche-label">Tienda General</span>
               </button>
             </div>
 
             <!-- Estilo Visual y Color Compacto (Swatches circulares + Segmented Control) -->
-            <div class="store-subsection-divider" style="margin: 16px 0 12px; border-top: 1px solid rgba(255, 255, 255, 0.08);"></div>
+            <div class="store-subsection-divider"
+              style="margin: 16px 0 12px; border-top: 1px solid rgba(255, 255, 255, 0.08);"></div>
             <div class="theme-compact-wrapper">
               <div class="theme-compact-header">
                 <h4 style="margin: 0; font-size: 0.88rem; font-weight: 700; color: #f8fafc;">Tema y Color</h4>
                 <div class="theme-mode-segmented">
-                  <button type="button" id="store-theme-mode-light" class="btn-theme-mode-seg" data-mode="light">Claro</button>
-                  <button type="button" id="store-theme-mode-dark" class="btn-theme-mode-seg active" data-mode="dark">Oscuro</button>
+                  <button type="button" id="store-theme-mode-light" class="btn-theme-mode-seg"
+                    data-mode="light">Claro</button>
+                  <button type="button" id="store-theme-mode-dark" class="btn-theme-mode-seg active"
+                    data-mode="dark">Oscuro</button>
                 </div>
               </div>
 
               <div class="theme-swatches-strip" id="theme-presets-grid">
-                <button type="button" class="theme-preset-card theme-swatch-item" data-theme-id="boutique-rose" title="Rosa Boutique">
+                <button type="button" class="theme-preset-card theme-swatch-item" data-theme-id="boutique-rose"
+                  title="Rosa Boutique">
                   <span class="swatch-circle" style="background: #e11d48; border-color: #fda4af;"></span>
                   <span class="swatch-name">Boutique</span>
                 </button>
-                <button type="button" class="theme-preset-card theme-swatch-item" data-theme-id="minimal-light" title="Minimalista Blanco">
+                <button type="button" class="theme-preset-card theme-swatch-item" data-theme-id="minimal-light"
+                  title="Minimalista Blanco">
                   <span class="swatch-circle" style="background: #ffffff; border-color: #cbd5e1;"></span>
                   <span class="swatch-name">Minimal</span>
                 </button>
-                <button type="button" class="theme-preset-card theme-swatch-item" data-theme-id="lavender-luxe" title="Lavanda">
+                <button type="button" class="theme-preset-card theme-swatch-item" data-theme-id="lavender-luxe"
+                  title="Lavanda">
                   <span class="swatch-circle" style="background: #7c3aed; border-color: #c4b5fd;"></span>
                   <span class="swatch-name">Lavanda</span>
                 </button>
-                <button type="button" class="theme-preset-card theme-swatch-item" data-theme-id="warm-coral" title="Coral">
+                <button type="button" class="theme-preset-card theme-swatch-item" data-theme-id="warm-coral"
+                  title="Coral">
                   <span class="swatch-circle" style="background: #ea580c; border-color: #fdba74;"></span>
                   <span class="swatch-name">Coral</span>
                 </button>
-                <button type="button" class="theme-preset-card theme-swatch-item active" data-theme-id="tech-dark" title="Tech Azul">
+                <button type="button" class="theme-preset-card theme-swatch-item active" data-theme-id="tech-dark"
+                  title="Tech Azul">
                   <span class="swatch-circle" style="background: #3b82f6; border-color: #93c5fd;"></span>
                   <span class="swatch-name">Tech</span>
                 </button>
-                <button type="button" class="theme-preset-card theme-swatch-item" data-theme-id="obsidian-emerald" title="Obsidiana">
+                <button type="button" class="theme-preset-card theme-swatch-item" data-theme-id="obsidian-emerald"
+                  title="Obsidiana">
                   <span class="swatch-circle" style="background: #10b981; border-color: #6ee7b7;"></span>
                   <span class="swatch-name">Esmeralda</span>
                 </button>
@@ -345,11 +439,17 @@
             </div>
 
             <!-- Redes Sociales en Acordeón Colapsable -->
-            <div class="store-subsection-divider" style="margin: 16px 0 10px; border-top: 1px solid rgba(255, 255, 255, 0.08);"></div>
+            <div class="store-subsection-divider"
+              style="margin: 16px 0 10px; border-top: 1px solid rgba(255, 255, 255, 0.08);"></div>
             <details class="compact-accordion" id="settings-socials-accordion">
               <summary class="accordion-summary">
                 <div style="display:flex;align-items:center;gap:6px;">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><line x1="2" x2="22" y1="12" y2="12"/></svg>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path
+                      d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                    <line x1="2" x2="22" y1="12" y2="12" />
+                  </svg>
                   <span>Redes sociales del negocio (opcional)</span>
                 </div>
                 <span class="accordion-chevron">▾</span>
@@ -368,7 +468,8 @@
                 <div class="form-grid-2" style="margin-top: 8px;">
                   <div class="editor-field-group">
                     <label for="settings-social-facebook" class="field-label-sm">Facebook</label>
-                    <input type="text" id="settings-social-facebook" class="input-modern" placeholder="facebook.com/mitienda">
+                    <input type="text" id="settings-social-facebook" class="input-modern"
+                      placeholder="facebook.com/mitienda">
                   </div>
                   <div class="editor-field-group">
                     <label for="settings-social-website" class="field-label-sm">Sitio Web / Link</label>
@@ -378,7 +479,8 @@
               </div>
             </details>
 
-            <button type="button" id="save-store-btn" class="btn-save-settings-compact" style="margin-top: 14px;">Guardar cambios</button>
+            <button type="button" id="save-store-btn" class="btn-save-settings-compact"
+              style="margin-top: 14px;">Guardar cambios</button>
           </section>
         </div>
 
@@ -394,11 +496,13 @@
           <div class="products-action-toolbar">
             <div class="search-box-wrap">
               <span class="search-lens">🔍</span>
-              <input type="text" id="studio-search-input" class="search-input-field" placeholder="Buscar por nombre, código o categoría...">
+              <input type="text" id="studio-search-input" class="search-input-field"
+                placeholder="Buscar por nombre, código o categoría...">
               <button type="button" id="studio-clear-search-btn" class="search-clear hidden">✕</button>
             </div>
             <div class="toolbar-buttons-group">
-              <button type="button" id="studio-manage-categories-btn" class="btn-manage-categories" title="Gestionar categorías de la tienda">
+              <button type="button" id="studio-manage-categories-btn" class="btn-manage-categories"
+                title="Gestionar categorías de la tienda">
                 <span class="btn-cat-icon">🏷️</span>
                 <span>Categorías</span>
                 <span class="cat-count-badge" id="studio-categories-badge">0</span>
@@ -425,162 +529,181 @@
               </div>
               <form id="studio-product-form" class="editor-modal-body">
                 <input type="hidden" id="editor-product-id">
-            
 
-              <!-- Selector de Tipo de Publicación (Estilo FB Marketplace) -->
-              <div class="editor-field-group" id="editor-listing-type-group">
-                <div class="editor-type-compact-bar hidden" id="editor-type-compact-bar">
-                  <div class="editor-type-active-badge" id="editor-type-active-badge">
-                    <span id="editor-type-badge-icon">⚡</span>
-                    <span id="editor-type-badge-text">Publicación Digital / Licencia</span>
+
+                <!-- Selector de Tipo de Publicación (Estilo FB Marketplace) -->
+                <div class="editor-field-group" id="editor-listing-type-group">
+                  <div class="editor-type-compact-bar hidden" id="editor-type-compact-bar">
+                    <div class="editor-type-active-badge" id="editor-type-active-badge">
+                      <span id="editor-type-badge-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+                      <span id="editor-type-badge-text">Publicación Digital / Licencia</span>
+                    </div>
+                    <button type="button" class="btn-text-link" id="editor-toggle-types-btn">Cambiar tipo</button>
                   </div>
-                  <button type="button" class="btn-text-link" id="editor-toggle-types-btn">Cambiar tipo</button>
+                  <div class="listing-type-selector-pills" id="editor-listing-type-pills">
+                    <button type="button" class="listing-pill active" data-type="item">
+                      <span>Artículo Físico</span>
+                    </button>
+                    <button type="button" class="listing-pill" data-type="vehicle">
+                      <span>Vehículo / Auto</span>
+                    </button>
+                    <button type="button" class="listing-pill" data-type="digital">
+                      <span>Digital / Licencia</span>
+                    </button>
+                    <button type="button" class="listing-pill" data-type="property">
+                      <span>Inmueble</span>
+                    </button>
+                  </div>
+                  <input type="hidden" id="editor-listing-type" value="item">
                 </div>
-                <div class="listing-type-selector-pills" id="editor-listing-type-pills">
-                  <button type="button" class="listing-pill active" data-type="item">
-                    <span>🛍️ Artículo Físico</span>
-                  </button>
-                  <button type="button" class="listing-pill" data-type="vehicle">
-                    <span>🚗 Vehículo / Auto</span>
-                  </button>
-                  <button type="button" class="listing-pill" data-type="digital">
-                    <span>⚡ Digital / Licencia</span>
-                  </button>
-                  <button type="button" class="listing-pill" data-type="property">
-                    <span>🏠 Inmueble</span>
-                  </button>
-                </div>
-                <input type="hidden" id="editor-listing-type" value="item">
-              </div>
 
-              <!-- Galería de Fotos del Producto (Hasta 6 fotos) -->
-              <div class="editor-field-group">
-                <div class="label-with-action">
-                  <label>Fotografías del Producto (<span id="editor-photos-count">0</span>/6)</label>
-                  <button type="button" id="editor-toggle-url-btn" class="btn-text-link">O usar enlace web (URL)</button>
+                <!-- Galería de Fotos del Producto (Hasta 6 fotos) -->
+                <div class="editor-field-group">
+                  <div class="label-with-action">
+                    <label>Fotografías del Producto (<span id="editor-photos-count">0</span>/6)</label>
+                    <button type="button" id="editor-toggle-url-btn" class="btn-text-link">O usar enlace web
+                      (URL)</button>
+                  </div>
+                  <div class="product-photo-upload-box" id="product-photo-upload-box">
+                    <img id="editor-photo-preview" src="" alt="Vista previa del producto" class="hidden">
+                    <div class="photo-placeholder-content" id="editor-photo-placeholder">
+                      <span class="camera-big-icon">📷</span>
+                      <span class="photo-prompt-title">Toca para subir fotos (hasta 6)</span>
+                      <span class="photo-prompt-sub">JPG, PNG o WebP desde tu galería o cámara</span>
+                    </div>
+                  </div>
+                  <input type="file" id="editor-file-input" accept="image/*" multiple class="hidden">
+                  <div class="editor-photos-strip" id="editor-photos-strip"></div>
+                  <div class="photo-url-fallback-row">
+                    <button type="button" id="editor-trigger-file-btn" class="btn-alt-sm">+ Agregar Fotos</button>
+                  </div>
+                  <input type="url" id="editor-url-input" class="input-modern hidden"
+                    placeholder="https://ejemplo.com/foto.jpg">
                 </div>
-                <div class="product-photo-upload-box" id="product-photo-upload-box">
-                  <img id="editor-photo-preview" src="" alt="Vista previa del producto" class="hidden">
-                  <div class="photo-placeholder-content" id="editor-photo-placeholder">
-                    <span class="camera-big-icon">📷</span>
-                    <span class="photo-prompt-title">Toca para subir fotos (hasta 6)</span>
-                    <span class="photo-prompt-sub">JPG, PNG o WebP desde tu galería o cámara</span>
+
+                <!-- Video del Producto (Opcional) -->
+                <div class="editor-field-group">
+                  <div class="label-with-action">
+                    <label>Video del Producto (Opcional)</label>
+                    <button type="button" id="editor-toggle-video-url-btn" class="btn-text-link">O usar enlace
+                      externo</button>
+                  </div>
+                  <div class="video-upload-dropzone" id="product-video-upload-box">
+                    <button type="button" id="editor-trigger-video-btn" class="btn-upload-video-main">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <polygon points="23 7 16 12 23 17 23 7" />
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                      </svg>
+                      <span>Subir video desde tu celular o PC (MP4 / MOV)</span>
+                    </button>
+                  </div>
+                  <input type="file" id="editor-video-file-input" accept="video/mp4,video/webm,video/quicktime,video/*"
+                    class="hidden">
+                  <input type="url" id="editor-video-url-input" class="input-modern hidden"
+                    placeholder="O pega enlace de TikTok, Reel o YouTube" style="margin-top: 8px;">
+                  <div id="editor-video-preview-wrap" class="editor-video-preview-wrap hidden">
+                    <video id="editor-video-preview" controls playsinline muted class="editor-video-thumb"></video>
+                    <button type="button" id="editor-remove-video-btn" class="btn-remove-video">Quitar video</button>
                   </div>
                 </div>
-                <input type="file" id="editor-file-input" accept="image/*" multiple class="hidden">
-                <div class="editor-photos-strip" id="editor-photos-strip"></div>
-                <div class="photo-url-fallback-row">
-                  <button type="button" id="editor-trigger-file-btn" class="btn-alt-sm">+ Agregar Fotos</button>
-                </div>
-                <input type="url" id="editor-url-input" class="input-modern hidden" placeholder="https://ejemplo.com/foto.jpg">
-              </div>
 
-              <!-- Video del Producto (Opcional) -->
-              <div class="editor-field-group">
-                <div class="label-with-action">
-                  <label>Video del Producto (Opcional)</label>
-                  <button type="button" id="editor-toggle-video-url-btn" class="btn-text-link">O usar enlace externo</button>
-                </div>
-                <div class="video-upload-dropzone" id="product-video-upload-box">
-                  <button type="button" id="editor-trigger-video-btn" class="btn-upload-video-main">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-                    <span>Subir video desde tu celular o PC (MP4 / MOV)</span>
-                  </button>
-                </div>
-                <input type="file" id="editor-video-file-input" accept="video/mp4,video/webm,video/quicktime,video/*" class="hidden">
-                <input type="url" id="editor-video-url-input" class="input-modern hidden" placeholder="O pega enlace de TikTok, Reel o YouTube" style="margin-top: 8px;">
-                <div id="editor-video-preview-wrap" class="editor-video-preview-wrap hidden">
-                  <video id="editor-video-preview" controls playsinline muted class="editor-video-thumb"></video>
-                  <button type="button" id="editor-remove-video-btn" class="btn-remove-video">Quitar video</button>
-                </div>
-              </div>
-
-              <!-- Nombre y Precio -->
-              <div class="editor-field-group">
-                <label for="editor-name-input">Nombre del Producto / Vehículo / Servicio *</label>
-                <input type="text" id="editor-name-input" class="input-modern" placeholder="Ej: Changan CS55 Plus / Adobe Creative Cloud / Zapatillas Dunk" required>
-              </div>
-
-              <div class="editor-field-group">
-                <label for="editor-price-input">Precio y Moneda *</label>
-                <div class="editor-price-row">
-                  <select id="editor-currency-select" class="input-modern editor-currency-select" title="Moneda">
-                    <option value="S/">S/ (Soles)</option>
-                    <option value="US$">US$ (Dólares)</option>
-                  </select>
-                  <input type="number" id="editor-price-input" step="0.01" min="0" class="input-modern price-highlight" placeholder="0.00" required>
-                </div>
-              </div>
-
-              <!-- Catálogo de Pertenencia (Etapa 2) -->
-              <div class="editor-field-group">
-                <div class="label-with-action">
-                  <label for="editor-catalog-select">Catálogo</label>
-                  <button type="button" id="editor-quick-add-catalog-btn" class="btn-text-link">+ Nuevo catálogo</button>
-                </div>
-                <select id="editor-catalog-select" class="input-modern"></select>
-              </div>
-
-              <div class="editor-field-group">
-                <div class="label-with-action">
-                  <label for="editor-category-input">Categoría *</label>
-                  <button type="button" id="editor-quick-add-cat-btn" class="btn-text-link">+ Nueva</button>
-                </div>
-                <!-- Chips rápidos de categorías existentes para 1 solo toque -->
-                <div class="editor-cat-pills-row" id="editor-cat-pills-row"></div>
-                <input type="text" id="editor-category-input" class="input-modern" placeholder="Ej: Hamburguesas, Vestidos, Software..." list="categories-datalist" required>
-                <datalist id="categories-datalist"></datalist>
-              </div>
-
-              <!-- SKU y Descripción -->
-              <div class="editor-field-group">
-                <label for="editor-sku-input">Código SKU o Referencia (Opcional)</label>
-                <input type="text" id="editor-sku-input" class="input-modern" placeholder="Ej: WIN-11-PRO">
-              </div>
-
-              <div class="editor-field-group">
-                <label for="editor-desc-input">Descripción Detallada / Beneficios</label>
-                <textarea id="editor-desc-input" class="textarea-modern" rows="2" placeholder="Características, garantía, instrucciones de activación o entrega..."></textarea>
-              </div>
-
-              <!-- Ficha Técnica Dinámica por Categoría (MARKETPLACE_SCHEMAS) -->
-              <div class="editor-field-group" id="editor-specs-section">
-                <div class="specs-section-header">
-                  <span class="specs-section-tag" id="editor-specs-type-tag">Ficha Técnica</span>
-                  <small style="color: var(--text-muted); font-size: 0.72rem;">Campos específicos para tu publicación</small>
-                </div>
-                <div class="editor-dynamic-specs-container" id="editor-dynamic-specs-container">
-                  <!-- Se inyecta según listingType -->
-                </div>
-              </div>
-
-              <div class="form-grid-2" id="editor-variants-section">
+                <!-- Nombre y Precio -->
                 <div class="editor-field-group">
-                  <label for="editor-sizes-input" id="editor-sizes-label">Variantes / Opciones (separadas por coma)</label>
-                  <input type="text" id="editor-sizes-input" class="input-modern" placeholder="Ej: 1 PC, 3 PCs, 5 PCs">
+                  <label for="editor-name-input">Nombre del Producto / Vehículo / Servicio *</label>
+                  <input type="text" id="editor-name-input" class="input-modern"
+                    placeholder="Ej: Changan CS55 Plus / Adobe Creative Cloud / Zapatillas Dunk" required>
                 </div>
-                <div class="editor-field-group">
-                  <label for="editor-colors-input" id="editor-colors-label">Edición / Tipo (opcional)</label>
-                  <input type="text" id="editor-colors-input" class="input-modern" placeholder="Ej: Global, Retail, Anual">
-                </div>
-              </div>
 
-              <!-- Switches de Estado -->
-              <div class="switches-row">
-                <label class="modern-switch-label">
-                  <input type="checkbox" id="editor-available-check" checked>
-                  <span>Producto activo en catálogo (Disponible para pedidos)</span>
-                </label>
-                <label class="modern-switch-label">
-                  <input type="checkbox" id="editor-promo-check">
-                  <span>Destacar como Promoción Especial (Badge PROMO)</span>
-                </label>
-              </div>
+                <div class="editor-field-group">
+                  <label for="editor-price-input">Precio y Moneda *</label>
+                  <div class="editor-price-row">
+                    <select id="editor-currency-select" class="input-modern editor-currency-select" title="Moneda">
+                      <option value="S/">S/ (Soles)</option>
+                      <option value="US$">US$ (Dólares)</option>
+                    </select>
+                    <input type="number" id="editor-price-input" step="0.01" min="0"
+                      class="input-modern price-highlight" placeholder="0.00" required>
+                  </div>
+                </div>
+
+                <!-- Catálogo de Pertenencia (Etapa 2) -->
+                <div class="editor-field-group">
+                  <div class="label-with-action">
+                    <label for="editor-catalog-select">Catálogo</label>
+                    <button type="button" id="editor-quick-add-catalog-btn" class="btn-text-link">+ Nuevo
+                      catálogo</button>
+                  </div>
+                  <select id="editor-catalog-select" class="input-modern"></select>
+                </div>
+
+                <div class="editor-field-group">
+                  <div class="label-with-action">
+                    <label for="editor-category-input">Categoría *</label>
+                    <button type="button" id="editor-quick-add-cat-btn" class="btn-text-link">+ Nueva</button>
+                  </div>
+                  <!-- Chips rápidos de categorías existentes para 1 solo toque -->
+                  <div class="editor-cat-pills-row" id="editor-cat-pills-row"></div>
+                  <input type="text" id="editor-category-input" class="input-modern"
+                    placeholder="Ej: Hamburguesas, Vestidos, Software..." list="categories-datalist" required>
+                  <datalist id="categories-datalist"></datalist>
+                </div>
+
+                <!-- SKU y Descripción -->
+                <div class="editor-field-group">
+                  <label for="editor-sku-input">Código SKU o Referencia (Opcional)</label>
+                  <input type="text" id="editor-sku-input" class="input-modern" placeholder="Ej: WIN-11-PRO">
+                </div>
+
+                <div class="editor-field-group">
+                  <label for="editor-desc-input">Descripción Detallada / Beneficios</label>
+                  <textarea id="editor-desc-input" class="textarea-modern" rows="2"
+                    placeholder="Características, garantía, instrucciones de activación o entrega..."></textarea>
+                </div>
+
+                <!-- Ficha Técnica Dinámica por Categoría (MARKETPLACE_SCHEMAS) -->
+                <div class="editor-field-group" id="editor-specs-section">
+                  <div class="specs-section-header">
+                    <span class="specs-section-tag" id="editor-specs-type-tag">Ficha Técnica</span>
+                    <small style="color: var(--text-muted); font-size: 0.72rem;">Campos específicos para tu
+                      publicación</small>
+                  </div>
+                  <div class="editor-dynamic-specs-container" id="editor-dynamic-specs-container">
+                    <!-- Se inyecta según listingType -->
+                  </div>
+                </div>
+
+                <div class="form-grid-2" id="editor-variants-section">
+                  <div class="editor-field-group">
+                    <label for="editor-sizes-input" id="editor-sizes-label">Variantes / Opciones (separadas por
+                      coma)</label>
+                    <input type="text" id="editor-sizes-input" class="input-modern"
+                      placeholder="Ej: 1 PC, 3 PCs, 5 PCs">
+                  </div>
+                  <div class="editor-field-group">
+                    <label for="editor-colors-input" id="editor-colors-label">Edición / Tipo (opcional)</label>
+                    <input type="text" id="editor-colors-input" class="input-modern"
+                      placeholder="Ej: Global, Retail, Anual">
+                  </div>
+                </div>
+
+                <!-- Switches de Estado -->
+                <div class="switches-row">
+                  <label class="modern-switch-label">
+                    <input type="checkbox" id="editor-available-check" checked>
+                    <span>Producto activo en catálogo (Disponible para pedidos)</span>
+                  </label>
+                  <label class="modern-switch-label">
+                    <input type="checkbox" id="editor-promo-check">
+                    <span>Destacar como Promoción Especial (Badge PROMO)</span>
+                  </label>
+                </div>
               </form>
-              
+
               <div class="editor-modal-footer">
                 <button type="button" id="editor-cancel-btn" class="btn-cancel-edit">Cancelar</button>
-                <button type="submit" id="save-product-btn" form="studio-product-form" class="btn-save-product">Guardar Producto</button>
+                <button type="submit" id="save-product-btn" form="studio-product-form" class="btn-save-product">Guardar
+                  Producto</button>
               </div>
             </div>
           </div>
@@ -590,14 +713,22 @@
 
           <!-- Estado Vacío -->
           <div class="studio-empty-state hidden" id="studio-empty-state">
-            <span class="empty-icon">📦</span>
+            <span class="empty-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                <line x1="12" y1="22.08" x2="12" y2="12"/>
+              </svg>
+            </span>
             <h4>No hay productos en esta vista</h4>
             <p>Agrega tu primer artículo o ajusta los filtros de búsqueda.</p>
           </div>
         </div>
 
         <!-- Contenedor oculto para compatibilidad de lista de tiendas -->
-        <div id="view-stores" class="hidden"><div id="studio-stores-list"></div></div>
+        <div id="view-stores" class="hidden">
+          <div id="studio-stores-list"></div>
+        </div>
 
         <!-- =============================================================
              PESTAÑA 3: COBROS Y ENVÍOS
@@ -606,8 +737,9 @@
           <!-- Datos de WhatsApp & Moneda -->
           <section class="settings-section-card">
             <h3 class="section-card-title">Canal Oficial de Pedidos por WhatsApp</h3>
-            <p class="section-card-desc">Configura el número receptor de pedidos y la moneda principal de tus cobros.</p>
-            
+            <p class="section-card-desc">Configura el número receptor de pedidos y la moneda principal de tus cobros.
+            </p>
+
             <div class="editor-field-group">
               <label for="settings-phone">Número de WhatsApp (con código de país, ej: 51987654321) *</label>
               <div class="phone-input-wrap">
@@ -634,7 +766,8 @@
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <div>
                 <h3 class="section-card-title">Cobros con Yape & Plin</h3>
-                <p class="section-card-desc">Permite a tus clientes escanear tu QR y adjuntar su comprobante de pago directo en la orden.</p>
+                <p class="section-card-desc">Permite a tus clientes escanear tu QR y adjuntar su comprobante de pago
+                  directo en la orden.</p>
               </div>
               <label class="modern-switch-label">
                 <input type="checkbox" id="settings-yape-enabled" checked>
@@ -649,7 +782,8 @@
               </div>
               <div class="editor-field-group">
                 <label for="settings-yape-name">Titular de la Cuenta (Nombre completo)</label>
-                <input type="text" id="settings-yape-name" class="input-modern" placeholder="Ej: Don Licencia / Juan Pérez">
+                <input type="text" id="settings-yape-name" class="input-modern"
+                  placeholder="Ej: Don Licencia / Juan Pérez">
               </div>
             </div>
 
@@ -657,7 +791,8 @@
             <div class="editor-field-group">
               <label>Código QR de tu Yape / Plin (Captura)</label>
               <div class="product-photo-upload-box" id="settings-yape-upload-box" style="height: 180px;">
-                <img id="settings-yape-qr-preview" src="" alt="QR Yape" class="hidden" style="max-height: 100%; object-fit: contain;">
+                <img id="settings-yape-qr-preview" src="" alt="QR Yape" class="hidden"
+                  style="max-height: 100%; object-fit: contain;">
                 <div class="photo-placeholder-content" id="settings-yape-qr-placeholder">
                   <span class="camera-big-icon">📱</span>
                   <span class="photo-prompt-title">Toca para adjuntar tu código QR de Yape</span>
@@ -665,10 +800,11 @@
                 </div>
               </div>
               <input type="file" id="settings-yape-file-input" accept="image/*" class="hidden">
-              
+
               <div style="display: flex; gap: 8px; margin-top: 6px;">
                 <button type="button" id="trigger-yape-qr-btn" class="btn-alt-sm">Subir o Cambiar QR</button>
-                <button type="button" id="remove-yape-qr-btn" class="btn-alt-sm hidden" style="color: var(--accent-red);">Eliminar QR</button>
+                <button type="button" id="remove-yape-qr-btn" class="btn-alt-sm hidden"
+                  style="color: var(--accent-red);">Eliminar QR</button>
               </div>
             </div>
           </section>
@@ -685,7 +821,8 @@
               </div>
               <div class="editor-field-group">
                 <label for="settings-delivery-time">Tiempo Estimado de Entrega</label>
-                <input type="text" id="settings-delivery-time" class="input-modern" placeholder="Ej: Entrega Inmediata / 24-48h">
+                <input type="text" id="settings-delivery-time" class="input-modern"
+                  placeholder="Ej: Entrega Inmediata / 24-48h">
               </div>
             </div>
           </section>
@@ -694,11 +831,13 @@
           <section class="cloud-card">
             <span class="cloud-badge-free">SIN BASE DE DATOS ($0 DE COSTO)</span>
             <h3 class="cloud-title">Sincronización con Google Sheets</h3>
-            <p class="cloud-desc">Conecta una hoja de cálculo de Google Sheet para actualizar tus productos, stock y precios masivamente desde tu PC o celular sin tocar código.</p>
+            <p class="cloud-desc">Conecta una hoja de cálculo de Google Sheet para actualizar tus productos, stock y
+              precios masivamente desde tu PC o celular sin tocar código.</p>
 
             <div class="editor-field-group">
               <label for="cloud-sheet-url">URL del Google Sheet (Publicado en la web como CSV)</label>
-              <input type="url" id="cloud-sheet-url" class="input-modern" placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv">
+              <input type="url" id="cloud-sheet-url" class="input-modern"
+                placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv">
             </div>
 
             <div class="cloud-buttons-row">
@@ -714,13 +853,14 @@
           <!-- Backup & JSON -->
           <section class="cloud-card">
             <h3 class="cloud-title">Copia de Seguridad & Respaldos</h3>
-            <p class="cloud-desc">Exporta tu catálogo completo a un archivo para guardarlo o importarlo en otro dispositivo.</p>
-            
+            <p class="cloud-desc">Exporta tu catálogo completo a un archivo para guardarlo o importarlo en otro
+              dispositivo.</p>
+
             <div class="cloud-buttons-column">
               <button type="button" id="cloud-export-json-btn" class="btn-action-outline">
                 <span>💾 Descargar Copia de Seguridad (JSON)</span>
               </button>
-              
+
               <label class="btn-action-outline" style="cursor: pointer;">
                 <span>📂 Restaurar Catálogo desde Archivo</span>
                 <input type="file" id="cloud-import-json-input" accept=".json" class="hidden">
@@ -732,22 +872,34 @@
             </div>
           </section>
 
-          <button type="button" id="save-payments-btn" class="btn-save-settings">Guardar Ajustes de Cobros y Envíos</button>
+          <button type="button" id="save-payments-btn" class="btn-save-settings">Guardar Ajustes de Cobros y
+            Envíos</button>
         </div>
 
       </main>
       <!-- Navegación Inferior Fija Tipo App Móvil (3 Pasos Lógicos: Mi Tienda | Productos | Cobros y Envíos) -->
       <nav class="studio-bottom-nav" aria-label="Navegación principal">
         <button type="button" class="studio-bottom-nav-btn active" data-tab="store" id="tab-nav-store">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
           <span>Mi Tienda</span>
         </button>
         <button type="button" class="studio-bottom-nav-btn" data-tab="products" id="tab-nav-products">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path
+              d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+            <line x1="12" y1="22.08" x2="12" y2="12" />
+          </svg>
           <span>Productos</span>
         </button>
         <button type="button" class="studio-bottom-nav-btn" data-tab="payments" id="tab-nav-payments">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+            <line x1="1" y1="10" x2="23" y2="10" />
+          </svg>
           <span>Cobros y Envíos</span>
         </button>
       </nav>
@@ -759,7 +911,7 @@
          VISTA 2: VISTA PREVIA DEL CLIENTE (EXPERIENCIA DEL COMPRADOR)
          =============================================================== -->
     <div id="customer-preview-view" class="view-screen hidden">
-      
+
       <!-- Barra Superior de Retorno a Modo Admin -->
       <div class="preview-mode-bar">
         <div class="preview-mode-info">
@@ -773,22 +925,38 @@
 
       <!-- El Catálogo Completo del Comprador -->
       <div class="customer-catalog-wrapper" id="customer-catalog-wrapper">
-        
+
         <!-- Header Comercial del Negocio -->
         <header class="store-header" id="store-header">
           <div class="store-banner-wrapper">
             <img id="store-banner-img" src="" alt="Banner de la tienda" class="store-banner-img">
             <div class="store-banner-overlay"></div>
-            
+
             <div class="header-top-actions">
-              <button id="preview-qr-btn" class="header-icon-btn" type="button" title="Código QR" aria-label="Código QR">
+              <button id="preview-qr-btn" class="header-icon-btn" type="button" title="Código QR"
+                aria-label="Código QR">
                 <span class="btn-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><path d="M10 7h1M7 10h1M10 10h1M14 10h1M10 14h1M10 17h1"></path></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                    <path d="M10 7h1M7 10h1M10 10h1M14 10h1M10 14h1M10 17h1"></path>
+                  </svg>
                 </span>
               </button>
-              <button id="preview-share-btn" class="header-icon-btn" type="button" title="Compartir catálogo" aria-label="Compartir catálogo">
+              <button id="preview-share-btn" class="header-icon-btn" type="button" title="Compartir catálogo"
+                aria-label="Compartir catálogo">
                 <span class="btn-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="18" cy="5" r="3"></circle>
+                    <circle cx="6" cy="12" r="3"></circle>
+                    <circle cx="18" cy="19" r="3"></circle>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                  </svg>
                 </span>
               </button>
             </div>
@@ -824,7 +992,7 @@
                 </span>
                 <span class="meta-sep">·</span>
                 <span class="meta-item meta-time" id="delivery-time-pill">
-                  ⚡ Entrega Inmediata
+                  Entrega Inmediata
                 </span>
                 <span class="meta-sep">·</span>
                 <span class="meta-item meta-cost" id="delivery-cost-pill">
@@ -834,9 +1002,11 @@
 
               <!-- Banner sutil de Catálogo Activo para el Comprador (Etapa 2) -->
               <div class="store-active-catalog-banner hidden" id="store-active-catalog-banner">
-                <span class="catalog-badge-icon">📁</span>
-                <span class="catalog-badge-label">Catálogo: <strong id="store-active-catalog-name">Principal</strong></span>
-                <button type="button" class="btn-clear-catalog-filter" id="btn-clear-customer-catalog">Ver tienda completa</button>
+                <span class="catalog-badge-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align: -2px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></span>
+                <span class="catalog-badge-label">Catálogo: <strong
+                    id="store-active-catalog-name">Principal</strong></span>
+                <button type="button" class="btn-clear-catalog-filter" id="btn-clear-customer-catalog">Ver tienda
+                  completa</button>
               </div>
             </div>
           </div>
@@ -846,16 +1016,37 @@
         <section class="sticky-nav-section" id="sticky-nav">
           <div class="search-and-view-row">
             <div class="search-input-wrapper">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input type="text" id="customer-search-input" class="product-search-input" placeholder="Buscar productos, marcas, autos...">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="search-icon" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="customer-search-input" class="product-search-input"
+                placeholder="Buscar productos, marcas, autos...">
               <button id="customer-clear-search-btn" class="clear-search-btn hidden" type="button">✕</button>
             </div>
             <div class="catalog-view-toggle" id="catalog-view-toggle">
-              <button type="button" id="toggle-view-grid" class="view-toggle-btn active" title="Vista Cuadrícula (2 columnas)" aria-label="Vista Cuadrícula">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+              <button type="button" id="toggle-view-grid" class="view-toggle-btn active"
+                title="Vista Cuadrícula (2 columnas)" aria-label="Vista Cuadrícula">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="14" width="7" height="7"></rect>
+                  <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
               </button>
-              <button type="button" id="toggle-view-detailed" class="view-toggle-btn" title="Vista Detallada (1 columna)" aria-label="Vista Detallada">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+              <button type="button" id="toggle-view-detailed" class="view-toggle-btn"
+                title="Vista Detallada (1 columna)" aria-label="Vista Detallada">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="8" y1="6" x2="21" y2="6"></line>
+                  <line x1="8" y1="12" x2="21" y2="12"></line>
+                  <line x1="8" y1="18" x2="21" y2="18"></line>
+                  <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                  <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                  <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
               </button>
             </div>
           </div>
@@ -890,7 +1081,9 @@
             </div>
             <div class="cart-bar-right">
               <span class="cart-bar-total" id="cart-bar-total">S/ 0.00</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
             </div>
           </div>
         </aside>
@@ -907,8 +1100,9 @@
     <!-- 1. MODAL DETALLE DE PRODUCTO & VARIANTES (TALLAS/COLORES) -->
     <div class="overlay product-modal-overlay hidden" id="product-detail-modal">
       <div class="product-modal-card">
-        <button id="close-product-modal-btn" class="close-sheet-btn product-close" type="button" aria-label="Cerrar modal">✕</button>
-        
+        <button id="close-product-modal-btn" class="close-sheet-btn product-close" type="button"
+          aria-label="Cerrar modal">✕</button>
+
         <!-- Área scrolleable unificada (la foto sube con el contenido) -->
         <div class="product-modal-scroll-area" id="product-modal-scroll-area">
           <div class="product-modal-media-header">
@@ -930,10 +1124,12 @@
             <div class="detail-thumbnails-row hidden" id="detail-thumbnails-row"></div>
 
             <div class="product-modal-video-wrap hidden" id="detail-video-wrap">
-              <video id="detail-product-video" controls playsinline muted loop preload="metadata" class="detail-product-video hidden"></video>
+              <video id="detail-product-video" controls playsinline muted loop preload="metadata"
+                class="detail-product-video hidden"></video>
               <div id="detail-video-embed" class="detail-video-embed hidden"></div>
               <div id="detail-video-action" class="detail-video-action hidden">
-                <a id="detail-video-ext-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn-external-video">▶️ Ver Video Demostrativo (Reels / TikTok)</a>
+                <a id="detail-video-ext-btn" href="#" target="_blank" rel="noopener noreferrer"
+                  class="btn-external-video">▶️ Ver Video Demostrativo (Reels / TikTok)</a>
               </div>
             </div>
           </div>
@@ -941,7 +1137,7 @@
             <div class="detail-badge-row">
               <span class="detail-category-chip" id="detail-category">Categoría</span>
               <span class="detail-condition-badge" id="detail-condition-badge">Nuevo</span>
-              <span class="detail-location-badge hidden" id="detail-location-badge">📍 Lima</span>
+              <span class="detail-location-badge hidden" id="detail-location-badge">Lima</span>
               <span class="detail-badge-promo hidden" id="detail-promo-badge">PROMO</span>
             </div>
             <h2 class="detail-title" id="detail-title">Nombre del Producto</h2>
@@ -973,9 +1169,12 @@
             <div class="vehicle-inquiry-box hidden" id="vehicle-inquiry-box">
               <span class="inquiry-box-title">Consulta directa con el anunciante:</span>
               <div class="quick-inquiry-pills" id="quick-inquiry-pills">
-                <button type="button" class="inquiry-pill-btn" data-inquiry="👋 Hola, ¿este vehículo sigue disponible?">👋 ¿Sigue disponible?</button>
-                <button type="button" class="inquiry-pill-btn" data-inquiry="📍 Hola, ¿dónde y en qué horario se puede ver?">📍 ¿Dónde se puede ver?</button>
-                <button type="button" class="inquiry-pill-btn" data-inquiry="💵 Hola, ¿aceptas una oferta al contado?">💵 ¿Aceptas oferta al contado?</button>
+                <button type="button" class="inquiry-pill-btn"
+                  data-inquiry="Hola, ¿este vehículo sigue disponible?">¿Sigue disponible?</button>
+                <button type="button" class="inquiry-pill-btn"
+                  data-inquiry="Hola, ¿dónde y en qué horario se puede ver?">¿Dónde se puede ver?</button>
+                <button type="button" class="inquiry-pill-btn"
+                  data-inquiry="Hola, ¿aceptas una oferta al contado?">¿Aceptas oferta al contado?</button>
               </div>
               <button type="button" class="btn-whatsapp-inquire" id="vehicle-whatsapp-btn">
                 <span class="wa-inquire-icon">💬</span>
@@ -997,10 +1196,12 @@
 
               <!-- Nota Adicional del Producto -->
               <div class="editor-field-group" style="margin-top: 10px;">
-                <label id="modal-product-note-label" for="modal-product-note" style="font-size: 0.74rem; color: var(--text-muted); font-weight: 600;">
+                <label id="modal-product-note-label" for="modal-product-note"
+                  style="font-size: 0.74rem; color: var(--text-muted); font-weight: 600;">
                   Indicaciones especiales (opcional)
                 </label>
-                <input type="text" id="modal-product-note" class="input-modern" placeholder="Opcional: Detalles para tu pedido...">
+                <input type="text" id="modal-product-note" class="input-modern"
+                  placeholder="Opcional: Detalles para tu pedido...">
               </div>
             </div>
           </div>
@@ -1038,7 +1239,7 @@
               <!-- Opción Digital (Para Tecnología, Software, Cursos, Licencias) -->
               <label class="toggle-card hidden" id="option-digital-label">
                 <input type="radio" name="delivery-mode" value="digital" id="mode-digital">
-                <span class="toggle-card-icon">⚡</span>
+                <span class="toggle-card-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
                 <div class="toggle-card-text">
                   <span class="toggle-card-title">Envío Digital</span>
                   <span class="toggle-card-sub" id="digital-sub-label">Por WhatsApp</span>
@@ -1048,7 +1249,7 @@
               <!-- Opción a Domicilio -->
               <label class="toggle-card active" id="option-delivery-label">
                 <input type="radio" name="delivery-mode" value="delivery" id="mode-delivery" checked>
-                <span class="toggle-card-icon" id="delivery-icon">🛵</span>
+                <span class="toggle-card-icon" id="delivery-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
                 <div class="toggle-card-text">
                   <span class="toggle-card-title" id="delivery-title">Envío a Domicilio</span>
                   <span class="toggle-card-sub" id="delivery-price-label">+ S/ 5.00</span>
@@ -1058,7 +1259,7 @@
               <!-- Opción Retiro -->
               <label class="toggle-card" id="option-pickup-label">
                 <input type="radio" name="delivery-mode" value="pickup" id="mode-pickup">
-                <span class="toggle-card-icon">🛍️</span>
+                <span class="toggle-card-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>
                 <div class="toggle-card-text">
                   <span class="toggle-card-title" id="pickup-title">Retiro en Local</span>
                   <span class="toggle-card-sub">Sin costo</span>
@@ -1068,7 +1269,7 @@
               <!-- Opción En Mesa (EXCLUSIVA de Gastronomía) -->
               <label class="toggle-card hidden" id="option-dinein-label">
                 <input type="radio" name="delivery-mode" value="dinein" id="mode-dinein">
-                <span class="toggle-card-icon">🍽️</span>
+                <span class="toggle-card-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></span>
                 <div class="toggle-card-text">
                   <span class="toggle-card-title">En Mesa</span>
                   <span class="toggle-card-sub" id="dinein-table-sub">Comer en local</span>
@@ -1095,10 +1296,15 @@
                 <div class="label-with-action">
                   <label for="client-address">Dirección y Referencia *</label>
                   <button type="button" id="get-gps-location-btn" class="gps-btn">
-                    <span>📍 Usar mi GPS</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: -1px;">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    <span>Usar mi GPS</span>
                   </button>
                 </div>
-                <input type="text" id="client-address" class="form-input" placeholder="Ej: Av. Las Palmeras 450, Dpto 302">
+                <input type="text" id="client-address" class="form-input"
+                  placeholder="Ej: Av. Las Palmeras 450, Dpto 302">
                 <input type="hidden" id="client-gps-coords">
                 <span id="gps-status-badge" class="gps-status-badge hidden">✓ Ubicación satelital adjunta</span>
               </div>
@@ -1110,7 +1316,8 @@
 
               <div class="form-group">
                 <label for="client-notes">Instrucciones o notas adicionales (Opcional)</label>
-                <textarea id="client-notes" class="form-textarea" rows="2" placeholder="Ej: Tocar timbre blanco, traer cambio..."></textarea>
+                <textarea id="client-notes" class="form-textarea" rows="2"
+                  placeholder="Ej: Tocar timbre blanco, traer cambio..."></textarea>
               </div>
             </div>
           </div>
@@ -1121,17 +1328,17 @@
             <div class="payment-pills-grid" id="payment-methods-grid">
               <label class="payment-pill-card active">
                 <input type="radio" name="payment-method" value="Yape / Plin" checked>
-                <span class="pay-icon">📱</span>
+                <span class="pay-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></span>
                 <span class="pay-name">Yape / Plin</span>
               </label>
               <label class="payment-pill-card">
                 <input type="radio" name="payment-method" value="Efectivo">
-                <span class="pay-icon">💵</span>
+                <span class="pay-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg></span>
                 <span class="pay-name">Efectivo</span>
               </label>
               <label class="payment-pill-card">
                 <input type="radio" name="payment-method" value="Tarjeta">
-                <span class="pay-icon">💳</span>
+                <span class="pay-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
                 <span class="pay-name">Tarjeta (POS)</span>
               </label>
             </div>
@@ -1153,7 +1360,8 @@
                   <span class="yape-label">Número de Yape / Plin:</span>
                   <div class="yape-number-copy-wrap">
                     <strong class="yape-number-val" id="yape-checkout-phone">987 654 321</strong>
-                    <button type="button" id="copy-yape-phone-btn" class="btn-copy-yape" title="Copiar número de teléfono">
+                    <button type="button" id="copy-yape-phone-btn" class="btn-copy-yape"
+                      title="Copiar número de teléfono">
                       <span>📋 Copiar</span>
                     </button>
                   </div>
@@ -1171,7 +1379,8 @@
                     <button type="button" id="zoom-yape-qr-btn" class="btn-zoom-qr">
                       <span>🔍 Ver Código QR en Grande</span>
                     </button>
-                    <small style="color: var(--text-muted); font-size: 0.72rem;">Escanea desde tu app o haz captura de pantalla</small>
+                    <small style="color: var(--text-muted); font-size: 0.72rem;">Escanea desde tu app o haz captura de
+                      pantalla</small>
                   </div>
                 </div>
               </div>
@@ -1194,12 +1403,14 @@
                     <img id="buyer-voucher-preview-img" src="" alt="Comprobante adjuntado" class="voucher-preview-img">
                     <div class="voucher-attached-badge">
                       <span>✅ Comprobante adjuntado listo</span>
-                      <button type="button" id="remove-voucher-btn" class="remove-voucher-btn" title="Cambiar comprobante">✕ Quitar</button>
+                      <button type="button" id="remove-voucher-btn" class="remove-voucher-btn"
+                        title="Cambiar comprobante">✕ Quitar</button>
                     </div>
                   </div>
                   <input type="file" id="buyer-voucher-input" accept="image/*" class="hidden">
                 </div>
-                <small class="voucher-help-text">💡 Tu pedido quedará registrado con comprobante adjunto. Al abrirse WhatsApp, envía el mensaje y adjunta tu captura en el chat.</small>
+                <small class="voucher-help-text">💡 Tu pedido quedará registrado con comprobante adjunto. Al abrirse
+                  WhatsApp, envía el mensaje y adjunta tu captura en el chat.</small>
               </div>
             </div>
           </div>
@@ -1242,7 +1453,8 @@
         <div class="qr-header">
           <span class="qr-badge">🔲 CÓDIGO QR FIJO INTELIGENTE</span>
           <h2 class="qr-title" id="qr-store-title">BurgerZap & Grill</h2>
-          <p class="qr-desc">Imprime este código una sola vez. Si cambias precios o productos en el menú, el QR seguirá funcionando igual sin tener que volver a imprimir.</p>
+          <p class="qr-desc">Imprime este código una sola vez. Si cambias precios o productos en el menú, el QR seguirá
+            funcionando igual sin tener que volver a imprimir.</p>
         </div>
 
         <!-- Selector de Destino -->
@@ -1253,7 +1465,8 @@
           </div>
           <div class="qr-table-input-row hidden" id="qr-table-input-row">
             <label for="qr-table-number">Número o Nombre de la Mesa:</label>
-            <input type="text" id="qr-table-number" class="form-input" placeholder="Ej: Mesa 1, Mesa 2, Barra" value="Mesa 1">
+            <input type="text" id="qr-table-number" class="form-input" placeholder="Ej: Mesa 1, Mesa 2, Barra"
+              value="Mesa 1">
           </div>
           <div class="qr-catalog-select-row hidden" id="qr-catalog-select-row">
             <label for="qr-catalog-select" class="qr-field-label">Catálogo a generar:</label>
@@ -1267,7 +1480,8 @@
 
         <div class="qr-actions">
           <button id="download-qr-btn" class="btn-save-product" type="button">⬇️ Descargar Código QR (PNG)</button>
-          <button id="copy-link-btn" class="btn-alt-sm" style="padding: 10px;" type="button">📋 Copiar Enlace Directo</button>
+          <button id="copy-link-btn" class="btn-alt-sm" style="padding: 10px;" type="button">📋 Copiar Enlace
+            Directo</button>
         </div>
       </div>
     </div>
@@ -1277,8 +1491,9 @@
       <div class="ticket-card">
         <div class="ticket-celebrate-badge">🎉 ¡PEDIDO GENERADO CON ÉXITO!</div>
         <h2 class="ticket-title">Tu orden está lista para enviarse</h2>
-        <p class="ticket-desc">Si el chat de WhatsApp no se abrió automáticamente, presiona el botón inferior para confirmar tu orden con el negocio.</p>
-        
+        <p class="ticket-desc">Si el chat de WhatsApp no se abrió automáticamente, presiona el botón inferior para
+          confirmar tu orden con el negocio.</p>
+
         <div class="ticket-preview-box">
           <pre id="ticket-text-preview" class="ticket-text-preview"></pre>
         </div>
@@ -1287,11 +1502,13 @@
         <div id="ticket-voucher-preview-box" class="ticket-voucher-preview-box hidden">
           <span class="ticket-voucher-title">📸 Comprobante de Yape Adjuntado:</span>
           <img id="ticket-voucher-preview-img" src="" alt="Comprobante Yape" class="ticket-voucher-thumb">
-          <p class="ticket-voucher-hint">💡 Recuerda adjuntar esta captura en tu conversación de WhatsApp si el chat lo solicita.</p>
+          <p class="ticket-voucher-hint">💡 Recuerda adjuntar esta captura en tu conversación de WhatsApp si el chat lo
+            solicita.</p>
         </div>
 
         <div class="ticket-actions">
-          <button id="ticket-share-voucher-btn" class="btn-whatsapp-hero hidden" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); margin-bottom: 8px;" type="button">
+          <button id="ticket-share-voucher-btn" class="btn-whatsapp-hero hidden"
+            style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); margin-bottom: 8px;" type="button">
             <span>📤 Compartir Comprobante + Pedido</span>
           </button>
           <button id="ticket-retry-wa-btn" class="btn-whatsapp-hero" type="button">
@@ -1309,11 +1526,13 @@
       <div class="qr-modal-card">
         <button id="close-yape-zoom-btn" class="close-sheet-btn" type="button">✕</button>
         <div class="qr-header">
-          <span class="qr-badge" style="background: rgba(147, 51, 234, 0.2); color: #c084fc; border-color: rgba(147, 51, 234, 0.4);">
+          <span class="qr-badge"
+            style="background: rgba(147, 51, 234, 0.2); color: #c084fc; border-color: rgba(147, 51, 234, 0.4);">
             📱 CÓDIGO QR DE YAPE / PLIN
           </span>
           <h2 class="qr-title" id="zoom-yape-title">BurgerZap & Grill</h2>
-          <p class="qr-desc">Escanea este código desde tu app de Yape o Plin, o toma una captura de pantalla para escanearlo desde tu galería.</p>
+          <p class="qr-desc">Escanea este código desde tu app de Yape o Plin, o toma una captura de pantalla para
+            escanearlo desde tu galería.</p>
         </div>
 
         <div class="qr-zoom-img-wrapper">
@@ -1361,8 +1580,10 @@
           <div class="cat-add-card">
             <span class="cat-add-title">Añadir Nueva Categoría</span>
             <div class="cat-add-inputs-group">
-              <button type="button" id="cat-emoji-picker-btn" class="cat-emoji-picker-btn" title="Elegir icono para esta categoría">🏷️</button>
-              <input type="text" id="new-category-name-input" class="input-modern" placeholder="Nombre de categoría (ej: Promociones, Bebidas)" maxlength="32">
+              <button type="button" id="cat-emoji-picker-btn" class="cat-emoji-picker-btn"
+                title="Elegir icono para esta categoría">🏷️</button>
+              <input type="text" id="new-category-name-input" class="input-modern"
+                placeholder="Nombre de categoría (ej: Promociones, Bebidas)" maxlength="32">
               <button type="button" id="add-category-submit-btn" class="btn-cat-add-action">
                 <span>+ Crear</span>
               </button>
@@ -1441,19 +1662,20 @@
         <form id="create-store-form" class="editor-modal-body" onsubmit="return false;">
           <div class="editor-field-group">
             <label for="modal-new-store-name" class="field-label-sm">Nombre de la nueva tienda *</label>
-            <input type="text" id="modal-new-store-name" class="input-modern" required placeholder="Ej: Nova Motors, Don Licencias...">
+            <input type="text" id="modal-new-store-name" class="input-modern" required
+              placeholder="Ej: Nova Motors, Don Licencias...">
           </div>
           <div class="editor-field-group">
             <label class="field-label-sm">Rubro principal *</label>
             <div class="niche-chip-selector" id="modal-store-niche-chips">
-              <button type="button" class="niche-chip active" data-niche="tech">💻 Tecnología & Licencias</button>
-              <button type="button" class="niche-chip" data-niche="vehicles">🚗 Vehículos & Autos</button>
-              <button type="button" class="niche-chip" data-niche="fashion">👗 Moda & Ropa</button>
-              <button type="button" class="niche-chip" data-niche="sneakers">👟 Zapatillas & Sneakers</button>
-              <button type="button" class="niche-chip" data-niche="beauty">💄 Belleza & Cosmética</button>
-              <button type="button" class="niche-chip" data-niche="watches">⌚ Joyas & Relojes</button>
-              <button type="button" class="niche-chip" data-niche="food">🍔 Comida & Restaurantes</button>
-              <button type="button" class="niche-chip" data-niche="general">📦 Comercio General</button>
+              <button type="button" class="niche-chip active" data-niche="tech">Tecnología & Licencias</button>
+              <button type="button" class="niche-chip" data-niche="vehicles">Vehículos & Autos</button>
+              <button type="button" class="niche-chip" data-niche="fashion">Moda & Ropa</button>
+              <button type="button" class="niche-chip" data-niche="sneakers">Zapatillas & Sneakers</button>
+              <button type="button" class="niche-chip" data-niche="beauty">Belleza & Cosmética</button>
+              <button type="button" class="niche-chip" data-niche="watches">Joyas & Relojes</button>
+              <button type="button" class="niche-chip" data-niche="food">Comida & Restaurantes</button>
+              <button type="button" class="niche-chip" data-niche="general">Comercio General</button>
             </div>
             <input type="hidden" id="modal-store-selected-niche" value="tech">
           </div>
@@ -1471,7 +1693,8 @@
             </div>
           </div>
           <div class="editor-field-group">
-            <label for="modal-new-store-yape" class="field-label-sm">Número Yape / Plin <span class="quick-optional">(Opcional)</span></label>
+            <label for="modal-new-store-yape" class="field-label-sm">Número Yape / Plin <span
+                class="quick-optional">(Opcional)</span></label>
             <input type="tel" id="modal-new-store-yape" class="input-modern" placeholder="Número para transferencias">
           </div>
         </form>
@@ -1484,7 +1707,8 @@
 
     <!-- 4. MODAL LIGHTBOX PARA PANTALLA COMPLETA Y ZOOM DE FOTOS -->
     <div class="overlay lightbox-overlay hidden" id="media-lightbox-modal" aria-hidden="true">
-      <button type="button" class="lightbox-close-btn" id="lightbox-close-btn" aria-label="Cerrar visor a pantalla completa">✕</button>
+      <button type="button" class="lightbox-close-btn" id="lightbox-close-btn"
+        aria-label="Cerrar visor a pantalla completa">✕</button>
       <div class="lightbox-content" id="lightbox-content">
         <img id="lightbox-img" src="" alt="Foto ampliada en alta resolución" class="lightbox-img">
       </div>
@@ -1496,4 +1720,5 @@
   <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
   <script src="app.js?v=20261109-v29"></script>
 </body>
+
 </html>

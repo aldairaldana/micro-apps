@@ -7,7 +7,7 @@
   /* Paleta Primaria & Acentos */
   --primary: #00d26a;
   --primary-hover: #00bb5d;
-  --primary-glow: rgba(0, 210, 106, 0.35);
+  --primary-glow: none;
   --primary-subtle: rgba(0, 210, 106, 0.12);
 
   --accent-wa: #25d366;
@@ -498,14 +498,15 @@ img {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   background: var(--primary);
   color: var(--text-inverse);
-  padding: 9px 14px;
-  border-radius: var(--radius-pill);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm, 8px);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   font-size: 0.8rem;
-  font-weight: 800;
-  box-shadow: 0 4px 14px var(--primary-glow);
+  font-weight: 700;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   white-space: nowrap;
   transition: all var(--transition-fast);
 }
@@ -749,11 +750,12 @@ img {
   flex: 1;
   background: var(--primary);
   color: var(--text-inverse);
-  padding: 11px 16px;
-  border-radius: var(--radius-pill);
+  padding: 10px 16px;
+  border-radius: var(--radius-sm, 8px);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   font-size: 0.86rem;
-  font-weight: 800;
-  box-shadow: 0 4px 14px var(--primary-glow);
+  font-weight: 700;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   transition: all var(--transition-fast);
 }
 
@@ -1092,11 +1094,12 @@ img {
 .btn-save-settings {
   background: var(--primary);
   color: var(--text-inverse);
-  padding: 12px 16px;
-  border-radius: var(--radius-pill);
+  padding: 10px 16px;
+  border-radius: var(--radius-sm, 8px);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   font-size: 0.88rem;
-  font-weight: 800;
-  box-shadow: 0 4px 14px var(--primary-glow);
+  font-weight: 700;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   width: 100%;
   margin-top: 4px;
 }
@@ -1814,21 +1817,23 @@ body.has-preview-bar .sticky-nav-section {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background: rgba(37, 211, 102, 0.15);
-  border: 1px solid rgba(37, 211, 102, 0.4);
-  color: #25d366;
-  border-radius: var(--radius-pill);
+  background: var(--cust-surface-2, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--cust-border, rgba(255, 255, 255, 0.15));
+  color: var(--cust-text, #0f172a);
+  border-radius: var(--radius-sm, 8px);
   padding: 6px 12px;
   font-size: 0.74rem;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
   transition: all var(--transition-fast);
 }
 
-.btn-inquire-direct:hover {
-  background: #25d366;
-  color: #000;
+.btn-inquire-direct:hover,
+.btn-inquire-direct:active {
+  background: var(--cust-accent, #111827);
+  color: var(--cust-accent-contrast, #ffffff);
+  border-color: var(--cust-accent, #111827);
 }
 
 /* Vista Detallada (1 columna grande, ideal para autos) */
@@ -2330,12 +2335,13 @@ body.has-preview-bar .sticky-nav-section {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #fff;
-  border-radius: var(--radius-pill);
+  border-radius: 10px;
   padding: 12px 18px;
-  font-weight: 800;
-  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.35);
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .whatsapp-btn-icon {
@@ -2670,14 +2676,14 @@ body.has-preview-bar .sticky-nav-section {
 
 .spec-label {
   font-size: 0.64rem;
-  color: var(--text-dim);
+  color: var(--cust-text-secondary, var(--text-dim));
   text-transform: uppercase;
   font-weight: 600;
 }
 
 .spec-val {
   font-size: 0.78rem;
-  color: var(--text-main);
+  color: var(--cust-text, var(--text-main));
   font-weight: 700;
   word-break: break-word;
 }
@@ -2685,9 +2691,9 @@ body.has-preview-bar .sticky-nav-section {
 /* Bloque Consulta Rápida por WhatsApp (Vehículos / Inmuebles) */
 .vehicle-inquiry-box {
   margin: 14px 0 6px 0;
-  background: rgba(37, 211, 102, 0.06);
-  border: 1px solid rgba(37, 211, 102, 0.25);
-  border-radius: var(--radius-md);
+  background: var(--cust-surface-2, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--cust-border, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-sm, 10px);
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -2697,7 +2703,7 @@ body.has-preview-bar .sticky-nav-section {
 .inquiry-box-title {
   font-size: 0.74rem;
   font-weight: 700;
-  color: #25d366;
+  color: var(--cust-text, #0f172a);
   letter-spacing: 0.02em;
 }
 
@@ -2708,10 +2714,10 @@ body.has-preview-bar .sticky-nav-section {
 }
 
 .inquiry-pill-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-pill);
-  color: var(--text-main);
+  background: var(--cust-surface, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--cust-border, rgba(255, 255, 255, 0.12));
+  border-radius: 8px;
+  color: var(--cust-text, var(--text-main));
   padding: 8px 12px;
   font-size: 0.76rem;
   font-weight: 600;
@@ -2721,10 +2727,11 @@ body.has-preview-bar .sticky-nav-section {
 }
 
 .inquiry-pill-btn:hover,
-.inquiry-pill-btn:active {
-  background: rgba(37, 211, 102, 0.2);
-  border-color: #25d366;
-  color: #fff;
+.inquiry-pill-btn:active,
+.inquiry-pill-btn.active {
+  background: var(--cust-surface-2, rgba(255, 255, 255, 0.1));
+  border-color: var(--cust-accent, #3b82f6);
+  color: var(--cust-text, #0f172a);
 }
 
 .btn-whatsapp-inquire {
@@ -2733,16 +2740,16 @@ body.has-preview-bar .sticky-nav-section {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
-  color: #fff;
-  border-radius: var(--radius-pill);
+  background: var(--cust-accent, #111827);
+  color: var(--cust-accent-contrast, #fff);
+  border-radius: 10px;
   padding: 12px 18px;
-  font-weight: 800;
+  font-weight: 700;
   font-size: 0.86rem;
-  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.35);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   cursor: pointer;
   transition: all var(--transition-fast);
-  border: none;
+  border: 1px solid var(--cust-border, rgba(255, 255, 255, 0.1));
   margin-top: 4px;
 }
 
@@ -7456,34 +7463,54 @@ select option {
    =================================================================== */
 
 /* Variables de Color Dinámicas por Tienda (Aislamiento Total de Modo Claro / Oscuro) */
-#customer-preview-view {
-  --cust-bg: #090d16;
-  --cust-surface: #0f172a;
-  --cust-surface-2: #1e293b;
+#customer-preview-view,
+#product-detail-modal,
+#cart-modal-overlay,
+#qr-modal,
+body.store-theme-dark,
+.theme-dark {
+  --cust-bg: #0b0d12;
+  --cust-surface: #13161f;
+  --cust-surface-2: #1b1f2b;
   --cust-text: #f8fafc;
+  --cust-text-secondary: #94a3b8;
   --cust-muted: #94a3b8;
   --cust-border: rgba(255, 255, 255, 0.08);
   --cust-border-subtle: rgba(255, 255, 255, 0.05);
+  --cust-input-bg: #161922;
   --cust-accent: var(--store-accent, #3b82f6);
-  --cust-accent-text: #ffffff;
-  background: var(--cust-bg) !important;
-  color: var(--cust-text) !important;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  --cust-accent-contrast: #ffffff;
+  --cust-accent-text: var(--cust-accent-contrast);
 }
 
 #customer-preview-view[data-theme-mode="light"],
-#customer-preview-view.theme-light {
+#customer-preview-view.theme-light,
+#product-detail-modal[data-theme-mode="light"],
+#product-detail-modal.theme-light,
+#cart-modal-overlay[data-theme-mode="light"],
+#cart-modal-overlay.theme-light,
+#qr-modal[data-theme-mode="light"],
+#qr-modal.theme-light,
+body.store-theme-light,
+.theme-light {
   --cust-bg: #f8fafc;
   --cust-surface: #ffffff;
   --cust-surface-2: #f1f5f9;
-  --cust-text: #09090b;
-  --cust-muted: #64748b;
-  --cust-border: rgba(15, 23, 42, 0.08);
+  --cust-text: #0f172a;
+  --cust-text-secondary: #475569;
+  --cust-muted: #475569;
+  --cust-border: #e2e8f0;
   --cust-border-subtle: rgba(15, 23, 42, 0.05);
+  --cust-input-bg: #ffffff;
   --cust-accent: var(--store-accent, #111827);
-  --cust-accent-text: #ffffff;
+  --cust-accent-contrast: #ffffff;
+  --cust-accent-text: var(--cust-accent-contrast);
+}
+
+#customer-preview-view {
   background: var(--cust-bg) !important;
   color: var(--cust-text) !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Aplicación Estricta a Todo el Catálogo del Comprador */
@@ -7738,11 +7765,63 @@ select option {
 }
 
 #product-detail-modal .spec-label {
-  color: var(--cust-muted, #64748b) !important;
+  color: var(--cust-text-secondary, #475569) !important;
 }
 
+#product-detail-modal .spec-val,
 #product-detail-modal .spec-value {
   color: var(--cust-text, #0f172a) !important;
+}
+
+#product-detail-modal .variant-chip {
+  background: var(--cust-surface-2, #f1f5f9) !important;
+  border: 1px solid var(--cust-border, #e2e8f0) !important;
+  color: var(--cust-text, #0f172a) !important;
+}
+
+#product-detail-modal .variant-chip.active {
+  background: var(--cust-accent, #111827) !important;
+  border-color: var(--cust-accent, #111827) !important;
+  color: var(--cust-accent-contrast, #ffffff) !important;
+}
+
+#product-detail-modal .detail-variant-label {
+  color: var(--cust-text-secondary, #475569) !important;
+}
+
+#product-detail-modal .vehicle-inquiry-box {
+  background: var(--cust-surface-2, #f1f5f9) !important;
+  border: 1px solid var(--cust-border, #e2e8f0) !important;
+  border-radius: 10px !important;
+}
+
+#product-detail-modal .inquiry-box-title {
+  color: var(--cust-text, #0f172a) !important;
+}
+
+#product-detail-modal .inquiry-pill-btn,
+#product-detail-modal .inquiry-pill {
+  background: var(--cust-surface, #ffffff) !important;
+  border: 1px solid var(--cust-border, #e2e8f0) !important;
+  color: var(--cust-text, #0f172a) !important;
+  border-radius: 8px !important;
+}
+
+#product-detail-modal .inquiry-pill-btn.active,
+#product-detail-modal .inquiry-pill-btn:hover,
+#product-detail-modal .inquiry-pill.active {
+  background: var(--cust-surface-2, #f1f5f9) !important;
+  border-color: var(--cust-accent, #111827) !important;
+  color: var(--cust-text, #0f172a) !important;
+}
+
+#product-detail-modal .btn-whatsapp-inquire,
+#product-detail-modal #vehicle-whatsapp-btn {
+  background: var(--cust-accent, #111827) !important;
+  color: var(--cust-accent-contrast, #ffffff) !important;
+  border: 1px solid var(--cust-border, rgba(0, 0, 0, 0.1)) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+  border-radius: 10px !important;
 }
 
 #product-detail-modal .quantity-stepper,
@@ -7933,6 +8012,53 @@ select option {
 #cart-modal-overlay #send-whatsapp-order-btn .wa-sub-text {
   color: var(--cust-accent-text, #ffffff) !important;
   opacity: 0.88 !important;
+}
+
+#cart-modal-overlay .yape-merchant-info-card {
+  background: var(--cust-surface-2, #f1f5f9) !important;
+  border: 1px solid var(--cust-border, #e2e8f0) !important;
+  border-radius: 8px !important;
+}
+
+#cart-modal-overlay .yape-label {
+  color: var(--cust-text-secondary, #475569) !important;
+}
+
+#cart-modal-overlay .yape-number-val,
+#cart-modal-overlay .yape-name-val {
+  color: var(--cust-text, #0f172a) !important;
+}
+
+#cart-modal-overlay .btn-copy-yape {
+  background: var(--cust-surface, #ffffff) !important;
+  border: 1px solid var(--cust-border, #e2e8f0) !important;
+  color: var(--cust-text, #0f172a) !important;
+  border-radius: 6px !important;
+}
+
+#cart-modal-overlay .gps-btn {
+  background: var(--cust-surface, #ffffff) !important;
+  border: 1px solid var(--cust-border, #e2e8f0) !important;
+  color: var(--cust-accent, #0f172a) !important;
+  border-radius: 6px !important;
+}
+
+#cart-modal-overlay .buyer-voucher-card {
+  background: var(--cust-surface-2, #f1f5f9) !important;
+  border: 1px solid var(--cust-border, #e2e8f0) !important;
+  border-radius: 10px !important;
+  padding: 10px 12px !important;
+}
+
+#cart-modal-overlay .buyer-voucher-title {
+  color: var(--cust-text, #0f172a) !important;
+}
+
+#cart-modal-overlay .voucher-dropzone {
+  background: var(--cust-surface, #ffffff) !important;
+  border: 2px dashed var(--cust-border, #e2e8f0) !important;
+  color: var(--cust-text-secondary, #475569) !important;
+  border-radius: 8px !important;
 }
 
 /* Redes Sociales del Negocio en Vitrina */

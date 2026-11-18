@@ -1157,20 +1157,36 @@ const AppState = {
       "--cust-surface": "#ffffff",
       "--cust-surface-2": "#f1f5f9",
       "--cust-text": "#0f172a",
-      "--cust-muted": "#64748b",
-      "--cust-border": "rgba(15, 23, 42, 0.09)",
+      "--cust-text-secondary": "#475569",
+      "--cust-muted": "#475569",
+      "--cust-border": "#e2e8f0",
+      "--cust-border-subtle": "rgba(15, 23, 42, 0.05)",
+      "--cust-input-bg": "#ffffff",
       "--cust-accent": accent,
+      "--cust-accent-contrast": accentText,
       "--cust-accent-text": accentText
     } : {
-      "--cust-bg": "#0b0e14",
-      "--cust-surface": "#131722",
-      "--cust-surface-2": "#1b2130",
+      "--cust-bg": "#0b0d12",
+      "--cust-surface": "#13161f",
+      "--cust-surface-2": "#1b1f2b",
       "--cust-text": "#f8fafc",
+      "--cust-text-secondary": "#94a3b8",
       "--cust-muted": "#94a3b8",
-      "--cust-border": "rgba(255, 255, 255, 0.09)",
+      "--cust-border": "rgba(255, 255, 255, 0.08)",
+      "--cust-border-subtle": "rgba(255, 255, 255, 0.05)",
+      "--cust-input-bg": "#161922",
       "--cust-accent": accent,
+      "--cust-accent-contrast": accentText,
       "--cust-accent-text": accentText
     };
+
+    if (mode === "light") {
+      document.body.classList.add("store-theme-light");
+      document.body.classList.remove("store-theme-dark");
+    } else {
+      document.body.classList.add("store-theme-dark");
+      document.body.classList.remove("store-theme-light");
+    }
 
     const targetElements = [
       document.getElementById("customer-preview-view"),
@@ -1341,12 +1357,11 @@ const AppState = {
     }
     if (typeof CustomerUI !== "undefined") {
       AppState.applyStoreTheme();
-    CustomerUI.renderStoreHeader();
+      CustomerUI.renderStoreHeader();
       CustomerUI.renderCategoryTabs();
       CustomerUI.renderProductCards();
-    }
-    if (typeof CartController !== "undefined") {
-      CartController.renderCart();
+      CustomerUI.updateCartBar();
+      CustomerUI.renderCartItemsList();
     }
     Toast.show(`Cambiaste a la tienda "${target.name}"`, "🏪");
     return true;
@@ -1575,8 +1590,7 @@ const AppState = {
       // Inicializar y sincronizar catálogos independientes de la tienda (Etapa 2)
       this.initCatalogs();
 
-      const storedCart = localStorage.getItem("tiendazap_cart");
-      if (storedCart) this.cart = JSON.parse(storedCart);
+      this.cart = {};
 
       const storedClient = localStorage.getItem("tiendazap_client");
       if (storedClient) {
@@ -1630,6 +1644,10 @@ const AppState = {
                 yapeName: data.cfg.yn || "",
                 yapeQrUrl: data.cfg.yq || "",
                 yapeEnabled: !!data.cfg.ye,
+                themeMode: data.cfg.tm || "light",
+                accentColor: data.cfg.ac || "#3b82f6",
+                themePreset: data.cfg.tp || "minimal-light",
+                socials: data.cfg.soc || {},
                 googleSheetUrl: ""
               };
               if (data.cfg.np && BUSINESS_PRESETS[data.cfg.np]) {
@@ -2203,7 +2221,6 @@ const AppState = {
   saveCart() {
     const key = this.getCartStorageKey();
     this.safeSetItem(key, JSON.stringify(this.cart || {}));
-    this.safeSetItem("tiendazap_cart", JSON.stringify(this.cart || {}));
   },
 
   loadCartForCurrentStore() {
@@ -2473,6 +2490,14 @@ const ViewController = {
 // 5. ASISTENTE DESDE CERO ESTILO APPLE (APPLE INVITATION & ONBOARDING)
 // ============================================================================
 const OnboardingWizard = {
+  goToStep(step) {
+    const obScreen = document.getElementById("onboarding-screen");
+    if (obScreen) {
+      obScreen.classList.remove("hidden");
+      obScreen.classList.add("active");
+    }
+  },
+
   init() {
     this.bindQuickSetup();
   },
@@ -3499,13 +3524,13 @@ const StudioController = {
     const badgeText = document.getElementById("editor-type-badge-text");
     const badgeIcon = document.getElementById("editor-type-badge-icon");
     const typeMeta = {
-      digital: { icon: "⚡", label: "Publicación Digital / Licencia" },
-      vehicle: { icon: "🚗", label: "Publicación Vehículo / Auto" },
-      property: { icon: "🏠", label: "Publicación Inmueble" },
-      item: { icon: "🛍️", label: "Publicación de Artículo Físico" }
+      digital: { iconSvg: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`, label: "Publicación Digital / Licencia" },
+      vehicle: { iconSvg: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="8" rx="2"/><circle cx="7" cy="19" r="2"/><circle cx="17" cy="19" r="2"/><path d="M5 11l2-5h10l2 5"/></svg>`, label: "Publicación Vehículo / Auto" },
+      property: { iconSvg: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`, label: "Publicación Inmueble" },
+      item: { iconSvg: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`, label: "Publicación de Artículo Físico" }
     };
     const meta = typeMeta[this.currentListingType] || typeMeta.item;
-    if (badgeIcon) badgeIcon.textContent = meta.icon;
+    if (badgeIcon) badgeIcon.innerHTML = meta.iconSvg;
     if (badgeText) badgeText.textContent = meta.label;
 
     // Ajustar etiquetas o visibilidad de Tallas/Colores
@@ -4701,34 +4726,10 @@ const CustomerUI = {
   },
 
   getCategoryIcon(catName) {
-    if (!catName) return "🛍️";
-    const found = (AppState.categories || []).find(c => c.name.toLowerCase() === catName.toLowerCase());
-    if (found && found.icon) return found.icon;
-    const c = catName.toLowerCase();
-    if (c.includes("licencia") || c.includes("software") || c.includes("digital") || c.includes("adobe") || c.includes("windows") || c.includes("office") || c.includes("antivirus") || c.includes("vpn")) return "⚡";
-    if (c.includes("streaming") || c.includes("cuenta") || c.includes("suscripcion") || c.includes("netflix") || c.includes("spotify")) return "🎬";
-    if (c.includes("auto") || c.includes("vehiculo") || c.includes("camioneta") || c.includes("suv") || c.includes("sedan") || c.includes("moto")) return "🚗";
-    if (c.includes("inmueble") || c.includes("departamento") || c.includes("terreno") || c.includes("casa")) return "🏠";
-    if (c.includes("zapatilla") || c.includes("sneaker") || c.includes("running") || c.includes("calzado")) return "👟";
-    if (c.includes("perfume") || c.includes("decant") || c.includes("aroma") || c.includes("fragancia")) return "✨";
-    if (c.includes("reloj") || c.includes("crono") || c.includes("watch") || c.includes("joya")) return "⌚";
-    if (c.includes("pantalon") || c.includes("jean") || c.includes("cargo") || c.includes("ropa")) return "👖";
-    if (c.includes("postre") || c.includes("torta") || c.includes("dulce") || c.includes("cake")) return "🍰";
-    if (c.includes("hamburguesa") || c.includes("burger")) return "🍔";
-    if (c.includes("combo") || c.includes("promo")) return "⭐";
-    if (c.includes("alita") || c.includes("snack") || c.includes("pollo")) return "🍗";
-    if (c.includes("vestido")) return "👗";
-    if (c.includes("blusa") || c.includes("top")) return "👚";
-    if (c.includes("pantalon") || c.includes("jean")) return "👖";
-    if (c.includes("calzado") || c.includes("zapato")) return "👠";
-    if (c.includes("labio") || c.includes("labial")) return "💄";
-    if (c.includes("skincare") || c.includes("serum")) return "✨";
-    if (c.includes("ojo") || c.includes("sombra")) return "👁️";
-    if (c.includes("audio") || c.includes("audifono")) return "🎧";
-    if (c.includes("watch") || c.includes("reloj")) return "⌚";
-    if (c.includes("cargador") || c.includes("cable")) return "🔌";
-    if (c.includes("bebida") || c.includes("refresco")) return "🥤";
-    return "🛍️";
+    if (!catName || catName.toLowerCase() === "all" || catName.toLowerCase() === "todos") return "";
+    const found = (AppState.categories || []).find(c => c && c.name && c.name.toLowerCase() === catName.toLowerCase());
+    if (found && found.icon && !["🛍️", "✨"].includes(found.icon)) return found.icon;
+    return "";
   },
 
   getCustomerBaseProducts() {
@@ -4799,14 +4800,17 @@ const CustomerUI = {
       AppState.customerCategory = "all";
     }
 
-    track.innerHTML = categories.map(cat => `
+    track.innerHTML = categories.map(cat => {
+      const icon = cat.icon || CustomerUI.getCategoryIcon(cat.name);
+      return `
       <button class="cat-tab-btn ${AppState.customerCategory === cat.name ? "active" : ""}" 
               data-category="${escapeHtml(cat.name)}" type="button">
-        <span class="cat-tab-icon">${cat.icon || CustomerUI.getCategoryIcon(cat.name)}</span>
+        ${icon ? `<span class="cat-tab-icon">${icon}</span>` : ""}
         <span>${escapeHtml(cat.label || cat.name || "General")}</span>
         <span class="cat-tab-count">${cat.count}</span>
       </button>
-    `).join("");
+    `;
+    }).join("");
 
     track.querySelectorAll(".cat-tab-btn").forEach(btn => {
       btn.addEventListener("click", () => {
@@ -4956,7 +4960,7 @@ const CustomerUI = {
     container.innerHTML = `
       <section class="category-section-block" id="${slugId}">
         <div class="category-section-header">
-          <h2 class="category-section-title"><span class="cat-sec-icon">${catIcon}</span> ${escapeHtml(activeCatName)}</h2>
+          <h2 class="category-section-title">${catIcon ? `<span class="cat-sec-icon">${catIcon}</span> ` : ""}${escapeHtml(activeCatName)}</h2>
           <span class="category-section-qty">${filtered.length} ${filtered.length === 1 ? 'opción' : 'opciones'}</span>
         </div>
         <div class="products-grid ${isDetailed ? 'view-detailed' : ''}">
@@ -5111,7 +5115,7 @@ const CustomerUI = {
     }
     if (locBadge) {
       if (product.location) {
-        locBadge.textContent = `📍 ${product.location}`;
+        locBadge.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 3px; vertical-align: -1px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> ${escapeHtml(product.location)}`;
         locBadge.classList.remove("hidden");
       } else {
         locBadge.classList.add("hidden");
@@ -5287,9 +5291,9 @@ const CustomerUI = {
       let currentInquiry = "¿Sigue disponible?";
       const pillsContainer = document.getElementById("quick-inquiry-pills");
       if (pillsContainer) {
-        pillsContainer.querySelectorAll(".inquiry-pill").forEach(pill => {
+        pillsContainer.querySelectorAll(".inquiry-pill, .inquiry-pill-btn").forEach(pill => {
           pill.onclick = () => {
-            pillsContainer.querySelectorAll(".inquiry-pill").forEach(p => p.classList.remove("active"));
+            pillsContainer.querySelectorAll(".inquiry-pill, .inquiry-pill-btn").forEach(p => p.classList.remove("active"));
             pill.classList.add("active");
             currentInquiry = pill.textContent.trim();
           };
@@ -6143,7 +6147,11 @@ const QRGenerator = {
         yn: AppState.shopConfig.yapeName,
         yq: filterImg(AppState.shopConfig.yapeQrUrl),
         ye: AppState.shopConfig.yapeEnabled,
-        np: AppState.activePreset
+        np: AppState.activePreset,
+        tm: AppState.shopConfig.themeMode || "light",
+        ac: AppState.shopConfig.accentColor || "#3b82f6",
+        tp: AppState.shopConfig.themePreset || "minimal-light",
+        soc: AppState.shopConfig.socials || {}
       },
       cats: AppState.categories,
       catalogs: AppState.catalogs,
