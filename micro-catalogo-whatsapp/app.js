@@ -5323,35 +5323,41 @@ const CustomerUI = {
     const nicheInfo = NICHE_DATA[AppState.activePreset] || NICHE_DATA.general;
     const isLicenseStore = /licencia|software|digital|tech|keys/i.test((shop.name || "") + " " + (slug || ""));
     const isDigital = isLicenseStore || AppState.activePreset === "digital" || AppState.activePreset === "tech" || AppState.shopConfig.niche === "tech" || (AppState.products.length > 0 && AppState.products.some(p => p.listingType === "digital" || /licencia|adobe|autodesk|windows|office|microsoft|antivirus|canva|capcut|spotify|netflix|vpn/i.test((p.name || "") + " " + (p.sku || ""))));
-    const isVehicle = AppState.activePreset === "vehicles" || AppState.shopConfig.niche === "vehicles" || (AppState.products.length > 0 && AppState.products.every(p => p.listingType === "vehicle"));
+    const isVehicle = AppState.activePreset === "vehicles" || AppState.activePreset === "property" || AppState.shopConfig.niche === "vehicles" || AppState.shopConfig.niche === "property" || /auto|carro|moto|vehiculo|inmueble|propiedad|departamento/i.test((shop.name || "") + " " + (AppState.activePreset || "")) || (AppState.products.length > 0 && AppState.products.every(p => p.listingType === "vehicle" || p.listingType === "property"));
 
     if (taglineEl) {
       if (isDigital && (!shop.tagline || shop.tagline.includes("contraentrega") || shop.tagline.includes("Catálogo y pedidos") || shop.tagline.includes("favoritos en tendencia"))) {
-        taglineEl.textContent = "Licencias originales con activación inmediata y soporte directo por WhatsApp ⚡💻";
+        taglineEl.textContent = "Licencias originales con activación inmediata y soporte directo por WhatsApp";
       } else {
         taglineEl.textContent = shop.tagline || "Catálogo y pedidos directos por WhatsApp";
       }
     }
 
+    const clockSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-2px; margin-right:4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+    const zapSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-2px; margin-right:4px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+    const pinSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-2px; margin-right:4px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
+    const checkSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-2px; margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>`;
+    const truckSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-2px; margin-right:4px;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`;
+
     if (deliveryTimePill) {
       if (isDigital) {
-        deliveryTimePill.textContent = "⚡ Entrega Inmediata";
+        deliveryTimePill.innerHTML = `${zapSvg}Entrega Inmediata`;
       } else if (isVehicle) {
-        deliveryTimePill.textContent = "⏱️ Coordinar Visita";
+        deliveryTimePill.innerHTML = `${clockSvg}Coordinar Visita`;
       } else {
-        const isFashion = AppState.activePreset === "fashion" || AppState.activePreset === "beauty";
-        const icon = isFashion ? "📦" : "⏱️";
-        deliveryTimePill.textContent = `${icon} ${shop.deliveryTime || nicheInfo.defaultDeliveryTime || "24-48h"}`;
+        const rawTime = (shop.deliveryTime || nicheInfo.defaultDeliveryTime || "24-48h").replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+        deliveryTimePill.innerHTML = `${clockSvg}${rawTime || "24-48h"}`;
       }
     }
 
     if (deliveryCostPill) {
-      if (isDigital || Number(shop.deliveryCost || 0) === 0) {
-        deliveryCostPill.textContent = "Envío gratis";
-      } else if (isVehicle) {
-        deliveryCostPill.textContent = "📍 Trato Directo";
+      if (isVehicle) {
+        const directText = (shop.address && shop.address.trim()) ? `Trato directo · ${shop.address.trim()}` : "Trato directo";
+        deliveryCostPill.innerHTML = `${pinSvg}${directText}`;
+      } else if (isDigital || Number(shop.deliveryCost || 0) === 0) {
+        deliveryCostPill.innerHTML = `${checkSvg}Envío gratis`;
       } else {
-        deliveryCostPill.textContent = `Delivery ${shop.currency} ${Number(shop.deliveryCost || 0).toFixed(2)}`;
+        deliveryCostPill.innerHTML = `${truckSvg}Delivery ${shop.currency} ${Number(shop.deliveryCost || 0).toFixed(2)}`;
       }
     }
 
@@ -5575,12 +5581,11 @@ const CustomerUI = {
     }
 
     track.innerHTML = categories.map(cat => {
-      const icon = cat.icon || CustomerUI.getCategoryIcon(cat.name);
+      const rawLabel = (cat.label || cat.name || "General").replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
       return `
       <button class="cat-tab-btn ${AppState.customerCategory === cat.name ? "active" : ""}" 
               data-category="${escapeHtml(cat.name)}" type="button">
-        ${icon ? `<span class="cat-tab-icon">${icon}</span>` : ""}
-        <span>${escapeHtml(cat.label || cat.name || "General")}</span>
+        <span class="cat-tab-name">${escapeHtml(rawLabel || "General")}</span>
         <span class="cat-tab-count">${cat.count}</span>
       </button>
     `;
@@ -6084,13 +6089,20 @@ const CustomerUI = {
           const prodCurrency = product.currency || AppState.shopConfig.currency || "US$";
           const formattedPrice = Number(product.price).toLocaleString('es-PE', {minimumFractionDigits: 2});
           
-          const itemLabel = product.listingType === "vehicle" ? "Vehículo" : (product.listingType === "property" ? "Inmueble" : "Producto");
-          let msg = `Hola *${AppState.shopConfig.name}*, vi tu publicación en TiendaZap:\n\n`;
-          msg += `• *${itemLabel}:* ${product.name}\n`;
-          if (product.condition) msg += `• *Condición:* ${product.condition}\n`;
-          if (product.location) msg += `• *Ubicación:* ${product.location}\n`;
-          msg += `• *Precio:* ${prodCurrency} ${formattedPrice}\n`;
-          msg += `• *Ver ficha:* ${prodUrl}\n\n`;
+          const storeNameClean = (AppState.shopConfig.name || "Tienda").trim();
+          const prodNameClean = (product.name || "").trim();
+          const skuText = product.sku ? ` (${product.sku})` : "";
+          const specsSummary = Array.isArray(product.specs) && product.specs.length > 0
+            ? product.specs.slice(0, 4).map(s => `• ${s.label}: ${s.value}`).join("\n")
+            : "";
+
+          let msg = `Hola *${storeNameClean}*, te escribo desde tu catálogo web por:\n\n`;
+          msg += `*${prodNameClean}*${skuText}\n`;
+          msg += `• Precio: *${prodCurrency} ${formattedPrice}*\n`;
+          if (product.condition) msg += `• Condición: ${product.condition}\n`;
+          if (product.location) msg += `• Ubicación: ${product.location}\n`;
+          if (specsSummary) msg += `${specsSummary}\n`;
+          msg += `• Enlace: ${prodUrl}\n\n`;
           msg += `${currentInquiry}`;
 
           window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, "_blank");
@@ -6550,88 +6562,48 @@ const WhatsAppOrder = {
     const shop = AppState.shopConfig;
     const items = CartController.getCartItems();
     const currency = shop.currency || "S/";
-    const dateStr = new Date().toLocaleString("es-ES", {
-      dateStyle: "short",
-      timeStyle: "short"
-    });
-
     const cleanStoreUrl = QRGenerator.getCleanDisplayUrl();
-    let msg = `*Catálogo Oficial de ${shop.name}*\n`;
-    msg += `• *Enlace de tienda:* ${cleanStoreUrl}\n\n`;
-    msg += `*NUEVO PEDIDO — ${shop.name.toUpperCase()}*\n`;
-    msg += `• *Fecha:* ${dateStr}\n`;
-    msg += `-------------------------------------\n\n`;
 
-    msg += `*DATOS DEL CLIENTE:*\n`;
-    msg += `• *Nombre:* ${clientData.name}\n`;
-    msg += `• *Teléfono:* ${clientData.phone}\n`;
-
-    if (clientData.deliveryMode === "digital") {
-      msg += `• *Modalidad:* Envío Digital Inmediato (WhatsApp / Correo)\n`;
-      msg += `• *Contacto Digital:* ${clientData.address || clientData.phone}\n`;
-    } else if (clientData.deliveryMode === "delivery") {
-      msg += `• *Modalidad:* Envío a Domicilio\n`;
-      msg += `• *Dirección:* ${clientData.address}\n`;
-      if (clientData.gpsCoords) {
-        msg += `• *Ubicación GPS:* https://maps.google.com/?q=${clientData.gpsCoords}\n`;
-      }
-    } else if (clientData.deliveryMode === "dinein") {
-      msg += `• *Modalidad:* Consumo en Mesa (${clientData.tableNumber || "Mesa Local"})\n`;
-    } else {
-      msg += `• *Modalidad:* Retiro en Local\n`;
-    }
-
-    if (clientData.notes && clientData.notes.trim()) {
-      msg += `• *Notas:* ${clientData.notes.trim()}\n`;
-    }
-
-    msg += `\n*DETALLE DE PRODUCTOS:*\n`;
+    let msg = `Hola *${shop.name}*, quiero confirmar este pedido:\n\n`;
+    msg += `*PRODUCTOS*\n`;
     items.forEach((item, idx) => {
       const unitPrice = CartController.getUnitPrice(item.product, item.selectedSize, item.selectedColor);
       const itemSub = (unitPrice * item.quantity).toFixed(2);
-      const skuTag = item.product.sku ? `[${item.product.sku}] ` : "";
-      
-      let variantParts = [];
-      if (item.selectedSize) variantParts.push(`Talla: ${item.selectedSize}`);
-      if (item.selectedColor) variantParts.push(`Color: ${item.selectedColor}`);
-      const variantText = variantParts.length > 0 ? ` (${variantParts.join(" | ")})` : "";
-
-      msg += `${idx + 1}. *${item.quantity}x* ${skuTag}${item.product.name}${variantText} — ${currency} ${itemSub}\n`;
-      if (item.note) {
-        msg += `   └ Nota: ${item.note}\n`;
-      }
+      const variantParts = [];
+      if (item.selectedSize) variantParts.push(item.selectedSize);
+      if (item.selectedColor) variantParts.push(item.selectedColor);
+      const variantText = variantParts.length > 0 ? ` (${variantParts.join(" · ")})` : "";
+      msg += `${idx + 1}. ${item.quantity}x *${item.product.name}*${variantText} — ${currency} ${itemSub}\n`;
+      if (item.note) msg += `   Nota: ${item.note}\n`;
     });
 
-    msg += `\n-------------------------------------\n`;
-    msg += `• *Subtotal:* ${currency} ${CartController.getSubtotal().toFixed(2)}\n`;
-
+    msg += `\n*RESUMEN*\n`;
+    msg += `• Subtotal: ${currency} ${CartController.getSubtotal().toFixed(2)}\n`;
     if (clientData.deliveryMode === "delivery") {
-      msg += `• *Envío:* ${currency} ${CartController.getDeliveryCost().toFixed(2)}\n`;
+      msg += `• Envío: ${currency} ${CartController.getDeliveryCost().toFixed(2)}\n`;
     } else if (clientData.deliveryMode === "digital") {
-      msg += `• *Envío:* Gratis (Digital)\n`;
+      msg += `• Envío: Gratis (Digital)\n`;
     }
+    msg += `• *Total a pagar: ${currency} ${CartController.getGrandTotal().toFixed(2)}*\n`;
+    msg += `• Pago: ${clientData.paymentMethod || "Yape / Plin"}\n`;
 
-    msg += `• *TOTAL A PAGAR: ${currency} ${CartController.getGrandTotal().toFixed(2)}*\n`;
-    msg += `-------------------------------------\n`;
-
-    // Sección de Método de Pago y Comprobante de Yape
-    if (clientData.paymentMethod === "Yape / Plin") {
-      msg += `• *Método de Pago:* Yape / Plin\n`;
-      if (shop.yapePhone) msg += `• *Número de Yape:* ${shop.yapePhone}\n`;
-      if (shop.yapeName) msg += `• *Titular:* ${shop.yapeName}\n`;
-      if (AppState.buyerVoucherBase64) {
-        msg += `• *Comprobante:* Adjuntado por el cliente (enviará la captura por este chat).\n`;
-      } else {
-        msg += `• *Comprobante:* Pendiente de adjuntar captura por este chat.\n`;
-      }
+    msg += `\n*ENTREGA*\n`;
+    msg += `• Cliente: ${clientData.name}\n`;
+    msg += `• Teléfono: ${clientData.phone}\n`;
+    if (clientData.deliveryMode === "digital") {
+      msg += `• Entrega digital: ${clientData.address || clientData.phone}\n`;
+    } else if (clientData.deliveryMode === "delivery") {
+      msg += `• Dirección: ${clientData.address}\n`;
+      if (clientData.gpsCoords) msg += `• Ubicación: https://maps.google.com/?q=${clientData.gpsCoords}\n`;
+    } else if (clientData.deliveryMode === "dinein") {
+      msg += `• Consumo en local: ${clientData.tableNumber || "Mesa"}\n`;
     } else {
-      msg += `• *Método de Pago:* ${clientData.paymentMethod}\n`;
-      if (clientData.paymentMethod === "Efectivo" && clientData.cashChange) {
-        msg += `• *Paga con:* ${currency} ${clientData.cashChange}\n`;
-      }
+      msg += `• Modalidad: Retiro en tienda\n`;
     }
-
-    msg += `\n_Generado vía TiendaZap Studio_`;
+    if (clientData.notes && clientData.notes.trim()) {
+      msg += `• Indicaciones: ${clientData.notes.trim()}\n`;
+    }
+    msg += `\nCatálogo: ${cleanStoreUrl}`;
     return msg;
   },
 
