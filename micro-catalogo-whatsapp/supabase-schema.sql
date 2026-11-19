@@ -179,3 +179,14 @@ create policy "media_auth_insert" on storage.objects
 drop policy if exists "media_auth_delete" on storage.objects;
 create policy "media_auth_delete" on storage.objects
   for delete using (bucket_id = 'tiendazap-media' and auth.uid() = owner);
+
+
+-- 8. PERMISOS DE TABLAS PARA ROLES ANON Y AUTHENTICATED (REQUERIDO PARA EVALUAR RLS)
+grant usage on schema public to anon, authenticated;
+grant all on all tables in schema public to anon, authenticated;
+grant all on all sequences in schema public to anon, authenticated;
+grant all on all routines in schema public to anon, authenticated;
+
+alter default privileges in schema public grant all on tables to anon, authenticated;
+alter default privileges in schema public grant all on sequences to anon, authenticated;
+alter default privileges in schema public grant all on routines to anon, authenticated;
