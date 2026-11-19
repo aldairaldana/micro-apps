@@ -1,27 +1,21 @@
-# Binaries & executables
-*.exe
-cloudflared.exe
-*.zip
-
-# Test scratch & browser profiles
-**/scratch/
-scratch/
-chrome_profile/
-
-# OS & System files
+.agents/
+.gemini/
+docs/screenshots/
+server.py
+node_modules/
 .DS_Store
 Thumbs.db
+*.zip
+cloudflared.exe
+*.exe
 *.log
 *.out
-
-# Debug temporary screenshots
 screen_*.png
 shot*.png
 studio_verified.png
-
-# IDE & Dependencies
 .vscode/
 .idea/
-node_modules/
-.agents/
 skills-lock.json
+**/scratch/
+scratch/
+chrome_profile/

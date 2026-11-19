@@ -2259,6 +2259,21 @@
       </div>
     </div>
 
+    <!-- 6. MODAL DE ENTRADA NATIVO REUTILIZABLE (CERO PROMPT DEL NAVEGADOR) -->
+    <div class="overlay modal-overlay app-input-modal-overlay hidden" id="app-input-modal" aria-modal="true" role="dialog">
+      <div class="app-input-card">
+        <h2 class="app-input-title" id="app-input-title">Título</h2>
+        <p class="app-input-subtitle hidden" id="app-input-subtitle"></p>
+        <div class="app-input-field-wrap">
+          <input type="text" id="app-input-field" class="input-modern" autocomplete="off">
+        </div>
+        <div class="app-input-actions">
+          <button type="button" id="app-input-cancel-btn" class="btn-secondary-compact app-input-btn-cancel">Cancelar</button>
+          <button type="button" id="app-input-confirm-btn" class="btn-save-product app-input-btn-confirm">Guardar</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 4. MODAL LIGHTBOX PARA PANTALLA COMPLETA Y ZOOM DE FOTOS -->
     <div class="overlay lightbox-overlay hidden" id="media-lightbox-modal" aria-hidden="true">
       <button type="button" class="lightbox-close-btn" id="lightbox-close-btn"

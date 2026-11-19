@@ -3232,6 +3232,99 @@ const YapeQRZoom = {
 };
 
 // ============================================================================
+// 6.5. MODAL DE ENTRADA NATIVO REUTILIZABLE (CERO WINDOW.PROMPT)
+// ============================================================================
+const UIInputModal = {
+  ask({ title = "Ingresar valor", subtitle = "", value = "", placeholder = "", inputMode = "text" } = {}) {
+    return new Promise((resolve) => {
+      const modal = document.getElementById("app-input-modal");
+      const titleEl = document.getElementById("app-input-title");
+      const subtitleEl = document.getElementById("app-input-subtitle");
+      const inputEl = document.getElementById("app-input-field");
+      const confirmBtn = document.getElementById("app-input-confirm-btn");
+      const cancelBtn = document.getElementById("app-input-cancel-btn");
+
+      if (!modal || !inputEl || !confirmBtn || !cancelBtn) {
+        const fallback = window.prompt(`${title}${subtitle ? "\n" + subtitle : ""}`, value);
+        return resolve(fallback);
+      }
+
+      if (titleEl) titleEl.textContent = title;
+      if (subtitleEl) {
+        if (subtitle && subtitle.trim()) {
+          subtitleEl.textContent = subtitle.trim();
+          subtitleEl.classList.remove("hidden");
+        } else {
+          subtitleEl.textContent = "";
+          subtitleEl.classList.add("hidden");
+        }
+      }
+
+      inputEl.value = value !== undefined && value !== null ? String(value) : "";
+      inputEl.placeholder = placeholder || "";
+      inputEl.setAttribute("inputmode", inputMode || "text");
+      inputEl.type = "text";
+
+      modal.classList.remove("hidden");
+
+      const cleanup = () => {
+        confirmBtn.removeEventListener("click", onConfirm);
+        cancelBtn.removeEventListener("click", onCancel);
+        modal.removeEventListener("click", onBackdrop);
+        inputEl.removeEventListener("keydown", onKeyDown);
+        window.removeEventListener("keydown", onWindowKeyDown);
+        modal.classList.add("hidden");
+      };
+
+      const onConfirm = () => {
+        const result = inputEl.value;
+        cleanup();
+        resolve(result);
+      };
+
+      const onCancel = () => {
+        cleanup();
+        resolve(null);
+      };
+
+      const onBackdrop = (e) => {
+        if (e.target === modal) {
+          onCancel();
+        }
+      };
+
+      const onKeyDown = (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          onConfirm();
+        } else if (e.key === "Escape") {
+          e.preventDefault();
+          onCancel();
+        }
+      };
+
+      const onWindowKeyDown = (e) => {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          onCancel();
+        }
+      };
+
+      confirmBtn.addEventListener("click", onConfirm);
+      cancelBtn.addEventListener("click", onCancel);
+      modal.addEventListener("click", onBackdrop);
+      inputEl.addEventListener("keydown", onKeyDown);
+      window.addEventListener("keydown", onWindowKeyDown);
+
+      setTimeout(() => {
+        inputEl.focus();
+        inputEl.select();
+      }, 60);
+    });
+  }
+};
+
+// ============================================================================
 // 7. TIENDAZAP STUDIO (PANEL DE CONTROL DEL VENDEDOR)
 // ============================================================================
 const StudioController = {
@@ -4212,8 +4305,14 @@ const StudioController = {
     Toast.show(`Icono de "${catName}" actualizado a ${nextEmoji}`, nextEmoji);
   },
 
-  promptRenameCategory(oldName) {
-    const newName = prompt(`Renombrar categoría "${oldName}":\n(Se actualizarán todos los productos automáticamente)`, oldName);
+  async promptRenameCategory(oldName) {
+    const newName = await UIInputModal.ask({
+      title: "Renombrar Categoría",
+      subtitle: `Se actualizarán todos los productos asignados a "${oldName}" automáticamente`,
+      value: oldName,
+      placeholder: "Nuevo nombre de categoría...",
+      inputMode: "text"
+    });
     if (!newName || newName.trim() === oldName) return;
 
     const res = AppState.renameCategory(oldName, newName.trim());
@@ -4226,12 +4325,19 @@ const StudioController = {
     }
   },
 
-  confirmDeleteCategory(catName, prodCount) {
+  renameCategory(oldName) {
+    return this.promptRenameCategory(oldName);
+  },
+
+  async confirmDeleteCategory(catName, prodCount) {
     if (prodCount > 0) {
-      const targetCat = prompt(
-        `La categoría "${catName}" tiene ${prodCount} producto(s) asignado(s).\n\nIngresa el nombre de la categoría a donde deseas moverlos (o deja "General"):`,
-        "General"
-      );
+      const targetCat = await UIInputModal.ask({
+        title: "Reasignar Productos",
+        subtitle: `La categoría "${catName}" tiene ${prodCount} producto(s). Ingresa a qué categoría moverlos:`,
+        value: "General",
+        placeholder: "Categoría destino...",
+        inputMode: "text"
+      });
       if (targetCat === null) return;
       const res = AppState.deleteCategory(catName, targetCat.trim() || "General");
       this.renderCategoryManagerList();
@@ -4411,13 +4517,34 @@ const StudioController = {
     `).join("");
   },
 
-  promptCreateCatalog() {
-    const name = prompt("Nombre del nuevo catálogo:\n(Ej: Autodesk, Calzado Deportivo, Menú Ejecutivo)");
+  async promptCreateCatalog() {
+    const name = await UIInputModal.ask({
+      title: "Nuevo Catálogo",
+      subtitle: "Organiza tus productos por líneas o temporadas (Ej: Ofertas, Calzado, Menú)",
+      placeholder: "Nombre del catálogo...",
+      value: "",
+      inputMode: "text"
+    });
     if (name && name.trim()) {
       const res = AppState.addCatalog(name.trim());
       if (res.ok) {
         this.populateCatalogSelect(res.catalog.id);
       }
+    }
+  },
+
+  async promptRenameCatalog(catId) {
+    const catObj = (AppState.catalogs || []).find(c => c.id === catId);
+    if (!catObj) return;
+    const newName = await UIInputModal.ask({
+      title: "Renombrar Catálogo",
+      subtitle: `Modifica el nombre de "${catObj.name}"`,
+      value: catObj.name,
+      placeholder: "Nombre del catálogo...",
+      inputMode: "text"
+    });
+    if (newName && newName.trim() && newName.trim() !== catObj.name) {
+      AppState.renameCatalog(catId, newName.trim());
     }
   },
 
@@ -4533,12 +4660,7 @@ const StudioController = {
           if (renameBtn) {
             renameBtn.addEventListener("click", () => {
               const catId = renameBtn.getAttribute("data-id");
-              const catObj = AppState.catalogs.find(c => c.id === catId);
-              if (!catObj) return;
-              const newName = prompt("Nuevo nombre para el catálogo:", catObj.name);
-              if (newName && newName.trim()) {
-                AppState.renameCatalog(catId, newName.trim());
-              }
+              this.promptRenameCatalog(catId);
             });
           }
 
@@ -4673,13 +4795,19 @@ const StudioController = {
   },
 
   // Modificación Instantánea de Precio con 1 Toque
-  quickEditPrice(productId) {
+  async quickEditPrice(productId) {
     const p = AppState.products.find(item => item.id === productId);
     if (!p) return;
 
     const currency = AppState.shopConfig.currency || "S/";
     const currentPrice = Number(p.price).toFixed(2);
-    const newPricePrompt = prompt(`Modificar precio para "${p.name}":\nIngresa el nuevo monto (${currency}):`, currentPrice);
+    const newPricePrompt = await UIInputModal.ask({
+      title: "Modificar Precio",
+      subtitle: `Precio actual de "${p.name}" en ${currency}`,
+      value: currentPrice,
+      placeholder: "0.00",
+      inputMode: "decimal"
+    });
 
     if (newPricePrompt !== null) {
       const cleanVal = parseFloat(newPricePrompt.replace(/[^0-9.]/g, ""));
@@ -4691,7 +4819,7 @@ const StudioController = {
         CustomerUI.renderCartItemsList();
         Toast.show(`Precio de "${p.name}" actualizado a ${currency} ${cleanVal.toFixed(2)}`, "💰");
       } else {
-        alert("Por favor ingresa un precio válido en números.");
+        Toast.show("Ingresa un precio numérico válido", "⚠️");
       }
     }
   },
@@ -7575,8 +7703,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (editorQuickAddCatBtn) {
-    editorQuickAddCatBtn.addEventListener("click", () => {
-      const newCat = prompt("Ingresa el nombre de la nueva categoría:");
+    editorQuickAddCatBtn.addEventListener("click", async () => {
+      const newCat = await UIInputModal.ask({
+        title: "Nueva Categoría",
+        subtitle: "Crea una categoría para clasificar tus productos",
+        placeholder: "Ej: Zapatillas, Postres, etc.",
+        value: "",
+        inputMode: "text"
+      });
       if (newCat && newCat.trim()) {
         const added = AppState.addCategory(newCat.trim());
         if (added) {
@@ -7585,6 +7719,7 @@ document.addEventListener("DOMContentLoaded", () => {
           StudioController.renderEditorCategoryChips(added.name);
           StudioController.renderCategoryFilters();
           CustomerUI.renderCategoryTabs();
+          Toast.show(`Categoría "${added.name}" creada`, "✨");
         }
       }
     });
