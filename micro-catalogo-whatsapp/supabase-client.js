@@ -127,7 +127,89 @@
       return mailMatches || roleMatches;
     },
 
-    // 1. AUTENTICACIÓN (LOGIN O REGISTRO AUTOMÁTICO)
+    // 1. AUTENTICACIÓN (REGISTRO, LOGIN Y COMPATIBILIDAD)
+    async signUp(email, password, fullName = "") {
+      if (!this.isReady()) {
+        return { ok: false, msg: "Configura primero tu URL y Anon Key en supabase-config.js para usar la nube." };
+      }
+
+      const cleanEmail = (email || "").trim().toLowerCase();
+      const cleanPass = (password || "").trim();
+
+      if (!cleanEmail || !cleanPass) {
+        return { ok: false, msg: "Ingresa un correo y una contraseña válida." };
+      }
+
+      if (cleanPass.length < 6) {
+        return { ok: false, msg: "La contraseña debe tener mínimo 6 caracteres." };
+      }
+
+      try {
+        const { data: signData, error: signError } = await this.client.auth.signUp({
+          email: cleanEmail,
+          password: cleanPass,
+          options: {
+            data: { full_name: fullName || cleanEmail.split("@")[0] }
+          }
+        });
+
+        if (signError) {
+          const isAlreadyRegistered = /already registered|user already exists|identities/i.test(signError.message || "");
+          if (isAlreadyRegistered) {
+            return { ok: false, alreadyRegistered: true, msg: "Este correo ya está registrado. Selecciona 'Iniciar sesión'." };
+          }
+          return { ok: false, msg: signError.message };
+        }
+
+        if (signData && signData.user) {
+          this.currentUser = signData.user;
+          await this.fetchProfile(this.currentUser.id);
+          this.renderCloudStatusInUI();
+          return { ok: true, user: this.currentUser, isNew: true };
+        }
+
+        return { ok: false, msg: "No se pudo completar el registro." };
+      } catch (err) {
+        return { ok: false, msg: err.message || "Error al conectar con Supabase." };
+      }
+    },
+
+    async signIn(email, password) {
+      if (!this.isReady()) {
+        return { ok: false, msg: "Configura primero tu URL y Anon Key en supabase-config.js para usar la nube." };
+      }
+
+      const cleanEmail = (email || "").trim().toLowerCase();
+      const cleanPass = (password || "").trim();
+
+      if (!cleanEmail || !cleanPass) {
+        return { ok: false, msg: "Ingresa tu correo y contraseña." };
+      }
+
+      try {
+        const { data: loginData, error: loginError } = await this.client.auth.signInWithPassword({
+          email: cleanEmail,
+          password: cleanPass
+        });
+
+        if (loginError) {
+          const isInvalid = /invalid login credentials|invalid credentials/i.test(loginError.message || "");
+          return { ok: false, msg: isInvalid ? "Correo o contraseña incorrectos." : loginError.message };
+        }
+
+        if (loginData && loginData.user) {
+          this.currentUser = loginData.user;
+          await this.fetchProfile(this.currentUser.id);
+          this.renderCloudStatusInUI();
+          return { ok: true, user: this.currentUser, isNew: false };
+        }
+
+        return { ok: false, msg: "No se pudo iniciar sesión." };
+      } catch (err) {
+        return { ok: false, msg: err.message || "Error al conectar con Supabase." };
+      }
+    },
+
     async signUpOrSignIn(email, password, fullName = "") {
       if (!this.isReady()) {
         return { ok: false, msg: "Configura primero tu URL y Anon Key en supabase-config.js para usar la nube." };
@@ -665,6 +747,16 @@
           syncBadge.title = "Supabase configurado pero sesión no iniciada";
         }
       }
+
+      // Banner de promoción de sincronización en Mi Tienda
+      const promoBanner = document.getElementById("cloud-sync-promo-banner");
+      if (promoBanner) {
+        if (this.isAuthenticated()) {
+          promoBanner.classList.add("hidden");
+        } else {
+          promoBanner.classList.remove("hidden");
+        }
+      }
     },
 
     showSyncBadge(msg, icon = "☁️") {
@@ -677,22 +769,74 @@
       }
     },
 
-    openAuthModal() {
+    openAuthModal(initialTab = "login") {
       const modal = document.getElementById("cloud-auth-modal");
       if (!modal) return;
       const emailInput = document.getElementById("cloud-auth-email");
       const passInput = document.getElementById("cloud-auth-password");
+      const passConfirmInput = document.getElementById("cloud-auth-password-confirm");
       const errBox = document.getElementById("cloud-auth-error");
+      const tabSignup = document.getElementById("cloud-tab-signup");
+      const tabLogin = document.getElementById("cloud-tab-login");
+      const confirmGroup = document.getElementById("cloud-confirm-password-group");
+      const submitBtn = document.getElementById("cloud-auth-submit-btn");
 
-      if (errBox) errBox.classList.add("hidden");
-      if (emailInput && !emailInput.value && AppState.shopConfig.email) {
+      if (errBox) {
+        errBox.textContent = "";
+        errBox.classList.add("hidden");
+      }
+      if (emailInput && !emailInput.value && typeof AppState !== "undefined" && AppState.shopConfig && AppState.shopConfig.email) {
         emailInput.value = AppState.shopConfig.email;
       }
-      if (passInput) passInput.value = "";
+      if (passInput) {
+        passInput.value = "";
+        passInput.type = "password";
+      }
+      if (passConfirmInput) {
+        passConfirmInput.value = "";
+        passConfirmInput.type = "password";
+      }
+
+      // Reset íconos de ojito
+      modal.querySelectorAll(".btn-toggle-password").forEach(btn => {
+        const showIcon = btn.querySelector(".eye-icon-show");
+        const hideIcon = btn.querySelector(".eye-icon-hide");
+        if (showIcon) showIcon.classList.remove("hidden");
+        if (hideIcon) hideIcon.classList.add("hidden");
+        btn.setAttribute("aria-label", "Mostrar contraseña");
+      });
+
+      const targetTab = initialTab === "signup" ? "signup" : "login";
+      modal.setAttribute("data-active-tab", targetTab);
+
+      if (targetTab === "signup") {
+        if (tabSignup) {
+          tabSignup.classList.add("active");
+          tabSignup.setAttribute("aria-selected", "true");
+        }
+        if (tabLogin) {
+          tabLogin.classList.remove("active");
+          tabLogin.setAttribute("aria-selected", "false");
+        }
+        if (confirmGroup) confirmGroup.classList.remove("hidden");
+        if (submitBtn) submitBtn.textContent = "Crear Cuenta & Sincronizar";
+      } else {
+        if (tabLogin) {
+          tabLogin.classList.add("active");
+          tabLogin.setAttribute("aria-selected", "true");
+        }
+        if (tabSignup) {
+          tabSignup.classList.remove("active");
+          tabSignup.setAttribute("aria-selected", "false");
+        }
+        if (confirmGroup) confirmGroup.classList.add("hidden");
+        if (submitBtn) submitBtn.textContent = "Iniciar Sesión";
+      }
 
       modal.classList.remove("hidden");
       setTimeout(() => {
-        if (emailInput) emailInput.focus();
+        if (emailInput && !emailInput.value) emailInput.focus();
+        else if (passInput) passInput.focus();
       }, 50);
     },
 

@@ -2845,6 +2845,33 @@ const OnboardingWizard = {
       });
     });
 
+    // Paso 1: Contraseña opcional y confirmación
+    const ownerPassInp = document.getElementById("ob-owner-password");
+    const passConfirmGroup = document.getElementById("ob-password-confirm-field-group");
+    const ownerPassConfirmInp = document.getElementById("ob-owner-password-confirm");
+    const passMatchError = document.getElementById("ob-password-match-error");
+
+    if (ownerPassInp && passConfirmGroup) {
+      ownerPassInp.addEventListener("input", () => {
+        const val = ownerPassInp.value.trim();
+        if (val.length > 0) {
+          passConfirmGroup.classList.remove("hidden");
+        } else {
+          passConfirmGroup.classList.add("hidden");
+          if (passMatchError) passMatchError.classList.add("hidden");
+          if (ownerPassConfirmInp) ownerPassConfirmInp.value = "";
+        }
+      });
+    }
+
+    if (ownerPassConfirmInp && passMatchError) {
+      ownerPassConfirmInp.addEventListener("input", () => {
+        if (!passMatchError.classList.contains("hidden")) {
+          passMatchError.classList.add("hidden");
+        }
+      });
+    }
+
     // Paso 1: Botón Siguiente
     const step1Next = document.getElementById("ob-btn-step1-next") || document.getElementById("onboarding-btn-step1-next");
     if (step1Next) {
@@ -2862,6 +2889,29 @@ const OnboardingWizard = {
           return;
         }
         if (emailError) emailError.classList.add("hidden");
+
+        const passVal = ownerPassInp ? ownerPassInp.value.trim() : "";
+        const passConfirmVal = ownerPassConfirmInp ? ownerPassConfirmInp.value.trim() : "";
+
+        if (passVal) {
+          if (passVal.length < 6) {
+            if (passMatchError) {
+              passMatchError.textContent = "La contraseña debe tener mínimo 6 caracteres";
+              passMatchError.classList.remove("hidden");
+            }
+            if (ownerPassInp) ownerPassInp.focus();
+            return;
+          }
+          if (passVal !== passConfirmVal) {
+            if (passMatchError) {
+              passMatchError.textContent = "Las contraseñas no coinciden";
+              passMatchError.classList.remove("hidden");
+            }
+            if (ownerPassConfirmInp) ownerPassConfirmInp.focus();
+            return;
+          }
+        }
+        if (passMatchError) passMatchError.classList.add("hidden");
 
         if (!nameVal) {
           if (nameError) nameError.classList.remove("hidden");
@@ -3153,17 +3203,6 @@ const OnboardingWizard = {
       AppState.saveMerchant();
     }
 
-    // Registro opcional en la nube con Supabase si se ingresó contraseña
-    const ownerPassword = (document.getElementById("ob-owner-password")?.value || "").trim();
-    if (ownerEmail && ownerPassword && ownerPassword.length >= 6 && typeof CloudSync !== "undefined" && CloudSync.isReady()) {
-      CloudSync.signUpOrSignIn(ownerEmail, ownerPassword, name).then(authRes => {
-        if (authRes && authRes.ok) {
-          Toast.show("¡Cuenta en la nube sincronizada con Supabase!", "☁️");
-          CloudSync.syncStoreToCloud(newStore);
-        }
-      }).catch(e => console.warn("Registro opcional en nube diferido:", e));
-    }
-
     const newStore = AppState.createNewStore({
       name,
       preset: niche,
@@ -3178,6 +3217,18 @@ const OnboardingWizard = {
       logoUrl: this.uploadedLogo || "",
       bannerUrl: this.uploadedBanner || ""
     });
+
+    // Registro opcional en la nube con Supabase si se ingresó contraseña válida
+    const ownerPassword = (document.getElementById("ob-owner-password")?.value || "").trim();
+    const ownerPasswordConfirm = (document.getElementById("ob-owner-password-confirm")?.value || "").trim();
+    if (ownerEmail && ownerPassword && ownerPassword.length >= 6 && (!ownerPasswordConfirm || ownerPassword === ownerPasswordConfirm) && typeof CloudSync !== "undefined" && CloudSync.isReady()) {
+      CloudSync.signUp(ownerEmail, ownerPassword, name).then(authRes => {
+        if (authRes && authRes.ok) {
+          Toast.show("¡Cuenta en la nube sincronizada con Supabase!", "☁️");
+          CloudSync.syncStoreToCloud(newStore);
+        }
+      }).catch(e => console.warn("Registro opcional en nube diferido:", e));
+    }
 
     // Crear producto opcional del Paso 4 si se ingresó nombre
     let createdFirstProd = false;
@@ -3248,11 +3299,30 @@ const OnboardingWizard = {
     this.exploreDemoStore();
   },
 
-  resetFromScratch() {
-    if (confirm("¿Deseas reiniciar y comenzar de cero?")) {
-      localStorage.clear();
-      window.location.reload();
+  async resetFromScratch() {
+    const confirmed = await UIInputModal.confirm({
+      title: "Reiniciar app desde 0",
+      subtitle: "¿Estás seguro de reiniciar la app? Se borrarán las tiendas locales de prueba y podrás empezar desde el Paso 0.",
+      confirmText: "Sí, reiniciar todo",
+      cancelText: "Cancelar",
+      danger: true
+    });
+    if (!confirmed) return;
+
+    if (typeof CloudSync !== "undefined" && CloudSync.isAuthenticated()) {
+      try {
+        await CloudSync.signOut();
+      } catch (e) {
+        console.warn("Error al cerrar sesión durante reset:", e);
+      }
     }
+
+    localStorage.clear();
+
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    window.location.reload();
   }
 };
 // ============================================================================
@@ -3369,6 +3439,85 @@ const UIInputModal = {
       setTimeout(() => {
         inputEl.focus();
         inputEl.select();
+      }, 60);
+    });
+  },
+
+  confirm({ title = "¿Estás seguro?", subtitle = "", confirmText = "Confirmar", cancelText = "Cancelar", danger = false } = {}) {
+    return new Promise((resolve) => {
+      const modal = document.getElementById("app-input-modal");
+      const titleEl = document.getElementById("app-input-title");
+      const subtitleEl = document.getElementById("app-input-subtitle");
+      const inputWrap = modal?.querySelector(".app-input-field-wrap");
+      const confirmBtn = document.getElementById("app-input-confirm-btn");
+      const cancelBtn = document.getElementById("app-input-cancel-btn");
+
+      if (!modal || !confirmBtn || !cancelBtn) {
+        const fallback = window.confirm(`${title}${subtitle ? "\n" + subtitle : ""}`);
+        return resolve(fallback);
+      }
+
+      if (titleEl) titleEl.textContent = title;
+      if (subtitleEl) {
+        if (subtitle && subtitle.trim()) {
+          subtitleEl.textContent = subtitle.trim();
+          subtitleEl.classList.remove("hidden");
+        } else {
+          subtitleEl.textContent = "";
+          subtitleEl.classList.add("hidden");
+        }
+      }
+
+      if (inputWrap) inputWrap.classList.add("hidden");
+      confirmBtn.textContent = confirmText;
+      cancelBtn.textContent = cancelText;
+
+      if (danger) {
+        confirmBtn.classList.add("btn-danger-confirm");
+      }
+
+      modal.classList.remove("hidden");
+
+      const cleanup = () => {
+        confirmBtn.removeEventListener("click", onConfirm);
+        cancelBtn.removeEventListener("click", onCancel);
+        modal.removeEventListener("click", onBackdrop);
+        window.removeEventListener("keydown", onWindowKeyDown);
+        if (inputWrap) inputWrap.classList.remove("hidden");
+        if (danger) confirmBtn.classList.remove("btn-danger-confirm");
+        confirmBtn.textContent = "Guardar";
+        cancelBtn.textContent = "Cancelar";
+        modal.classList.add("hidden");
+      };
+
+      const onConfirm = () => {
+        cleanup();
+        resolve(true);
+      };
+
+      const onCancel = () => {
+        cleanup();
+        resolve(false);
+      };
+
+      const onBackdrop = (e) => {
+        if (e.target === modal) onCancel();
+      };
+
+      const onWindowKeyDown = (e) => {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          onCancel();
+        }
+      };
+
+      confirmBtn.addEventListener("click", onConfirm);
+      cancelBtn.addEventListener("click", onCancel);
+      modal.addEventListener("click", onBackdrop);
+      window.addEventListener("keydown", onWindowKeyDown);
+
+      setTimeout(() => {
+        confirmBtn.focus();
       }, 60);
     });
   }
@@ -8893,29 +9042,36 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Botón Abrir Asistente WhatsApp Business desde el desplegable
-  const dropdownWizardBtn = document.getElementById("dropdown-reopen-wizard-btn");
-  if (dropdownWizardBtn) {
-    dropdownWizardBtn.addEventListener("click", () => {
+  // Botón Reiniciar app desde 0 en Dropdown
+  const dropdownResetAppBtn = document.getElementById("dropdown-reset-app-btn");
+  if (dropdownResetAppBtn) {
+    dropdownResetAppBtn.addEventListener("click", () => {
       StudioController.closeStoreDropdown();
-      ViewController.showOnboarding(1);
+      OnboardingWizard.resetFromScratch();
     });
   }
 
   // Botón Conectar Nube / Iniciar Sesión en Dropdown
   const dropdownCloudAuthBtn = document.getElementById("dropdown-cloud-auth-btn");
   if (dropdownCloudAuthBtn) {
-    dropdownCloudAuthBtn.addEventListener("click", () => {
+    dropdownCloudAuthBtn.addEventListener("click", async () => {
       StudioController.closeStoreDropdown();
       if (typeof CloudSync !== "undefined") {
         if (!CloudSync.isConfigured) {
-          alert("Para activar la nube de Supabase, agrega tu TU_SUPABASE_URL y TU_SUPABASE_ANON_KEY en supabase-config.js.");
+          Toast.show("Configura supabase-config.js para activar la nube", "⚙️");
         } else if (CloudSync.isAuthenticated()) {
-          if (confirm(`Sesión activa: ${CloudSync.currentUser.email}\n\n¿Deseas cerrar sesión en la nube?`)) {
+          const ok = await UIInputModal.confirm({
+            title: "Cerrar sesión en la nube",
+            subtitle: `Sesión activa como: ${CloudSync.currentUser.email}\n\n¿Deseas cerrar tu sesión? Tus datos locales se conservarán.`,
+            confirmText: "Cerrar sesión",
+            cancelText: "Mantener abierta",
+            danger: true
+          });
+          if (ok) {
             CloudSync.signOut();
           }
         } else {
-          CloudSync.openAuthModal();
+          CloudSync.openAuthModal("login");
         }
       }
     });
@@ -8932,20 +9088,103 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Pestañas del Modal de Autenticación en la Nube
+  const cloudTabSignup = document.getElementById("cloud-tab-signup");
+  const cloudTabLogin = document.getElementById("cloud-tab-login");
+  if (cloudTabSignup) {
+    cloudTabSignup.addEventListener("click", () => {
+      if (typeof CloudSync !== "undefined") CloudSync.openAuthModal("signup");
+    });
+  }
+  if (cloudTabLogin) {
+    cloudTabLogin.addEventListener("click", () => {
+      if (typeof CloudSync !== "undefined") CloudSync.openAuthModal("login");
+    });
+  }
+
+  // Banner en Mi Tienda: Crear cuenta / Guardar en la nube
+  const btnBannerCloudSync = document.getElementById("btn-banner-cloud-sync");
+  if (btnBannerCloudSync) {
+    btnBannerCloudSync.addEventListener("click", () => {
+      if (typeof CloudSync !== "undefined") {
+        CloudSync.openAuthModal("signup");
+      }
+    });
+  }
+
+  // Alternador de Visibilidad de Contraseña (Ojito SVG - Delegación Global)
+  document.addEventListener("click", (e) => {
+    const toggleBtn = e.target.closest(".btn-toggle-password");
+    if (!toggleBtn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const targetId = toggleBtn.getAttribute("data-target");
+    const input = targetId ? document.getElementById(targetId) : toggleBtn.closest(".input-password-wrap")?.querySelector("input");
+    if (!input) return;
+    const isPassword = input.type === "password";
+    input.type = isPassword ? "text" : "password";
+    const showIcon = toggleBtn.querySelector(".eye-icon-show");
+    const hideIcon = toggleBtn.querySelector(".eye-icon-hide");
+    if (showIcon && hideIcon) {
+      if (isPassword) {
+        showIcon.classList.add("hidden");
+        hideIcon.classList.remove("hidden");
+        toggleBtn.setAttribute("aria-label", "Ocultar contraseña");
+      } else {
+        showIcon.classList.remove("hidden");
+        hideIcon.classList.add("hidden");
+        toggleBtn.setAttribute("aria-label", "Mostrar contraseña");
+      }
+    }
+  });
+
   // Manejador del Formulario de Autenticación en la Nube
   const cloudAuthForm = document.getElementById("cloud-auth-form");
   if (cloudAuthForm) {
     cloudAuthForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = document.getElementById("cloud-auth-email")?.value;
-      const pass = document.getElementById("cloud-auth-password")?.value;
+      const modal = document.getElementById("cloud-auth-modal");
+      const activeTab = modal?.getAttribute("data-active-tab") || "signup";
+      const email = (document.getElementById("cloud-auth-email")?.value || "").trim();
+      const pass = (document.getElementById("cloud-auth-password")?.value || "").trim();
+      const passConfirm = (document.getElementById("cloud-auth-password-confirm")?.value || "").trim();
       const errBox = document.getElementById("cloud-auth-error");
       const submitBtn = document.getElementById("cloud-auth-submit-btn");
 
-      if (submitBtn) submitBtn.disabled = true;
       if (errBox) errBox.classList.add("hidden");
 
-      const res = await CloudSync.signUpOrSignIn(email, pass);
+      if (!email || !email.includes("@")) {
+        if (errBox) {
+          errBox.textContent = "Ingresa un correo electrónico válido.";
+          errBox.classList.remove("hidden");
+        }
+        return;
+      }
+
+      if (!pass || pass.length < 6) {
+        if (errBox) {
+          errBox.textContent = "La contraseña debe tener al menos 6 caracteres.";
+          errBox.classList.remove("hidden");
+        }
+        return;
+      }
+
+      if (activeTab === "signup") {
+        if (pass !== passConfirm) {
+          if (errBox) {
+            errBox.textContent = "Las contraseñas no coinciden.";
+            errBox.classList.remove("hidden");
+          }
+          return;
+        }
+      }
+
+      if (submitBtn) submitBtn.disabled = true;
+
+      const res = activeTab === "signup"
+        ? await CloudSync.signUp(email, pass, AppState.shopConfig.name || "Comercio")
+        : await CloudSync.signIn(email, pass);
+
       if (submitBtn) submitBtn.disabled = false;
 
       if (!res.ok) {
@@ -8956,6 +9195,8 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         CloudSync.closeAuthModal();
         Toast.show("¡Sesión en la nube iniciada!", "☁️");
+        CloudSync.renderCloudStatusInUI();
+
         const remoteStores = await CloudSync.loadMyStoresFromCloud();
         if (remoteStores && remoteStores.length > 0) {
           AppState.storesList = remoteStores;
@@ -8985,14 +9226,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const superAdminCloseBtn = document.getElementById("superadmin-close-btn");
   if (superAdminCloseBtn) superAdminCloseBtn.addEventListener("click", () => CloudSync.closeSuperAdminModal());
-
-  // Botón Abrir Asistente desde Perfil de Empresa en Mi Tienda
-  const settingsWizardBtn = document.getElementById("btn-reopen-wizard-settings");
-  if (settingsWizardBtn) {
-    settingsWizardBtn.addEventListener("click", () => {
-      ViewController.showOnboarding(1);
-    });
-  }
 
   // 2. Botones de Difusión en Pestaña 1 (Mi Tienda)
   const storeCopyLinkBtn = document.getElementById("store-copy-link-btn");
