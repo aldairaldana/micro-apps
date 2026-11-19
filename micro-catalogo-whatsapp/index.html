@@ -67,48 +67,63 @@
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
                 </svg>
-                <span>TiendaZap Studio</span>
+                <span>TiendaZap</span>
               </div>
-              <h1 class="onboarding-title">Tu catálogo digital conectado a WhatsApp</h1>
-              <p class="onboarding-subtitle">Publica tus productos con fotos, videos y precios en S/ o US$. Recibe pedidos listos en tu WhatsApp y cobra con Yape o Plin.</p>
+              <h1 class="onboarding-title">TiendaZap</h1>
+              <p class="onboarding-subtitle">Crea tu tienda online y vende por WhatsApp en 2 minutos</p>
             </div>
 
-            <div class="onboarding-highlights">
-              <div class="onboarding-highlight-item">
-                <div class="highlight-icon">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-                    <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-                    <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-                    <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+            <div class="onboarding-feature-cards">
+              <div class="onboarding-feature-card feat-green">
+                <div class="feat-icon-wrap icon-green">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
                   </svg>
                 </div>
-                <span>Catálogo adaptable a tu rubro (Moda, Tech, Autos y más)</span>
+                <div class="feat-content">
+                  <strong class="feat-title">Catálogo adaptable a tu rubro</strong>
+                  <p class="feat-desc">Moda, Tech, Zapatillas, Comida y más con fotos, videos y tallas.</p>
+                </div>
               </div>
-              <div class="onboarding-highlight-item">
-                <div class="highlight-icon">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5">
+
+              <div class="onboarding-feature-card feat-blue">
+                <div class="feat-icon-wrap icon-blue">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="9" cy="21" r="1"></circle>
                     <circle cx="20" cy="21" r="1"></circle>
                     <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                   </svg>
                 </div>
-                <span>Carrito automático directo a tu WhatsApp</span>
+                <div class="feat-content">
+                  <strong class="feat-title">Carrito automático a WhatsApp</strong>
+                  <p class="feat-desc">Tus clientes arman su pedido y te lo envían ordenado en 1 toque.</p>
+                </div>
               </div>
-              <div class="onboarding-highlight-item">
-                <div class="highlight-icon">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="12" cy="12" r="9"></circle>
-                    <path d="M12 3a9 9 0 0 0 0 18v-18z"></path>
+
+              <div class="onboarding-feature-card feat-purple">
+                <div class="feat-icon-wrap icon-purple">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                    <line x1="1" y1="10" x2="23" y2="10"></line>
                   </svg>
                 </div>
-                <span>Personaliza colores, modo claro/oscuro y código QR</span>
+                <div class="feat-content">
+                  <strong class="feat-title">Cobros con Yape, Plin y QR</strong>
+                  <p class="feat-desc">Cero comisiones, con comprobantes directos en el chat.</p>
+                </div>
               </div>
+            </div>
+
+            <div class="onboarding-trust-badge">
+              <span class="trust-badge-dot">●</span>
+              <span>Gratis · Sin comisiones · Listo desde tu celular</span>
             </div>
 
             <div class="onboarding-actions">
               <button type="button" id="onboarding-btn-start" class="btn-primary-onboard">
-                <span>Crear mi tienda paso a paso →</span>
+                <span>Crear mi tienda ahora →</span>
               </button>
               <div id="onboarding-resume-link-wrap" class="onboarding-resume-wrap hidden" style="margin-top: 10px; text-align: center;">
                 <button type="button" id="onboarding-btn-resume" class="btn-link-subtle" style="font-size: 0.82rem; color: var(--app-text-muted); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 6px;">
@@ -130,7 +145,11 @@
                 <span>Atrás</span>
               </button>
               <div class="onboarding-step-indicator">
-                <span>Paso 1 de 4</span>
+                <div class="onboarding-step-text-wrap">
+                  <span class="step-num">Paso 1 de 4</span>
+                  <span class="step-dot">·</span>
+                  <span class="step-name">Tu negocio</span>
+                </div>
                 <div class="onboarding-progress-bar"><div class="onboarding-progress-fill" style="width: 25%;"></div></div>
               </div>
             </div>
@@ -201,7 +220,11 @@
                 <span>Atrás</span>
               </button>
               <div class="onboarding-step-indicator">
-                <span>Paso 2 de 4</span>
+                <div class="onboarding-step-text-wrap">
+                  <span class="step-num">Paso 2 de 4</span>
+                  <span class="step-dot">·</span>
+                  <span class="step-name">Perfil</span>
+                </div>
                 <div class="onboarding-progress-bar"><div class="onboarding-progress-fill" style="width: 50%;"></div></div>
               </div>
             </div>
@@ -298,7 +321,11 @@
                 <span>Atrás</span>
               </button>
               <div class="onboarding-step-indicator">
-                <span>Paso 3 de 4</span>
+                <div class="onboarding-step-text-wrap">
+                  <span class="step-num">Paso 3 de 4</span>
+                  <span class="step-dot">·</span>
+                  <span class="step-name">WhatsApp y Cobros</span>
+                </div>
                 <div class="onboarding-progress-bar"><div class="onboarding-progress-fill" style="width: 75%;"></div></div>
               </div>
             </div>
@@ -369,7 +396,11 @@
                 <span>Atrás</span>
               </button>
               <div class="onboarding-step-indicator">
-                <span>Paso 4 de 4</span>
+                <div class="onboarding-step-text-wrap">
+                  <span class="step-num">Paso 4 de 4</span>
+                  <span class="step-dot">·</span>
+                  <span class="step-name">Primer producto</span>
+                </div>
                 <div class="onboarding-progress-bar"><div class="onboarding-progress-fill" style="width: 100%;"></div></div>
               </div>
             </div>
@@ -630,11 +661,14 @@
 
           <!-- Card de Perfil de Empresa (Estilo WhatsApp Business) -->
           <section class="settings-section-card business-profile-card">
-            <div class="section-card-header-row">
-              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <h3 class="section-card-title" style="margin-bottom: 0;">Perfil de Empresa</h3>
-                <button type="button" id="btn-reopen-wizard-settings" class="btn-secondary-compact" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; background: rgba(56, 189, 248, 0.1);">
-                  🪄 Abrir Asistente
+            <div class="section-card-header-row" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                <h3 class="section-card-title" style="margin-bottom: 0; white-space: nowrap;">Perfil de Empresa</h3>
+                <button type="button" id="btn-reopen-wizard-settings" class="btn-secondary-compact" style="padding: 4px 8px; font-size: 0.75rem; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; background: rgba(56, 189, 248, 0.1); display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                  </svg>
+                  <span>Asistente</span>
                 </button>
               </div>
               <div class="store-status-switch-wrap">
@@ -865,6 +899,93 @@
             <button type="button" id="save-store-btn" class="btn-save-settings-compact"
               style="margin-top: 14px;">Guardar cambios</button>
           </section>
+
+          <!-- Card de Seguridad (PIN de Acceso) -->
+          <section class="settings-section-card security-pin-card" id="security-pin-card" style="margin-top: 14px;">
+            <div class="section-card-header-row" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="pin-card-icon-badge" style="width: 28px; height: 28px; border-radius: 8px; background: rgba(22, 163, 74, 0.12); color: #16a34a; display: flex; align-items: center; justify-content: center;">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="section-card-title" style="margin-bottom: 0;">Seguridad (PIN de acceso)</h3>
+                </div>
+              </div>
+              <span id="pin-status-pill" class="apple-status-pill closed">
+                <span class="apple-status-dot"></span>
+                <span id="pin-status-label">Desactivado</span>
+              </span>
+            </div>
+            <p class="section-card-desc" style="margin-top: 4px;">Protege el panel de administración en este celular para evitar modificaciones no deseadas.</p>
+
+            <!-- Vista cuando no hay PIN -->
+            <div id="pin-view-disabled" class="pin-subview">
+              <button type="button" id="btn-show-create-pin" class="btn-secondary-compact" style="padding: 7px 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <span>Crear PIN de seguridad</span>
+              </button>
+            </div>
+
+            <!-- Mini formulario Crear PIN -->
+            <div id="pin-form-create" class="pin-subview hidden" style="margin-top: 10px; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 12px;">
+              <label class="field-label-sm" for="input-new-pin">Ingresa un PIN numérico (4 a 6 dígitos):</label>
+              <div style="display: flex; gap: 8px; margin-top: 6px; align-items: center; flex-wrap: wrap;">
+                <input type="password" id="input-new-pin" class="input-modern" inputmode="numeric" maxlength="6" placeholder="••••" style="max-width: 140px; text-align: center; letter-spacing: 0.25em; font-weight: bold;">
+                <button type="button" id="btn-confirm-create-pin" class="btn-save-product" style="padding: 7px 16px; font-size: 0.82rem;">Guardar PIN</button>
+                <button type="button" id="btn-cancel-create-pin" class="btn-secondary-compact" style="padding: 7px 12px; font-size: 0.82rem;">Cancelar</button>
+              </div>
+              <span id="pin-create-error" class="pin-inline-error hidden" style="color: #ef4444; font-size: 0.78rem; display: block; margin-top: 4px;">Debe tener entre 4 y 6 números.</span>
+            </div>
+
+            <!-- Vista cuando el PIN está activo -->
+            <div id="pin-view-enabled" class="pin-subview hidden">
+              <p style="font-size: 0.82rem; color: #16a34a; font-weight: 500; margin: 4px 0 10px;">✓ Tu panel está protegido con PIN.</p>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" id="btn-show-change-pin" class="btn-secondary-compact" style="padding: 6px 12px; font-size: 0.8rem;">
+                  Cambiar PIN
+                </button>
+                <button type="button" id="btn-show-remove-pin" class="btn-secondary-compact" style="padding: 6px 12px; font-size: 0.8rem; color: #ef4444;">
+                  Quitar PIN
+                </button>
+              </div>
+            </div>
+
+            <!-- Mini formulario Cambiar PIN -->
+            <div id="pin-form-change" class="pin-subview hidden" style="margin-top: 10px; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 12px;">
+              <div class="form-grid-2">
+                <div class="editor-field-group">
+                  <label class="field-label-sm" for="input-current-pin">PIN Actual:</label>
+                  <input type="password" id="input-current-pin" class="input-modern" inputmode="numeric" maxlength="6" placeholder="••••" style="text-align: center; letter-spacing: 0.25em;">
+                </div>
+                <div class="editor-field-group">
+                  <label class="field-label-sm" for="input-change-new-pin">Nuevo PIN (4-6 dígitos):</label>
+                  <input type="password" id="input-change-new-pin" class="input-modern" inputmode="numeric" maxlength="6" placeholder="••••" style="text-align: center; letter-spacing: 0.25em;">
+                </div>
+              </div>
+              <div style="display: flex; gap: 8px; margin-top: 8px;">
+                <button type="button" id="btn-confirm-change-pin" class="btn-save-product" style="padding: 7px 16px; font-size: 0.82rem;">Actualizar PIN</button>
+                <button type="button" id="btn-cancel-change-pin" class="btn-secondary-compact" style="padding: 7px 12px; font-size: 0.82rem;">Cancelar</button>
+              </div>
+              <span id="pin-change-error" class="pin-inline-error hidden" style="color: #ef4444; font-size: 0.78rem; display: block; margin-top: 4px;"></span>
+            </div>
+
+            <!-- Mini formulario Quitar PIN -->
+            <div id="pin-form-remove" class="pin-subview hidden" style="margin-top: 10px; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 12px;">
+              <label class="field-label-sm" for="input-remove-current-pin">Ingresa tu PIN actual para desactivarlo:</label>
+              <div style="display: flex; gap: 8px; margin-top: 6px; align-items: center; flex-wrap: wrap;">
+                <input type="password" id="input-remove-current-pin" class="input-modern" inputmode="numeric" maxlength="6" placeholder="••••" style="max-width: 140px; text-align: center; letter-spacing: 0.25em;">
+                <button type="button" id="btn-confirm-remove-pin" class="btn-save-product" style="padding: 7px 16px; font-size: 0.82rem; background: #ef4444 !important;">Desactivar PIN</button>
+                <button type="button" id="btn-cancel-remove-pin" class="btn-secondary-compact" style="padding: 7px 12px; font-size: 0.82rem;">Cancelar</button>
+              </div>
+              <span id="pin-remove-error" class="pin-inline-error hidden" style="color: #ef4444; font-size: 0.78rem; display: block; margin-top: 4px;">PIN incorrecto.</span>
+            </div>
+          </section>
         </div>
 
         <!-- =============================================================
@@ -958,7 +1079,7 @@
                   <input type="file" id="editor-file-input" accept="image/*" multiple class="hidden">
                   <div class="editor-photos-strip" id="editor-photos-strip"></div>
                   <div class="photo-url-fallback-row">
-                    <button type="button" id="editor-trigger-file-btn" class="btn-alt-sm">+ Agregar Fotos</button>
+                    <button type="button" id="editor-trigger-file-btn" class="btn-alt-sm hidden" style="display: none !important;">+ Agregar Fotos</button>
                   </div>
                   <input type="url" id="editor-url-input" class="input-modern hidden"
                     placeholder="https://ejemplo.com/foto.jpg">
@@ -1826,45 +1947,74 @@
 
     <!-- 3. MODAL CÓDIGO QR FIJO PARA IMPRIMIR -->
     <div class="overlay qr-modal-overlay hidden" id="qr-modal">
-      <div class="qr-modal-card">
-        <button id="close-qr-btn" class="close-sheet-btn" type="button">✕</button>
-        <div class="qr-header">
-          <span class="qr-badge">🔲 CÓDIGO QR FIJO INTELIGENTE</span>
-          <h2 class="qr-title" id="qr-store-title">BurgerZap & Grill</h2>
-          <p class="qr-desc">Imprime este código una sola vez. Si cambias precios o productos en el menú, el QR seguirá
-            funcionando igual sin tener que volver a imprimir.</p>
-        </div>
-
-        <!-- Selector de Destino -->
-        <div class="qr-target-selector">
-          <div class="qr-type-pills">
-            <button type="button" class="qr-pill-btn active" id="qr-pill-general">🌐 General / Redes</button>
-            <button type="button" class="qr-pill-btn" id="qr-pill-table">🍽️ Mesa Específica</button>
+        <div class="qr-modal-card">
+          <button id="close-qr-btn" class="close-sheet-btn" type="button">✕</button>
+          <div class="qr-header">
+            <span class="qr-badge" style="display: inline-flex; align-items: center; gap: 5px;">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              <span>CÓDIGO QR INTELIGENTE</span>
+            </span>
+            <h2 class="qr-title" id="qr-store-title">BurgerZap & Grill</h2>
+            <p class="qr-desc">Imprime este código una sola vez. Si cambias precios o productos en tu catálogo, el QR seguirá funcionando igual sin tener que volver a imprimir.</p>
           </div>
-          <div class="qr-table-input-row hidden" id="qr-table-input-row">
-            <label for="qr-table-number">Número o Nombre de la Mesa:</label>
-            <input type="text" id="qr-table-number" class="form-input" placeholder="Ej: Mesa 1, Mesa 2, Barra"
-              value="Mesa 1">
-          </div>
-          <div class="qr-catalog-select-row hidden" id="qr-catalog-select-row">
-            <label for="qr-catalog-select" class="qr-field-label">Catálogo a generar:</label>
-            <select id="qr-catalog-select" class="form-input"></select>
-          </div>
-        </div>
 
-        <div class="qr-canvas-wrapper" id="qr-canvas-wrapper">
-          <canvas id="qr-canvas" width="240" height="240"></canvas>
-        </div>
+          <!-- Selector de Destino -->
+          <div class="qr-target-selector" id="qr-target-selector">
+            <div class="qr-type-pills" id="qr-type-pills-container">
+              <button type="button" class="qr-pill-btn active" id="qr-pill-general" style="display: inline-flex; align-items: center; gap: 5px;">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="2" y1="12" x2="22" y2="12"></line>
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+                <span>General / Redes</span>
+              </button>
+              <button type="button" class="qr-pill-btn" id="qr-pill-table" style="display: inline-flex; align-items: center; gap: 5px;">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 2v20M6 2v20M2 7h20M2 17h20"></path>
+                </svg>
+                <span>Mesa Específica</span>
+              </button>
+            </div>
+            <div class="qr-table-input-row hidden" id="qr-table-input-row">
+              <label for="qr-table-number">Número o Nombre de la Mesa:</label>
+              <input type="text" id="qr-table-number" class="form-input" placeholder="Ej: Mesa 1, Mesa 2, Barra"
+                value="Mesa 1">
+            </div>
+            <div class="qr-catalog-select-row hidden" id="qr-catalog-select-row">
+              <label for="qr-catalog-select" class="qr-field-label">Catálogo a generar:</label>
+              <select id="qr-catalog-select" class="form-input"></select>
+            </div>
+          </div>
 
-        <div class="qr-actions">
-          <button id="download-qr-btn" class="btn-save-product" type="button">⬇️ Descargar Código QR (PNG)</button>
-          <button id="copy-link-btn" class="btn-alt-sm" style="padding: 10px;" type="button">📋 Copiar Enlace
-            Directo</button>
+          <div class="qr-canvas-wrapper" id="qr-canvas-wrapper">
+            <canvas id="qr-canvas" width="240" height="240"></canvas>
+          </div>
+
+          <div class="qr-actions">
+            <button id="download-qr-btn" class="btn-save-product" type="button" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
+              </svg>
+              <span>Descargar Código QR (PNG)</span>
+            </button>
+            <button id="copy-link-btn" class="btn-alt-sm" style="padding: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;" type="button">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copiar Enlace Directo</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-
-    <!-- 4. MODAL TICKET DE CONFIRMACIÓN -->
+      
+      <!-- 4. MODAL TICKET DE CONFIRMACIÓN -->
     <div class="overlay ticket-modal-overlay hidden" id="ticket-modal">
       <div class="ticket-card">
         <div class="ticket-celebrate-badge">🎉 ¡PEDIDO GENERADO CON ÉXITO!</div>
@@ -2081,6 +2231,28 @@
         <div class="editor-modal-footer">
           <button type="button" id="btn-cancel-create-store" class="btn-secondary-compact">Cancelar</button>
           <button type="button" id="btn-confirm-create-store" class="btn-save-product">Crear y administrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. MODAL DE DESBLOQUEO DE PIN NATIVO -->
+    <div class="overlay pin-lock-modal-overlay hidden" id="pin-lock-modal" aria-modal="true" role="dialog">
+      <div class="pin-lock-card">
+        <div class="pin-lock-icon-wrap">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <h2 class="pin-lock-title">Panel protegido</h2>
+        <p class="pin-lock-subtitle">Ingresa tu PIN de seguridad para acceder al panel de administración</p>
+        <div class="pin-lock-input-wrap">
+          <input type="password" id="pin-lock-input" class="pin-lock-input" inputmode="numeric" maxlength="6" placeholder="••••" autocomplete="off">
+        </div>
+        <p id="pin-lock-error" class="pin-lock-error-text hidden">PIN incorrecto. Inténtalo de nuevo.</p>
+        <div class="pin-lock-actions">
+          <button type="button" id="pin-lock-submit-btn" class="btn-save-product pin-lock-btn-submit">Desbloquear</button>
+          <button type="button" id="pin-lock-cancel-btn" class="btn-secondary-compact pin-lock-btn-cancel">Ver vitrina pública</button>
         </div>
       </div>
     </div>

@@ -2558,12 +2558,8 @@ const ViewController = {
   showStudio() {
     if (AppState.merchant && AppState.merchant.pin && AppState.merchant.pin.length >= 4) {
       if (sessionStorage.getItem("tiendazap_pin_unlocked") !== "true") {
-        const enteredPin = prompt("🔒 Ingresa tu PIN de seguridad (4 a 6 dígitos) para acceder al panel de administración:");
-        if (!enteredPin || enteredPin.trim() !== AppState.merchant.pin.trim()) {
-          Toast.show("PIN incorrecto o acceso denegado", "🔒");
-          return;
-        }
-        sessionStorage.setItem("tiendazap_pin_unlocked", "true");
+        PinLockController.openUnlockModal();
+        return;
       }
     }
 
@@ -2646,19 +2642,27 @@ const OnboardingWizard = {
   uploadedProdImg: "",
 
   goToStep(step) {
+    const prev = this.currentStep !== undefined ? this.currentStep : 0;
+    const direction = step >= prev ? "forward" : "backward";
     this.currentStep = step;
     const obScreen = document.getElementById("onboarding-screen");
     if (obScreen) {
       obScreen.classList.remove("hidden");
       obScreen.classList.add("active");
     }
-    // Mostrar únicamente la pantalla solicitada (0 a 4)
+    // Mostrar únicamente la pantalla solicitada (0 a 4) con animación acelerada por GPU
     for (let i = 0; i <= 4; i++) {
       const stepEl = document.getElementById(`onboarding-step-${i}`);
       if (stepEl) {
         if (i === step) {
           stepEl.classList.remove("hidden");
           stepEl.classList.add("active");
+          const card = stepEl.querySelector(".onboarding-card");
+          if (card) {
+            card.classList.remove("step-anim-forward", "step-anim-backward");
+            void card.offsetWidth;
+            card.classList.add(direction === "forward" ? "step-anim-forward" : "step-anim-backward");
+          }
         } else {
           stepEl.classList.add("hidden");
           stepEl.classList.remove("active");
@@ -2907,18 +2911,26 @@ const OnboardingWizard = {
       });
     }
 
-    // Chips rápidos de horario
+    // Chips rápidos de horario con feedback visual activo
     const hoursChips = document.querySelectorAll(".ob-chip-btn");
     const storeHoursInp = document.getElementById("ob-store-hours");
     hoursChips.forEach(chip => {
       chip.addEventListener("click", (e) => {
         e.preventDefault();
+        hoursChips.forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
         const val = chip.getAttribute("data-hours");
         if (storeHoursInp && val) {
           storeHoursInp.value = val;
         }
       });
     });
+    if (storeHoursInp) {
+      storeHoursInp.addEventListener("input", () => {
+        const currentVal = storeHoursInp.value.trim();
+        hoursChips.forEach(c => c.classList.toggle("active", c.getAttribute("data-hours") === currentVal));
+      });
+    }
 
     // Paso 2: Botón Continuar y Saltar
     const step2Next = document.getElementById("ob-btn-step2-next");
@@ -3356,14 +3368,84 @@ const StudioController = {
   },
 
   updateVariantInputLabels() {
-    const nicheInfo = NICHE_DATA[AppState.activePreset] || NICHE_DATA.general;
+    const currentNiche = (AppState.shopConfig && AppState.shopConfig.niche) || AppState.activePreset || "general";
+    const nicheInfo = NICHE_DATA[currentNiche] || NICHE_DATA[AppState.activePreset] || NICHE_DATA.general;
+    
     const sizesLabel = document.getElementById("editor-sizes-label");
     const colorsLabel = document.getElementById("editor-colors-label");
-    if (sizesLabel && nicheInfo.variantLabels?.size) {
-      sizesLabel.textContent = `${nicheInfo.variantLabels.size} (separadas por coma)`;
+    const sizesInput = document.getElementById("editor-sizes-input");
+    const colorsInput = document.getElementById("editor-colors-input");
+
+    const VARIANTS_CONFIG = {
+      fashion: {
+        sizePlaceholder: "Ej: S, M, L, XL",
+        colorPlaceholder: "Ej: Negro, Blanco, Beige",
+        sizeLabel: "Tallas disponibles",
+        colorLabel: "Colores"
+      },
+      sneakers: {
+        sizePlaceholder: "Ej: 38, 39, 40, 41, 42",
+        colorPlaceholder: "Ej: Blanco, Negro, Rojo",
+        sizeLabel: "Tallas (EUR / US)",
+        colorLabel: "Color / Modelo"
+      },
+      tech: {
+        sizePlaceholder: "Ej: 1 Mes, 6 Meses, 1 Año",
+        colorPlaceholder: "Ej: 1 PC, 2 Dispositivos, Con tu correo",
+        sizeLabel: "Duración / Planes",
+        colorLabel: "Dispositivos / Modalidad"
+      },
+      digital: {
+        sizePlaceholder: "Ej: 1 Mes, 6 Meses, 1 Año",
+        colorPlaceholder: "Ej: 1 PC, 2 Dispositivos, Con tu correo",
+        sizeLabel: "Duración / Planes",
+        colorLabel: "Dispositivos / Modalidad"
+      },
+      beauty: {
+        sizePlaceholder: "Ej: 5ml, 10ml, 100ml",
+        colorPlaceholder: "Ej: Dulce, Amaderado, Floral",
+        sizeLabel: "Presentación / Tamaño",
+        colorLabel: "Tono / Fragancia"
+      },
+      food: {
+        sizePlaceholder: "Ej: Personal, Mediano, Familiar",
+        colorPlaceholder: "Ej: Chocolate, Vainilla, Sin azúcar",
+        sizeLabel: "Porción / Tamaño",
+        colorLabel: "Sabor / Variedad"
+      },
+      watches: {
+        sizePlaceholder: "Ej: 40mm, 42mm, Caja Estándar",
+        colorPlaceholder: "Ej: Dorado, Plateado, Negro",
+        sizeLabel: "Tamaño / Modelo",
+        colorLabel: "Color de Correa / Esfera"
+      },
+      vehicles: {
+        sizePlaceholder: "Ej: 2022, 2023, 2024",
+        colorPlaceholder: "Ej: Blanco Perlado, Negro, Gris",
+        sizeLabel: "Año / Versión",
+        colorLabel: "Color exterior"
+      },
+      general: {
+        sizePlaceholder: "Ej: Estándar, Mediano, Grande",
+        colorPlaceholder: "Ej: Negro, Azul, Rojo",
+        sizeLabel: "Variantes / Tamaño",
+        colorLabel: "Color / Opciones"
+      }
+    };
+
+    const cfg = VARIANTS_CONFIG[currentNiche] || VARIANTS_CONFIG[AppState.activePreset] || VARIANTS_CONFIG.general;
+
+    if (sizesLabel) {
+      sizesLabel.textContent = `${cfg.sizeLabel} (separadas por coma)`;
     }
-    if (colorsLabel && nicheInfo.variantLabels?.color) {
-      colorsLabel.textContent = `${nicheInfo.variantLabels.color} (opcional)`;
+    if (colorsLabel) {
+      colorsLabel.textContent = `${cfg.colorLabel} (opcional)`;
+    }
+    if (sizesInput) {
+      sizesInput.placeholder = cfg.sizePlaceholder;
+    }
+    if (colorsInput) {
+      colorsInput.placeholder = cfg.colorPlaceholder;
     }
   },
 
@@ -3381,6 +3463,7 @@ const StudioController = {
     const nameDisplay = document.getElementById("studio-store-name-display");
     if (nameDisplay) nameDisplay.textContent = AppState.shopConfig.name || "Mi Tienda";
     this.syncAllLogoElements(AppState.shopConfig.logoUrl);
+    if (window.PinLockController) window.PinLockController.syncPinSettingsCard();
   },
 
   syncAllLogoElements(url) {
@@ -6748,40 +6831,8 @@ const QRGenerator = {
       }
     }
 
-    // Logo central verde (#00d26a) con ícono 🍽️ o ⚡
-    // En nivel H (30% tolerancia), un recuadro central de ~18-20% de módulos se lee al 100%
-    const logoModuleSpan = Math.max(5, Math.floor(modules * 0.18));
-    const logoSize = cellSize * logoModuleSpan;
-    const center = size / 2;
-
-    // Borde blanco protector
-    ctx.fillStyle = "#ffffff";
-    ctx.beginPath();
-    if (ctx.roundRect) {
-      ctx.roundRect(center - logoSize / 2 - 3, center - logoSize / 2 - 3, logoSize + 6, logoSize + 6, 6);
-    } else {
-      ctx.rect(center - logoSize / 2 - 3, center - logoSize / 2 - 3, logoSize + 6, logoSize + 6);
-    }
-    ctx.fill();
-
-    // Recuadro verde (#00d26a)
-    ctx.fillStyle = "#00d26a";
-    ctx.beginPath();
-    if (ctx.roundRect) {
-      ctx.roundRect(center - logoSize / 2, center - logoSize / 2, logoSize, logoSize, 5);
-    } else {
-      ctx.rect(center - logoSize / 2, center - logoSize / 2, logoSize, logoSize);
-    }
-    ctx.fill();
-
-    // Ícono en el centro
-    const nicheInfo = NICHE_DATA[AppState.activePreset] || NICHE_DATA.general;
-    const isFoodOrTable = this.isTableMode || (nicheInfo && nicheInfo.hasDineIn);
-    ctx.fillStyle = "#080c14";
-    ctx.font = `bold ${Math.round(logoSize * 0.55)}px system-ui, -apple-system, sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(isFoodOrTable ? "🍽️" : "⚡", center, center);
+    // QR limpio con quietZone de 16px sin iconos centrales que bloqueen el escaneo en celulares
+    // La lectura de cámara funciona instantáneamente al 100%
   },
 
   getCleanDisplayUrl(catalogSlug = "") {
@@ -6900,6 +6951,15 @@ const QRGenerator = {
     return this.getTargetUrl(false, true);
   },
 
+  getOptimalQRUrl(catalogSlug = "") {
+    // Si la URL portable comprimida cabe (< 1600 caracteres), la usamos para que cualquier celular escanee y vea el catálogo de inmediato
+    const portableUrl = this.getTargetUrl(true, true, catalogSlug);
+    if (portableUrl && portableUrl.length < 1600) {
+      return portableUrl;
+    }
+    return this.getTargetUrl(true, false, catalogSlug);
+  },
+
   openQRModal() {
     const modal = document.getElementById("qr-modal");
     const canvas = document.getElementById("qr-canvas");
@@ -6910,14 +6970,16 @@ const QRGenerator = {
     const qrTableInputRow = document.getElementById("qr-table-input-row");
     const qrCatRow = document.getElementById("qr-catalog-select-row");
     const qrCatSelect = document.getElementById("qr-catalog-select");
+    const pillsContainer = document.getElementById("qr-type-pills-container") || document.querySelector(".qr-type-pills");
 
-    if (qrPillTable) {
-      if (nicheInfo.hasDineIn) {
-        qrPillTable.style.display = "inline-flex";
+    if (pillsContainer) {
+      if (nicheInfo && nicheInfo.hasDineIn) {
+        pillsContainer.style.display = "flex";
+        if (qrPillTable) qrPillTable.style.display = "inline-flex";
       } else {
-        qrPillTable.style.display = "none";
+        // En rubros no gastronómicos ocultar el contenedor completo para no dejar barra vacía
+        pillsContainer.style.display = "none";
         this.isTableMode = false;
-        if (qrPillGeneral) qrPillGeneral.classList.add("active");
         if (qrTableInputRow) qrTableInputRow.classList.add("hidden");
       }
     }
@@ -6943,7 +7005,7 @@ const QRGenerator = {
 
     if (titleEl) titleEl.textContent = AppState.shopConfig.name;
     const initialSlug = (qrCatSelect && !qrCatRow?.classList.contains("hidden")) ? qrCatSelect.value : "";
-    this.renderStoreQR(canvas, this.getTargetUrl(true, false, initialSlug));
+    this.renderStoreQR(canvas, this.getOptimalQRUrl(initialSlug));
 
     if (modal) modal.classList.remove("hidden");
   },
@@ -6966,6 +7028,249 @@ const QRGenerator = {
     Toast.show("Código QR descargado", "⬇️");
   }
 };
+
+// ============================================================================
+// 12.5. PIN LOCK CONTROLLER (GESTIÓN Y MODAL 100% IN-APP)
+// ============================================================================
+const PinLockController = {
+  init() {
+    const submitBtn = document.getElementById("pin-lock-submit-btn");
+    const cancelBtn = document.getElementById("pin-lock-cancel-btn");
+    const input = document.getElementById("pin-lock-input");
+
+    if (submitBtn) {
+      submitBtn.addEventListener("click", () => this.handleUnlock());
+    }
+    if (cancelBtn) {
+      cancelBtn.addEventListener("click", () => {
+        this.closeUnlockModal();
+        ViewController.showCustomerPreview();
+      });
+    }
+    if (input) {
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          this.handleUnlock();
+        }
+      });
+      input.addEventListener("input", () => {
+        const err = document.getElementById("pin-lock-error");
+        if (err) err.classList.add("hidden");
+      });
+    }
+
+    this.initSettingsCardEvents();
+    this.syncPinSettingsCard();
+  },
+
+  openUnlockModal() {
+    const modal = document.getElementById("pin-lock-modal");
+    const input = document.getElementById("pin-lock-input");
+    const err = document.getElementById("pin-lock-error");
+    if (err) err.classList.add("hidden");
+    if (input) {
+      input.value = "";
+    }
+    if (modal) {
+      modal.classList.remove("hidden");
+      const card = modal.querySelector(".pin-lock-card");
+      if (card) card.classList.remove("pin-modal-shake");
+      setTimeout(() => { if (input) input.focus(); }, 120);
+    }
+  },
+
+  closeUnlockModal() {
+    const modal = document.getElementById("pin-lock-modal");
+    if (modal) modal.classList.add("hidden");
+  },
+
+  handleUnlock() {
+    const input = document.getElementById("pin-lock-input");
+    const err = document.getElementById("pin-lock-error");
+    const modal = document.getElementById("pin-lock-modal");
+    const entered = (input?.value || "").trim();
+    const actualPin = (AppState.merchant && AppState.merchant.pin ? AppState.merchant.pin.trim() : "");
+
+    if (entered && entered === actualPin) {
+      sessionStorage.setItem("tiendazap_pin_unlocked", "true");
+      this.closeUnlockModal();
+      Toast.show("Acceso concedido al panel", "🔓");
+      ViewController.showStudio();
+    } else {
+      if (err) {
+        err.textContent = "PIN incorrecto. Inténtalo de nuevo.";
+        err.classList.remove("hidden");
+      }
+      if (modal) {
+        const card = modal.querySelector(".pin-lock-card");
+        if (card) {
+          card.classList.remove("pin-modal-shake");
+          void card.offsetWidth;
+          card.classList.add("pin-modal-shake");
+        }
+      }
+      if (input) {
+        input.value = "";
+        input.focus();
+      }
+    }
+  },
+
+  initSettingsCardEvents() {
+    const btnShowCreate = document.getElementById("btn-show-create-pin");
+    const formCreate = document.getElementById("pin-form-create");
+    const btnCancelCreate = document.getElementById("btn-cancel-create-pin");
+    const btnConfirmCreate = document.getElementById("btn-confirm-create-pin");
+    const inputNewPin = document.getElementById("input-new-pin");
+    const createError = document.getElementById("pin-create-error");
+
+    if (btnShowCreate) {
+      btnShowCreate.addEventListener("click", () => {
+        if (formCreate) formCreate.classList.remove("hidden");
+        if (inputNewPin) { inputNewPin.value = ""; inputNewPin.focus(); }
+        if (createError) createError.classList.add("hidden");
+      });
+    }
+    if (btnCancelCreate) {
+      btnCancelCreate.addEventListener("click", () => {
+        if (formCreate) formCreate.classList.add("hidden");
+      });
+    }
+    if (btnConfirmCreate) {
+      btnConfirmCreate.addEventListener("click", () => {
+        const val = (inputNewPin?.value || "").trim();
+        if (!/^\d{4,6}$/.test(val)) {
+          if (createError) {
+            createError.textContent = "El PIN debe tener entre 4 y 6 números.";
+            createError.classList.remove("hidden");
+          }
+          return;
+        }
+        if (!AppState.merchant) AppState.merchant = {};
+        AppState.merchant.pin = val;
+        AppState.saveMerchant();
+        sessionStorage.setItem("tiendazap_pin_unlocked", "true");
+        this.syncPinSettingsCard();
+        Toast.show("PIN de seguridad activado con éxito", "🔒");
+      });
+    }
+
+    const btnShowChange = document.getElementById("btn-show-change-pin");
+    const formChange = document.getElementById("pin-form-change");
+    const btnCancelChange = document.getElementById("btn-cancel-change-pin");
+    const btnConfirmChange = document.getElementById("btn-confirm-change-pin");
+    const inputCurrentPin = document.getElementById("input-current-pin");
+    const inputChangeNewPin = document.getElementById("input-change-new-pin");
+    const changeError = document.getElementById("pin-change-error");
+
+    if (btnShowChange) {
+      btnShowChange.addEventListener("click", () => {
+        if (formChange) formChange.classList.remove("hidden");
+        if (inputCurrentPin) { inputCurrentPin.value = ""; inputCurrentPin.focus(); }
+        if (inputChangeNewPin) inputChangeNewPin.value = "";
+        if (changeError) changeError.classList.add("hidden");
+      });
+    }
+    if (btnCancelChange) {
+      btnCancelChange.addEventListener("click", () => {
+        if (formChange) formChange.classList.add("hidden");
+      });
+    }
+    if (btnConfirmChange) {
+      btnConfirmChange.addEventListener("click", () => {
+        const curr = (inputCurrentPin?.value || "").trim();
+        const nw = (inputChangeNewPin?.value || "").trim();
+        const actual = (AppState.merchant && AppState.merchant.pin ? AppState.merchant.pin.trim() : "");
+
+        if (curr !== actual) {
+          if (changeError) {
+            changeError.textContent = "El PIN actual no coincide.";
+            changeError.classList.remove("hidden");
+          }
+          return;
+        }
+        if (!/^\d{4,6}$/.test(nw)) {
+          if (changeError) {
+            changeError.textContent = "El nuevo PIN debe tener entre 4 y 6 números.";
+            changeError.classList.remove("hidden");
+          }
+          return;
+        }
+        AppState.merchant.pin = nw;
+        AppState.saveMerchant();
+        this.syncPinSettingsCard();
+        Toast.show("PIN de seguridad actualizado", "✅");
+      });
+    }
+
+    const btnShowRemove = document.getElementById("btn-show-remove-pin");
+    const formRemove = document.getElementById("pin-form-remove");
+    const btnCancelRemove = document.getElementById("btn-cancel-remove-pin");
+    const btnConfirmRemove = document.getElementById("btn-confirm-remove-pin");
+    const inputRemoveCurrentPin = document.getElementById("input-remove-current-pin");
+    const removeError = document.getElementById("pin-remove-error");
+
+    if (btnShowRemove) {
+      btnShowRemove.addEventListener("click", () => {
+        if (formRemove) formRemove.classList.remove("hidden");
+        if (inputRemoveCurrentPin) { inputRemoveCurrentPin.value = ""; inputRemoveCurrentPin.focus(); }
+        if (removeError) removeError.classList.add("hidden");
+      });
+    }
+    if (btnCancelRemove) {
+      btnCancelRemove.addEventListener("click", () => {
+        if (formRemove) formRemove.classList.add("hidden");
+      });
+    }
+    if (btnConfirmRemove) {
+      btnConfirmRemove.addEventListener("click", () => {
+        const curr = (inputRemoveCurrentPin?.value || "").trim();
+        const actual = (AppState.merchant && AppState.merchant.pin ? AppState.merchant.pin.trim() : "");
+        if (curr !== actual) {
+          if (removeError) {
+            removeError.textContent = "PIN incorrecto.";
+            removeError.classList.remove("hidden");
+          }
+          return;
+        }
+        AppState.merchant.pin = "";
+        AppState.saveMerchant();
+        sessionStorage.removeItem("tiendazap_pin_unlocked");
+        this.syncPinSettingsCard();
+        Toast.show("PIN de seguridad desactivado", "🔓");
+      });
+    }
+  },
+
+  syncPinSettingsCard() {
+    const hasPin = !!(AppState.merchant && AppState.merchant.pin && AppState.merchant.pin.length >= 4);
+    const pill = document.getElementById("pin-status-pill");
+    const label = document.getElementById("pin-status-label");
+    const viewDisabled = document.getElementById("pin-view-disabled");
+    const viewEnabled = document.getElementById("pin-view-enabled");
+    const formCreate = document.getElementById("pin-form-create");
+    const formChange = document.getElementById("pin-form-change");
+    const formRemove = document.getElementById("pin-form-remove");
+
+    if (formCreate) formCreate.classList.add("hidden");
+    if (formChange) formChange.classList.add("hidden");
+    if (formRemove) formRemove.classList.add("hidden");
+
+    if (pill && label) {
+      if (hasPin) {
+        pill.className = "apple-status-pill open";
+        label.textContent = "Activado";
+      } else {
+        pill.className = "apple-status-pill closed";
+        label.textContent = "Desactivado";
+      }
+    }
+    if (viewDisabled) viewDisabled.classList.toggle("hidden", hasPin);
+    if (viewEnabled) viewEnabled.classList.toggle("hidden", !hasPin);
+  }
+};
+window.PinLockController = PinLockController;
 
 // ============================================================================
 // 12. TOAST NOTIFICACIONES FLOTANTES
@@ -7020,6 +7325,7 @@ document.addEventListener("DOMContentLoaded", () => {
     AppTheme.init();
     AppState.init();
     OnboardingWizard.init();
+    PinLockController.init();
   } catch (err) {
     console.error("Error en AppState.init:", err);
   }
@@ -7969,7 +8275,8 @@ document.addEventListener("DOMContentLoaded", () => {
       qrPillGeneral.classList.add("active");
       qrPillTable.classList.remove("active");
       if (qrTableInputRow) qrTableInputRow.classList.add("hidden");
-      QRGenerator.renderStoreQR(qrCanvas, QRGenerator.getTargetUrl());
+      const qrCatSelect = document.getElementById("qr-catalog-select");
+      QRGenerator.renderStoreQR(qrCanvas, QRGenerator.getOptimalQRUrl(qrCatSelect?.value || ""));
     });
 
     qrPillTable.addEventListener("click", () => {
@@ -7977,14 +8284,16 @@ document.addEventListener("DOMContentLoaded", () => {
       qrPillTable.classList.add("active");
       qrPillGeneral.classList.remove("active");
       if (qrTableInputRow) qrTableInputRow.classList.remove("hidden");
-      QRGenerator.renderStoreQR(qrCanvas, QRGenerator.getTargetUrl());
+      const qrCatSelect = document.getElementById("qr-catalog-select");
+      QRGenerator.renderStoreQR(qrCanvas, QRGenerator.getOptimalQRUrl(qrCatSelect?.value || ""));
     });
   }
 
   if (qrTableInput) {
     qrTableInput.addEventListener("input", () => {
       if (QRGenerator.isTableMode) {
-        QRGenerator.renderStoreQR(qrCanvas, QRGenerator.getTargetUrl());
+        const qrCatSelect = document.getElementById("qr-catalog-select");
+        QRGenerator.renderStoreQR(qrCanvas, QRGenerator.getOptimalQRUrl(qrCatSelect?.value || ""));
       }
     });
   }
@@ -7994,8 +8303,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (qrCatalogSelect) {
     qrCatalogSelect.addEventListener("change", () => {
       if (qrCanvas) {
-        const targetUrl = QRGenerator.getTargetUrl(true, false, qrCatalogSelect.value);
-        QRGenerator.renderStoreQR(qrCanvas, targetUrl);
+        QRGenerator.renderStoreQR(qrCanvas, QRGenerator.getOptimalQRUrl(qrCatalogSelect.value));
       }
     });
   }

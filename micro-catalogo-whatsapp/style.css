@@ -9668,3 +9668,531 @@ body[data-app-theme="light"] .cat-emoji-picker-btn,
   background: #ffffff !important;
   border: 1px solid #cbd5e1 !important;
 }
+
+/* ===================================================================
+   MODAL PRODUCTO EN MODO CLARO (#studio-product-modal)
+   =================================================================== */
+body[data-app-theme="light"] #studio-product-modal,
+[data-app-theme="light"] #studio-product-modal {
+  background: rgba(15, 23, 42, 0.65) !important;
+}
+
+body[data-app-theme="light"] #studio-product-modal .product-editor-modal-card,
+[data-app-theme="light"] #studio-product-modal .product-editor-modal-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.15) !important;
+}
+
+body[data-app-theme="light"] #studio-product-modal .editor-modal-header,
+body[data-app-theme="light"] #studio-product-modal .editor-modal-footer,
+[data-app-theme="light"] #studio-product-modal .editor-modal-header,
+[data-app-theme="light"] #studio-product-modal .editor-modal-footer {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+body[data-app-theme="light"] #studio-product-modal #editor-form-title,
+[data-app-theme="light"] #studio-product-modal #editor-form-title {
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] #studio-product-modal #close-editor-btn,
+[data-app-theme="light"] #studio-product-modal #close-editor-btn {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+body[data-app-theme="light"] #studio-product-modal .editor-type-compact-bar,
+[data-app-theme="light"] #studio-product-modal .editor-type-compact-bar {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] #studio-product-modal .editor-type-active-badge,
+[data-app-theme="light"] #studio-product-modal .editor-type-active-badge,
+body[data-app-theme="light"] #studio-product-modal #editor-type-badge-text,
+[data-app-theme="light"] #studio-product-modal #editor-type-badge-text {
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] #studio-product-modal label,
+body[data-app-theme="light"] #studio-product-modal .editor-field-group label,
+body[data-app-theme="light"] #studio-product-modal .label-with-action label,
+[data-app-theme="light"] #studio-product-modal label,
+[data-app-theme="light"] #studio-product-modal .editor-field-group label,
+[data-app-theme="light"] #studio-product-modal .label-with-action label {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+
+body[data-app-theme="light"] #studio-product-modal .btn-text-link,
+[data-app-theme="light"] #studio-product-modal .btn-text-link {
+  color: #16a34a !important;
+  background: transparent !important;
+}
+
+body[data-app-theme="light"] #studio-product-modal .video-upload-dropzone,
+body[data-app-theme="light"] #studio-product-modal #editor-trigger-video-btn,
+[data-app-theme="light"] #studio-product-modal .video-upload-dropzone,
+[data-app-theme="light"] #studio-product-modal #editor-trigger-video-btn {
+  background: #f8fafc !important;
+  border: 1px dashed #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] #studio-product-modal .photo-add-slot,
+[data-app-theme="light"] #studio-product-modal .photo-add-slot {
+  background: #f8fafc !important;
+  border: 1px dashed #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+body[data-app-theme="light"] #studio-product-modal .specs-section-card,
+body[data-app-theme="light"] #studio-product-modal #editor-specs-section,
+[data-app-theme="light"] #studio-product-modal .specs-section-card,
+[data-app-theme="light"] #studio-product-modal #editor-specs-section {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body[data-app-theme="light"] #studio-product-modal .specs-section-tag,
+[data-app-theme="light"] #studio-product-modal .specs-section-tag {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] #studio-product-modal input,
+body[data-app-theme="light"] #studio-product-modal select,
+body[data-app-theme="light"] #studio-product-modal textarea,
+[data-app-theme="light"] #studio-product-modal input,
+[data-app-theme="light"] #studio-product-modal select,
+[data-app-theme="light"] #studio-product-modal textarea {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+/* ===================================================================
+   CHIPS DE HORARIO EN MODO CLARO
+   =================================================================== */
+body[data-app-theme="light"] .ob-chip-btn,
+body[data-app-theme="light"] #ob-hours-chips .ob-chip-btn,
+body[data-app-theme="light"] .ob-quick-chips-row .ob-chip-btn,
+[data-app-theme="light"] .ob-chip-btn {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 6px 10px !important;
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 180ms ease !important;
+}
+
+body[data-app-theme="light"] .ob-chip-btn.active,
+body[data-app-theme="light"] #ob-hours-chips .ob-chip-btn.active,
+body[data-app-theme="light"] .ob-quick-chips-row .ob-chip-btn.active,
+[data-app-theme="light"] .ob-chip-btn.active {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+}
+
+/* ===================================================================
+   BIENVENIDA, BARRA DE PROGRESO Y ANIMACIONES DE PASOS
+   =================================================================== */
+.onboarding-feature-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.onboarding-feature-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 13px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 180ms ease;
+}
+
+body[data-app-theme="light"] .onboarding-feature-card,
+[data-app-theme="light"] .onboarding-feature-card {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.feat-icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.feat-icon-wrap.icon-green {
+  background: rgba(22, 163, 74, 0.12);
+  color: #16a34a;
+  border: 1px solid rgba(22, 163, 74, 0.22);
+}
+
+.feat-icon-wrap.icon-blue {
+  background: rgba(37, 99, 235, 0.12);
+  color: #2563eb;
+  border: 1px solid rgba(37, 99, 235, 0.22);
+}
+
+.feat-icon-wrap.icon-purple {
+  background: rgba(147, 51, 234, 0.12);
+  color: #9333ea;
+  border: 1px solid rgba(147, 51, 234, 0.22);
+}
+
+.feat-content {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.feat-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #f8fafc;
+  line-height: 1.25;
+}
+
+body[data-app-theme="light"] .feat-title,
+[data-app-theme="light"] .feat-title {
+  color: #0f172a !important;
+}
+
+.feat-desc {
+  font-size: 0.74rem;
+  color: #94a3b8;
+  margin-top: 2px;
+  line-height: 1.35;
+}
+
+body[data-app-theme="light"] .feat-desc,
+[data-app-theme="light"] .feat-desc {
+  color: #64748b !important;
+}
+
+.onboarding-trust-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  color: #94a3b8;
+  margin: 6px 0 12px;
+  font-weight: 500;
+}
+
+body[data-app-theme="light"] .onboarding-trust-badge,
+[data-app-theme="light"] .onboarding-trust-badge {
+  color: #64748b !important;
+}
+
+.trust-badge-dot {
+  color: #16a34a;
+  font-size: 0.65rem;
+}
+
+.btn-primary-onboard:active {
+  transform: scale(0.98);
+  transition: transform 100ms ease;
+}
+
+/* Barra de progreso */
+.onboarding-progress-bar {
+  width: 80px;
+  height: 4px !important;
+  border-radius: 99px !important;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+body[data-app-theme="light"] .onboarding-progress-bar,
+[data-app-theme="light"] .onboarding-progress-bar {
+  background: #e2e8f0 !important;
+}
+
+.onboarding-progress-fill {
+  height: 100%;
+  background: #16a34a !important;
+  border-radius: 99px !important;
+  transition: width 300ms cubic-bezier(0.32, 0.72, 0, 1) !important;
+}
+
+.onboarding-step-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.onboarding-step-text-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+body[data-app-theme="light"] .onboarding-step-text-wrap,
+[data-app-theme="light"] .onboarding-step-text-wrap {
+  color: #64748b !important;
+}
+
+.onboarding-step-text-wrap .step-num {
+  font-weight: 700;
+  color: #10b981;
+}
+
+body[data-app-theme="light"] .onboarding-step-text-wrap .step-num,
+[data-app-theme="light"] .onboarding-step-text-wrap .step-num {
+  color: #16a34a !important;
+}
+
+.onboarding-step-text-wrap .step-name {
+  color: #cbd5e1;
+}
+
+body[data-app-theme="light"] .onboarding-step-text-wrap .step-name,
+[data-app-theme="light"] .onboarding-step-text-wrap .step-name {
+  color: #334155 !important;
+}
+
+/* Animaciones de pasos de registro (Emil Kowalski) */
+@keyframes stepSlideInForward {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes stepSlideInBackward {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.step-anim-forward {
+  animation: stepSlideInForward 220ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.step-anim-backward {
+  animation: stepSlideInBackward 220ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-anim-forward,
+  .step-anim-backward {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* ===================================================================
+   PIN DE SEGURIDAD NATIVO (#pin-lock-modal y #security-pin-card)
+   =================================================================== */
+@keyframes pinModalShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.pin-modal-shake {
+  animation: pinModalShake 220ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.pin-lock-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2000 !important;
+  background: rgba(15, 23, 42, 0.75) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+}
+
+.pin-lock-modal-overlay.hidden {
+  display: none !important;
+}
+
+.pin-lock-card {
+  width: 100%;
+  max-width: 360px;
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 24px 20px;
+  text-align: center;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+body[data-app-theme="light"] .pin-lock-card,
+[data-app-theme="light"] .pin-lock-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.15) !important;
+}
+
+.pin-lock-icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(22, 163, 74, 0.12);
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.pin-lock-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0 0 4px;
+}
+
+body[data-app-theme="light"] .pin-lock-title,
+[data-app-theme="light"] .pin-lock-title {
+  color: #0f172a !important;
+}
+
+.pin-lock-subtitle {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  margin: 0 0 16px;
+  line-height: 1.4;
+}
+
+body[data-app-theme="light"] .pin-lock-subtitle,
+[data-app-theme="light"] .pin-lock-subtitle {
+  color: #64748b !important;
+}
+
+.pin-lock-input-wrap {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.pin-lock-input {
+  width: 100%;
+  max-width: 220px;
+  text-align: center;
+  letter-spacing: 0.35em;
+  font-size: 1.4rem;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #f8fafc;
+  outline: none;
+  transition: all 180ms ease;
+}
+
+body[data-app-theme="light"] .pin-lock-input,
+[data-app-theme="light"] .pin-lock-input {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.pin-lock-input:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+}
+
+.pin-lock-error-text {
+  font-size: 0.8rem;
+  color: #ef4444;
+  margin: 0 0 12px;
+  font-weight: 500;
+}
+
+.pin-lock-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pin-lock-btn-submit {
+  width: 100%;
+  padding: 12px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border-radius: 12px;
+  background: #16a34a;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+}
+
+.pin-lock-btn-cancel {
+  width: 100%;
+  padding: 9px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+}
+
+body[data-app-theme="light"] .pin-lock-btn-cancel,
+[data-app-theme="light"] .pin-lock-btn-cancel {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+body[data-app-theme="light"] .security-pin-card,
+[data-app-theme="light"] .security-pin-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body[data-app-theme="light"] .security-pin-card .pin-subview div[style*="background"],
+[data-app-theme="light"] .security-pin-card .pin-subview div[style*="background"] {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+#editor-trigger-file-btn,
+.photo-url-fallback-row {
+  display: none !important;
+}
