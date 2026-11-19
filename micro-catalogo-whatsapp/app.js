@@ -1190,6 +1190,11 @@ const AppState = {
     }
     this.saveStoresList();
     this.safeSetItem("tiendazap_store_" + currentSlug, JSON.stringify(storeData));
+
+    // Sincronización en la nube (Supabase) en segundo plano si hay sesión activa
+    if (typeof CloudSync !== "undefined" && CloudSync.isAuthenticated()) {
+      CloudSync.syncStoreToCloud(storeData).catch(e => console.warn("Sync en nube diferido:", e));
+    }
   },
 
   syncActiveStoreToList() {
@@ -1843,6 +1848,27 @@ const AppState = {
 
         // 1. Sincronizar y buscar en almacenamiento local
         if (!rawCompressed) {
+          // 0. Si hay Supabase configurado, intentar cargar la tienda pública en vivo desde la nube
+          if (typeof CloudSync !== "undefined" && CloudSync.isReady()) {
+            CloudSync.fetchPublicStoreBySlug(targetSlug, this.activeCustomerCatalogSlug).then(cloudRes => {
+              if (cloudRes && cloudRes.inactive) {
+                const overlay = document.getElementById("store-suspended-overlay");
+                if (overlay) overlay.classList.remove("hidden");
+              } else if (cloudRes && cloudRes.ok && cloudRes.store) {
+                const cs = cloudRes.store;
+                AppState.shopConfig = { ...cs.config, name: cs.name, storeSlug: cs.slug };
+                AppState.products = (cs.products || []).map(p => AppState.migrateProduct(p));
+                AppState.categories = cs.categories || [];
+                AppState.catalogs = cs.catalogs || [];
+                if (cs.preset) AppState.activePreset = cs.preset;
+                CustomerUI.renderStoreHeader();
+                CustomerUI.renderCategoryTabs();
+                CustomerUI.renderProductCards();
+                AppState.applyStoreTheme();
+              }
+            }).catch(e => console.warn("Error cargando tienda desde nube:", e));
+          }
+
           const currentMemorySlug = this.getStoreSlug();
           if (currentMemorySlug === targetSlug && this.products && this.products.length > 0) {
             // Tienda activa en este navegador: asegura sincronización y carga viva
@@ -2482,6 +2508,19 @@ const ImageOptimizer = {
           ctx.drawImage(img, 0, 0, width, height);
 
           const dataUrl = canvas.toDataURL("image/jpeg", quality);
+
+          // Si CloudSync está autenticado, subir automáticamente a Supabase Storage
+          if (typeof CloudSync !== "undefined" && CloudSync.isAuthenticated()) {
+            CloudSync.uploadMedia(dataUrl, "media").then(uploadRes => {
+              if (uploadRes && uploadRes.ok && uploadRes.url && !uploadRes.localFallback) {
+                resolve(uploadRes.url);
+              } else {
+                resolve(dataUrl);
+              }
+            }).catch(() => resolve(dataUrl));
+            return;
+          }
+
           resolve(dataUrl);
         };
         img.onerror = reject;
@@ -3112,6 +3151,17 @@ const OnboardingWizard = {
     if (ownerEmail) {
       AppState.merchant.email = ownerEmail;
       AppState.saveMerchant();
+    }
+
+    // Registro opcional en la nube con Supabase si se ingresó contraseña
+    const ownerPassword = (document.getElementById("ob-owner-password")?.value || "").trim();
+    if (ownerEmail && ownerPassword && ownerPassword.length >= 6 && typeof CloudSync !== "undefined" && CloudSync.isReady()) {
+      CloudSync.signUpOrSignIn(ownerEmail, ownerPassword, name).then(authRes => {
+        if (authRes && authRes.ok) {
+          Toast.show("¡Cuenta en la nube sincronizada con Supabase!", "☁️");
+          CloudSync.syncStoreToCloud(newStore);
+        }
+      }).catch(e => console.warn("Registro opcional en nube diferido:", e));
     }
 
     const newStore = AppState.createNewStore({
@@ -5041,6 +5091,26 @@ const StudioController = {
       return;
     }
     try {
+      // Si CloudSync está autenticado, subir directamente a Supabase Storage
+      if (typeof CloudSync !== "undefined" && CloudSync.isAuthenticated()) {
+        Toast.show("Subiendo video a Supabase Storage...", "☁️");
+        const cloudUp = await CloudSync.uploadMedia(file, "videos");
+        if (cloudUp && cloudUp.ok && cloudUp.url && !cloudUp.localFallback) {
+          this.currentProductVideo = cloudUp.url;
+          const previewWrap = document.getElementById("editor-video-preview-wrap");
+          const previewVideo = document.getElementById("editor-video-preview");
+          const urlInput = document.getElementById("editor-video-url-input");
+          if (previewVideo) {
+            previewVideo.src = cloudUp.url;
+            previewVideo.classList.remove("hidden");
+          }
+          if (previewWrap) previewWrap.classList.remove("hidden");
+          if (urlInput) urlInput.value = "";
+          Toast.show("¡Video subido a Supabase Storage!", "✅");
+          return;
+        }
+      }
+
       Toast.show("Guardando clip de video...", "🎥");
       const key = "vid_" + Date.now();
       await MediaStore.saveMedia(key, file);
@@ -8831,6 +8901,90 @@ document.addEventListener("DOMContentLoaded", () => {
       ViewController.showOnboarding(1);
     });
   }
+
+  // Botón Conectar Nube / Iniciar Sesión en Dropdown
+  const dropdownCloudAuthBtn = document.getElementById("dropdown-cloud-auth-btn");
+  if (dropdownCloudAuthBtn) {
+    dropdownCloudAuthBtn.addEventListener("click", () => {
+      StudioController.closeStoreDropdown();
+      if (typeof CloudSync !== "undefined") {
+        if (!CloudSync.isConfigured) {
+          alert("Para activar la nube de Supabase, agrega tu TU_SUPABASE_URL y TU_SUPABASE_ANON_KEY en supabase-config.js.");
+        } else if (CloudSync.isAuthenticated()) {
+          if (confirm(`Sesión activa: ${CloudSync.currentUser.email}\n\n¿Deseas cerrar sesión en la nube?`)) {
+            CloudSync.signOut();
+          }
+        } else {
+          CloudSync.openAuthModal();
+        }
+      }
+    });
+  }
+
+  // Botón Panel Super-Admin en Dropdown
+  const dropdownSuperAdminBtn = document.getElementById("dropdown-superadmin-btn");
+  if (dropdownSuperAdminBtn) {
+    dropdownSuperAdminBtn.addEventListener("click", () => {
+      StudioController.closeStoreDropdown();
+      if (typeof CloudSync !== "undefined") {
+        CloudSync.openSuperAdminModal();
+      }
+    });
+  }
+
+  // Manejador del Formulario de Autenticación en la Nube
+  const cloudAuthForm = document.getElementById("cloud-auth-form");
+  if (cloudAuthForm) {
+    cloudAuthForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("cloud-auth-email")?.value;
+      const pass = document.getElementById("cloud-auth-password")?.value;
+      const errBox = document.getElementById("cloud-auth-error");
+      const submitBtn = document.getElementById("cloud-auth-submit-btn");
+
+      if (submitBtn) submitBtn.disabled = true;
+      if (errBox) errBox.classList.add("hidden");
+
+      const res = await CloudSync.signUpOrSignIn(email, pass);
+      if (submitBtn) submitBtn.disabled = false;
+
+      if (!res.ok) {
+        if (errBox) {
+          errBox.textContent = res.msg || "Error de autenticación";
+          errBox.classList.remove("hidden");
+        }
+      } else {
+        CloudSync.closeAuthModal();
+        Toast.show("¡Sesión en la nube iniciada!", "☁️");
+        const remoteStores = await CloudSync.loadMyStoresFromCloud();
+        if (remoteStores && remoteStores.length > 0) {
+          AppState.storesList = remoteStores;
+          AppState.saveStoresList();
+          StudioController.renderStoresTab();
+          Toast.show(`Sincronizadas ${remoteStores.length} tienda(s) de tu cuenta`, "✅");
+        } else {
+          CloudSync.syncStoreToCloud({
+            id: AppState.currentStoreId,
+            name: AppState.shopConfig.name,
+            slug: AppState.getStoreSlug(),
+            preset: AppState.activePreset,
+            config: AppState.shopConfig,
+            categories: AppState.categories,
+            catalogs: AppState.catalogs,
+            products: AppState.products
+          });
+        }
+      }
+    });
+  }
+
+  const cloudAuthCancelBtn = document.getElementById("cloud-auth-cancel-btn");
+  const cloudAuthCloseXBtn = document.getElementById("cloud-auth-close-x-btn");
+  if (cloudAuthCancelBtn) cloudAuthCancelBtn.addEventListener("click", () => CloudSync.closeAuthModal());
+  if (cloudAuthCloseXBtn) cloudAuthCloseXBtn.addEventListener("click", () => CloudSync.closeAuthModal());
+
+  const superAdminCloseBtn = document.getElementById("superadmin-close-btn");
+  if (superAdminCloseBtn) superAdminCloseBtn.addEventListener("click", () => CloudSync.closeSuperAdminModal());
 
   // Botón Abrir Asistente desde Perfil de Empresa en Mi Tienda
   const settingsWizardBtn = document.getElementById("btn-reopen-wizard-settings");

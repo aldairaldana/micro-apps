@@ -10506,3 +10506,120 @@ body[data-app-theme="light"] .app-input-btn-cancel,
   color: #334155 !important;
   border: 1px solid #cbd5e1 !important;
 }
+
+
+/* ===================================================================
+   ETAPA 3: ESTILOS DE NUBE SUPABASE & PANEL SUPER-ADMIN
+   =================================================================== */
+.cloud-sync-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+  color: var(--text-muted, #94a3b8);
+  user-select: none;
+}
+
+.sync-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.sync-dot.online {
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+.sync-dot.local {
+  background: #38bdf8;
+}
+
+.sync-dot.offline {
+  background: #ef4444;
+}
+
+body[data-app-theme="light"] .cloud-sync-pill,
+[data-app-theme="light"] .cloud-sync-pill {
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+/* Super-Admin Table */
+.superadmin-table tr {
+  border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+}
+
+.superadmin-table td {
+  padding: 10px 4px;
+  vertical-align: middle;
+}
+
+.admin-status-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.admin-status-badge.active {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+
+.admin-status-badge.suspended {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.admin-btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.admin-btn-toggle {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+}
+
+.admin-btn-toggle.btn-suspend {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.admin-btn-toggle.btn-activate {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+body[data-app-theme="light"] .superadmin-table tr,
+[data-app-theme="light"] .superadmin-table tr {
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+body[data-app-theme="light"] .admin-btn-action,
+[data-app-theme="light"] .admin-btn-action {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+}

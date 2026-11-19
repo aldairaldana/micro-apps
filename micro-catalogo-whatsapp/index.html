@@ -167,6 +167,14 @@
                 <div id="ob-email-error" class="onboarding-error-msg hidden">Ingresa un correo electrónico válido para continuar</div>
               </div>
 
+              <div class="onboarding-field" id="ob-password-field-group">
+                <label for="ob-owner-password" class="field-label-sm">Contraseña en la nube (Opcional)</label>
+                <input type="password" id="ob-owner-password" class="input-modern onboarding-input-lg" placeholder="Mínimo 6 caracteres (o deja vacío para modo local)" autocomplete="new-password">
+                <span class="field-hint" style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px; display: flex; align-items: center; gap: 4px;">
+                  ☁️ Si la defines, sincronizaremos tu tienda automáticamente en Supabase
+                </span>
+              </div>
+
               <div class="onboarding-field">
                 <label for="ob-store-name" class="field-label-sm">Nombre de tu tienda *</label>
                 <input type="text" id="ob-store-name" class="input-modern onboarding-input-lg" placeholder="Ej: Nova Store, Don Licencias, Moda Lima..." autocomplete="off">
@@ -511,11 +519,22 @@
                   <span style="font-size: 1.05rem;">🪄</span>
                   <span>Asistente WhatsApp Business</span>
                 </button>
+                <button type="button" id="dropdown-cloud-auth-btn" class="dropdown-btn-create" style="margin-top: 6px; background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.25);">
+                  <span class="dropdown-item-icon">☁️</span>
+                  <span>Iniciar Sesión / Nube</span>
+                </button>
+                <button type="button" id="dropdown-superadmin-btn" class="dropdown-btn-create hidden" style="margin-top: 6px; background: rgba(245, 158, 11, 0.12); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">
+                  <span class="dropdown-item-icon">⚡</span>
+                  <span>Panel Super-Admin</span>
+                </button>
               </div>
             </div>
           </div>
 
           <div class="studio-header-right-actions">
+            <!-- Indicador sutil de Nube -->
+            <span id="cloud-sync-status-indicator" class="cloud-sync-pill" title="Estado de sincronización"><span class="sync-dot local"></span> Local</span>
+
             <!-- Selector Rápido Modo Claro / Oscuro del Panel -->
             <button type="button" id="app-theme-toggle-btn" class="studio-btn-theme-toggle" title="Cambiar tema claro / oscuro del panel" aria-label="Cambiar tema claro / oscuro">
               <span id="app-theme-icon-sun" class="theme-icon-wrap hidden">
@@ -2283,10 +2302,89 @@
       </div>
     </div>
 
+    <!-- 7. MODAL DE AUTENTICACIÓN / NUBE DE SUPABASE (ETAPA 3) -->
+    <div class="overlay modal-overlay app-input-modal-overlay hidden" id="cloud-auth-modal" aria-modal="true" role="dialog">
+      <div class="app-input-card cloud-auth-card">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">
+          <div>
+            <span style="font-size: 1.4rem; display: block; margin-bottom: 4px;">☁️</span>
+            <h2 class="app-input-title" id="cloud-auth-modal-title">Sincronización en la Nube</h2>
+            <p class="app-input-subtitle">Conecta con Supabase para compartir enlaces cortos reales y guardar fotos en la nube.</p>
+          </div>
+          <button type="button" id="cloud-auth-close-x-btn" class="header-icon-btn" style="background: transparent; border: none; font-size: 1.1rem; cursor: pointer; color: var(--text-muted);">✕</button>
+        </div>
+        <form id="cloud-auth-form" class="cloud-auth-form" onsubmit="return false;" style="display: flex; flex-direction: column; gap: 10px; margin-top: 6px;">
+          <div class="editor-field-group">
+            <label for="cloud-auth-email" class="field-label-sm">Correo Electrónico</label>
+            <input type="email" id="cloud-auth-email" class="input-modern" placeholder="tu-correo@gmail.com" required autocomplete="email">
+          </div>
+          <div class="editor-field-group">
+            <label for="cloud-auth-password" class="field-label-sm">Contraseña</label>
+            <input type="password" id="cloud-auth-password" class="input-modern" placeholder="Mínimo 6 caracteres" required autocomplete="current-password">
+          </div>
+          <p id="cloud-auth-error" class="cloud-auth-error hidden" style="color: #ef4444; font-size: 0.8rem; margin: 0;"></p>
+          <div class="app-input-actions" style="margin-top: 6px;">
+            <button type="button" id="cloud-auth-cancel-btn" class="btn-secondary-compact app-input-btn-cancel">Cancelar</button>
+            <button type="submit" id="cloud-auth-submit-btn" class="btn-save-product app-input-btn-confirm">Ingresar / Registrarse</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 8. MODAL DEL PANEL SUPER-ADMIN (ETAPA 3) -->
+    <div class="overlay modal-overlay app-input-modal-overlay hidden" id="superadmin-modal" aria-modal="true" role="dialog">
+      <div class="app-input-card superadmin-card" style="max-width: 500px; max-height: 85vh; overflow-y: auto;">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">
+          <div>
+            <span class="badge-niche-pill" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; font-weight: 700; margin-bottom: 6px; display: inline-block;">SUPER-ADMIN</span>
+            <h2 class="app-input-title">Panel de Control Global</h2>
+            <p class="app-input-subtitle">Todas las tiendas registradas en la base de datos de Supabase.</p>
+          </div>
+          <button type="button" id="superadmin-close-btn" class="header-icon-btn" style="background: transparent; border: none; font-size: 1.1rem; cursor: pointer; color: var(--text-muted);">✕</button>
+        </div>
+        <div class="superadmin-stats-row" style="display: flex; gap: 12px; margin: 10px 0;">
+          <div style="flex: 1; padding: 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 12px; text-align: center;">
+            <span id="superadmin-total-stores" style="font-size: 1.3rem; font-weight: 700; display: block; color: var(--text-main);">0</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase;">Tiendas</span>
+          </div>
+          <div style="flex: 1; padding: 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 12px; text-align: center;">
+            <span id="superadmin-active-stores" style="font-size: 1.3rem; font-weight: 700; display: block; color: #10b981;">0</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase;">Activas</span>
+          </div>
+        </div>
+        <div class="superadmin-table-wrap" style="width: 100%; overflow-x: auto;">
+          <table class="superadmin-table" style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border-subtle); text-align: left; color: var(--text-muted);">
+                <th style="padding: 8px 4px;">Tienda</th>
+                <th style="padding: 8px 4px;">Rubro</th>
+                <th style="padding: 8px 4px;">Estado</th>
+                <th style="padding: 8px 4px; text-align: right;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="superadmin-stores-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- AVISO DE TIENDA PAUSADA / SUSPENDIDA -->
+    <div id="store-suspended-overlay" class="overlay modal-overlay app-input-modal-overlay hidden" style="z-index: 3000;">
+      <div class="app-input-card" style="text-align: center; align-items: center;">
+        <span style="font-size: 2.2rem; display: block; margin-bottom: 8px;">🔒</span>
+        <h2 class="app-input-title" style="margin-bottom: 6px;">Tienda no disponible temporalmente</h2>
+        <p class="app-input-subtitle">Esta tienda se encuentra pausada o en mantenimiento por su administración.</p>
+        <button type="button" class="btn-secondary-compact app-input-btn-cancel" onclick="window.location.href='/'" style="margin-top: 14px; width: 100%;">Volver al inicio</button>
+      </div>
+    </div>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-client.js"></script>
   <script src="app.js?v=20261118-v42"></script>
 </body>
 
