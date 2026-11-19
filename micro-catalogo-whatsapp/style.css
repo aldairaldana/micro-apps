@@ -8845,8 +8845,6 @@ body.store-theme-light,
   color: var(--cust-accent-fg, #ffffff) !important;
   opacity: 0.92 !important;
 }
-  opacity: 0.88 !important;
-}
 
 #cart-modal-overlay .yape-merchant-info-card {
   background: var(--cust-surface-2, #f1f5f9) !important;
@@ -9564,4 +9562,109 @@ body[data-app-theme="light"] #btn-copy-portable-link,
 #preview-share-btn svg {
   stroke: #ffffff !important;
   color: #ffffff !important;
+}
+
+/* ===================================================================
+   10. MODO CLARO PARA #onboarding-screen Y #categories-modal
+   =================================================================== */
+body[data-app-theme="light"] #onboarding-screen,
+[data-app-theme="light"] #onboarding-screen {
+  background-color: #f6f7f9 !important;
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] #onboarding-screen .onboarding-card,
+[data-app-theme="light"] #onboarding-screen .onboarding-card {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.09) !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06) !important;
+}
+
+body[data-app-theme="light"] #onboarding-screen .onboarding-title,
+body[data-app-theme="light"] #onboarding-screen .onboarding-label,
+body[data-app-theme="light"] #onboarding-screen .ob-label,
+body[data-app-theme="light"] #onboarding-screen .onboarding-highlight-item,
+[data-app-theme="light"] #onboarding-screen .onboarding-title {
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] #onboarding-screen .onboarding-subtitle,
+body[data-app-theme="light"] #onboarding-screen .onboarding-step-desc,
+body[data-app-theme="light"] #onboarding-screen .ob-helper-note,
+body[data-app-theme="light"] #onboarding-screen .ob-field-hint,
+[data-app-theme="light"] #onboarding-screen .onboarding-subtitle {
+  color: #475569 !important;
+}
+
+body[data-app-theme="light"] #onboarding-screen input,
+body[data-app-theme="light"] #onboarding-screen .input-modern,
+body[data-app-theme="light"] #onboarding-screen .ob-input,
+body[data-app-theme="light"] #onboarding-screen .onboarding-input-lg,
+[data-app-theme="light"] #onboarding-screen input,
+[data-app-theme="light"] #onboarding-screen .input-modern {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  color-scheme: light !important;
+}
+
+/* Modal de Categorías en Modo Claro (#categories-modal / #categories-manager-modal) */
+body[data-app-theme="light"] #categories-modal .modal-card,
+body[data-app-theme="light"] #categories-manager-modal .category-modal-card,
+body[data-app-theme="light"] .category-modal-card,
+[data-app-theme="light"] #categories-modal .modal-card,
+[data-app-theme="light"] #categories-manager-modal .category-modal-card {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.12) !important;
+}
+
+body[data-app-theme="light"] #categories-modal .sheet-header,
+body[data-app-theme="light"] #categories-manager-modal .sheet-header,
+body[data-app-theme="light"] .category-modal-card .sheet-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+body[data-app-theme="light"] #categories-modal .sheet-title,
+body[data-app-theme="light"] #categories-manager-modal .sheet-title,
+body[data-app-theme="light"] .category-modal-card .sheet-title,
+body[data-app-theme="light"] .category-modal-card .cat-list-heading {
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] #categories-modal .sheet-subtitle,
+body[data-app-theme="light"] #categories-manager-modal .sheet-subtitle,
+body[data-app-theme="light"] .category-modal-card .sheet-subtitle,
+body[data-app-theme="light"] .category-modal-card .cat-list-sub {
+  color: #64748b !important;
+}
+
+body[data-app-theme="light"] .cat-add-card,
+[data-app-theme="light"] .cat-add-card {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+body[data-app-theme="light"] .cat-item-row,
+body[data-app-theme="light"] #categories-modal .cat-item-row,
+body[data-app-theme="light"] #categories-manager-modal .cat-item-row,
+[data-app-theme="light"] .cat-item-row {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] .cat-item-title,
+body[data-app-theme="light"] .cat-item-row .cat-name-text,
+[data-app-theme="light"] .cat-item-row .cat-name-text {
+  color: #0f172a !important;
+}
+
+body[data-app-theme="light"] .cat-emoji-picker-btn,
+[data-app-theme="light"] .cat-emoji-picker-btn {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
 }

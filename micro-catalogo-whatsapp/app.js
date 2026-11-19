@@ -1467,7 +1467,13 @@ const AppState = {
     this.saveCurrentStoreState();
 
     const cleanName = (name || "").trim() || "Nueva Tienda";
-    const slug = slugifyStoreName(cleanName) || ("tienda-" + Date.now().toString(36));
+    const baseSlug = slugifyStoreName(cleanName) || ("tienda-" + Date.now().toString(36));
+    let slug = baseSlug;
+    let counter = 2;
+    while ((this.storesList || []).some(s => s.slug === slug || s.config?.storeSlug === slug)) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
     const storeId = "store_" + Date.now();
     const normPreset = this.normalizePresetKey(preset);
 
@@ -1490,7 +1496,11 @@ const AppState = {
       yapeQrUrl: "",
       yapeEnabled: !!yapePhone,
       googleSheetUrl: "",
-      niche: normPreset
+      niche: normPreset,
+      themeMode: normPreset === "tech" ? "dark" : "light",
+      themePreset: normPreset === "tech" ? "tech" : "minimal",
+      accentColor: normPreset === "tech" ? "#3b82f6" : "#111827",
+      socials: { instagram: "", tiktok: "", facebook: "", website: "" }
     };
 
     const starterCategories = (NICHE_DATA[normPreset]?.suggestedCategories || NICHE_DATA.general.suggestedCategories || ["General"]).map((catName, idx) => ({
@@ -7332,28 +7342,32 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (editorUrlInput) {
-    editorUrlInput.addEventListener("input", (e) => {
+    const handleUrlCommit = (e) => {
       const val = e.target.value.trim();
-      if (val) {
-        StudioController.currentProductPhoto = val;
-        if (!Array.isArray(StudioController.currentProductImages)) StudioController.currentProductImages = [];
-        if (!StudioController.currentProductImages.includes(val)) {
-          if (StudioController.currentProductImages.length === 0) {
-            StudioController.currentProductImages.push(val);
-          } else {
-            StudioController.currentProductImages[0] = val;
-          }
-        }
-        const previewImg = document.getElementById("editor-photo-preview");
-        const placeholder = document.getElementById("editor-photo-placeholder");
-        if (previewImg) {
-          previewImg.src = val;
-          previewImg.classList.remove("hidden");
-        }
-        if (placeholder) placeholder.classList.add("hidden");
-        StudioController.renderEditorPhotosStrip();
+      if (!val) return;
+      if (!Array.isArray(StudioController.currentProductImages)) {
+        StudioController.currentProductImages = [];
       }
-    });
+      if (!StudioController.currentProductImages.includes(val)) {
+        if (StudioController.currentProductImages.length < 6) {
+          StudioController.currentProductImages.push(val);
+        } else {
+          Toast.show("Máximo 6 fotos por producto", "📸");
+        }
+      }
+      StudioController.currentProductPhoto = StudioController.currentProductImages[0] || val;
+      const previewImg = document.getElementById("editor-photo-preview");
+      const placeholder = document.getElementById("editor-photo-placeholder");
+      if (previewImg) {
+        previewImg.src = StudioController.currentProductPhoto;
+        previewImg.classList.remove("hidden");
+      }
+      if (placeholder) placeholder.classList.add("hidden");
+      StudioController.renderEditorPhotosStrip();
+    };
+
+    editorUrlInput.addEventListener("change", handleUrlCommit);
+    editorUrlInput.addEventListener("blur", handleUrlCommit);
   }
 
   // 10.1 Subida de Video en el Editor de Producto (Dropzone y Archivo)
@@ -7902,7 +7916,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Compartir catálogo desde la vista del comprador (vitrina)
   const shareCustomerAction = () => {
-    const url = window.location.href.split("#")[0];
+    const url = AppState.isViewingRemoteCatalog
+      ? window.location.href
+      : QRGenerator.getTargetUrl();
     const storeName = AppState.shopConfig?.name || "esta tienda";
     const shareText = `🛍️ Mira el catálogo de ${storeName} aquí: ${url}`;
     if (navigator.share) {
