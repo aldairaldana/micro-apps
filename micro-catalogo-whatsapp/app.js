@@ -1125,10 +1125,23 @@ const AppState = {
       if (saved) {
         this.storesList = JSON.parse(saved);
         if (Array.isArray(this.storesList)) {
+          let updatedAny = false;
           this.storesList.forEach(s => {
             s.preset = this.normalizePresetKey(s.preset || s.config?.niche);
             if (s.config) s.config.niche = s.preset;
+            const isUuid = typeof isValidUUID === "function" ? isValidUUID(s.id) : /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s.id || "");
+            if (!isUuid) {
+              const oldId = s.id;
+              s.id = typeof generateUUID === "function" ? generateUUID() : crypto.randomUUID();
+              if (this.currentStoreId === oldId) {
+                this.currentStoreId = s.id;
+              }
+              updatedAny = true;
+            }
           });
+          if (updatedAny) {
+            this.saveStoresList();
+          }
         }
       }
     } catch (e) {
@@ -1137,7 +1150,7 @@ const AppState = {
     if (!Array.isArray(this.storesList) || this.storesList.length === 0) {
       const normNiche = this.normalizePresetKey(this.activePreset || this.shopConfig.niche || "general");
       const currentStore = {
-        id: "store_" + (this.shopConfig.storeSlug || "principal"),
+        id: typeof generateUUID === "function" ? generateUUID() : crypto.randomUUID(),
         name: this.shopConfig.name || "Mi Tienda",
         slug: this.shopConfig.storeSlug || "mi-tienda",
         preset: normNiche,
@@ -1152,10 +1165,14 @@ const AppState = {
       this.storesList = [currentStore];
       this.currentStoreId = currentStore.id;
       this.saveStoresList();
-    } else if (!this.currentStoreId) {
+    } else {
       const currentSlug = this.getStoreSlug();
       const match = this.storesList.find(s => s.slug === currentSlug) || this.storesList[0];
-      this.currentStoreId = match ? match.id : this.storesList[0].id;
+      const targetId = match ? match.id : this.storesList[0].id;
+      const isTargetUuid = typeof isValidUUID === "function" ? isValidUUID(targetId) : /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetId || "");
+      if (!this.currentStoreId || !isTargetUuid) {
+        this.currentStoreId = targetId;
+      }
     }
   },
 
@@ -1170,8 +1187,11 @@ const AppState = {
     const normNiche = this.normalizePresetKey(this.activePreset || this.shopConfig.niche || "general");
     this.activePreset = normNiche;
     if (this.shopConfig) this.shopConfig.niche = normNiche;
+    const isCurrentUuid = typeof isValidUUID === "function" ? isValidUUID(this.currentStoreId) : /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(this.currentStoreId || "");
+    const storeId = (this.currentStoreId && isCurrentUuid) ? this.currentStoreId : (typeof generateUUID === "function" ? generateUUID() : crypto.randomUUID());
+    this.currentStoreId = storeId;
     const storeData = {
-      id: this.currentStoreId || ("store_" + currentSlug),
+      id: storeId,
       name: this.shopConfig.name,
       slug: currentSlug,
       preset: normNiche,
@@ -1479,7 +1499,7 @@ const AppState = {
       slug = `${baseSlug}-${counter}`;
       counter++;
     }
-    const storeId = "store_" + Date.now();
+    const storeId = typeof generateUUID === "function" ? generateUUID() : crypto.randomUUID();
     const normPreset = this.normalizePresetKey(preset);
 
     const initialConfig = {
@@ -2542,6 +2562,15 @@ const AppTheme = {
     this.currentTheme = (saved === "dark") ? "dark" : "light";
     this.apply();
   },
+  setTheme(theme) {
+    if (theme !== "light" && theme !== "dark") return;
+    this.currentTheme = theme;
+    localStorage.setItem("tiendazap_app_theme", this.currentTheme);
+    this.apply();
+    if (typeof Toast !== "undefined") {
+      Toast.show(`Modo ${this.currentTheme === "dark" ? "Oscuro" : "Claro"} activado`, this.currentTheme === "dark" ? "🌙" : "☀️");
+    }
+  },
   toggle() {
     this.currentTheme = (this.currentTheme === "light") ? "dark" : "light";
     localStorage.setItem("tiendazap_app_theme", this.currentTheme);
@@ -2595,11 +2624,16 @@ const ViewController = {
   },
 
   showStudio() {
-    if (AppState.merchant && AppState.merchant.pin && AppState.merchant.pin.length >= 4) {
-      if (sessionStorage.getItem("tiendazap_pin_unlocked") !== "true") {
-        PinLockController.openUnlockModal();
-        return;
-      }
+    // 1. PIN obligatorio de 6 dígitos: si no está configurado, exigir creación obligatoria
+    if (typeof PinLockController !== "undefined" && !PinLockController.isPinConfigured()) {
+      PinLockController.openSetupModal();
+      return;
+    }
+
+    // 2. Si el PIN está configurado pero no desbloqueado en esta sesión, pedir PIN de desbloqueo
+    if (sessionStorage.getItem("tiendazap_pin_unlocked") !== "true") {
+      PinLockController.openUnlockModal();
+      return;
     }
 
     const obScreen = document.getElementById("onboarding-screen");
@@ -4010,12 +4044,21 @@ const StudioController = {
     });
 
     list.querySelectorAll(".dropdown-store-delete-btn").forEach(btn => {
-      btn.addEventListener("click", (e) => {
+      btn.addEventListener("click", async (e) => {
         e.stopPropagation();
         const delId = btn.getAttribute("data-delete-store-id");
         const targetStore = AppState.storesList.find(s => s.id === delId);
         if (!targetStore) return;
-        if (confirm(`¿Eliminar la tienda "${targetStore.name}"? Esta acción no se puede deshacer.`)) {
+        const ok = typeof UIInputModal !== "undefined"
+          ? await UIInputModal.confirm({
+              title: "Eliminar tienda",
+              subtitle: `¿Eliminar la tienda "${targetStore.name}"? Esta acción no se puede deshacer.`,
+              confirmText: "Eliminar Tienda",
+              cancelText: "Cancelar",
+              danger: true
+            })
+          : true;
+        if (ok) {
           AppState.storesList = AppState.storesList.filter(s => s.id !== delId);
           AppState.saveStoresList();
           try { localStorage.removeItem("tiendazap_store_" + targetStore.slug); } catch(err){}
@@ -4036,6 +4079,7 @@ const StudioController = {
     const viewStore = document.getElementById("view-store");
     const viewProducts = document.getElementById("view-products");
     const viewPayments = document.getElementById("view-payments");
+    const viewAccount = document.getElementById("view-account");
     const viewStores = document.getElementById("view-stores");
     const viewSettings = document.getElementById("view-settings");
     const viewCloud = document.getElementById("view-cloud");
@@ -4043,6 +4087,7 @@ const StudioController = {
     if (viewStore) viewStore.classList.toggle("hidden", tabKey !== "store");
     if (viewProducts) viewProducts.classList.toggle("hidden", tabKey !== "products");
     if (viewPayments) viewPayments.classList.toggle("hidden", tabKey !== "payments");
+    if (viewAccount) viewAccount.classList.toggle("hidden", tabKey !== "account");
     if (viewStores) viewStores.classList.add("hidden");
     if (viewSettings) viewSettings.classList.add("hidden");
     if (viewCloud) viewCloud.classList.add("hidden");
@@ -4055,6 +4100,32 @@ const StudioController = {
       this.renderProductsList();
     } else if (tabKey === "payments") {
       this.populatePaymentsTab();
+    } else if (tabKey === "account") {
+      this.populateAccountTab();
+    }
+  },
+
+  populateAccountTab() {
+    if (typeof CloudSync !== "undefined" && CloudSync.renderCloudStatusInUI) {
+      CloudSync.renderCloudStatusInUI();
+    }
+
+    // Estado del PIN en Cuenta
+    const pinPill = document.getElementById("account-pin-status-pill");
+    const pinLabel = document.getElementById("account-pin-status-label");
+    const isConfigured = typeof PinLockController !== "undefined" && PinLockController.isPinConfigured();
+    if (pinPill && pinLabel) {
+      pinPill.className = isConfigured ? "apple-status-pill open" : "apple-status-pill closed";
+      pinLabel.textContent = isConfigured ? "PIN de 6 dígitos: Activo" : "Sin PIN";
+    }
+
+    // Botones de tema claro/oscuro en Cuenta
+    const currentTheme = document.body.getAttribute("data-app-theme") || "dark";
+    const lightBtn = document.getElementById("account-theme-light-btn");
+    const darkBtn = document.getElementById("account-theme-dark-btn");
+    if (lightBtn && darkBtn) {
+      lightBtn.classList.toggle("active", currentTheme === "light");
+      darkBtn.classList.toggle("active", currentTheme === "dark");
     }
   },
 
@@ -7349,10 +7420,75 @@ const QRGenerator = {
 };
 
 // ============================================================================
-// 12.5. PIN LOCK CONTROLLER (GESTIÓN Y MODAL 100% IN-APP)
+// 12.5. PIN LOCK CONTROLLER (GESTIÓN Y MODAL 100% IN-APP — 6 DÍGITOS OBLIGATORIOS)
 // ============================================================================
 const PinLockController = {
+  isPinConfigured() {
+    const pin = (AppState.merchant && AppState.merchant.pin ? String(AppState.merchant.pin).trim() : "");
+    return /^\d{6}$/.test(pin);
+  },
+
+  openSetupModal() {
+    const modal = document.getElementById("pin-setup-modal");
+    if (!modal) return;
+    const inputNew = document.getElementById("pin-setup-new");
+    const inputConfirm = document.getElementById("pin-setup-confirm");
+    const err = document.getElementById("pin-setup-error");
+    if (err) { err.textContent = ""; err.classList.add("hidden"); }
+    if (inputNew) inputNew.value = "";
+    if (inputConfirm) inputConfirm.value = "";
+    modal.classList.remove("hidden");
+    setTimeout(() => { if (inputNew) inputNew.focus(); }, 120);
+  },
+
+  closeSetupModal() {
+    const modal = document.getElementById("pin-setup-modal");
+    if (modal) modal.classList.add("hidden");
+  },
+
+  handleSetupSubmit() {
+    const inputNew = document.getElementById("pin-setup-new");
+    const inputConfirm = document.getElementById("pin-setup-confirm");
+    const err = document.getElementById("pin-setup-error");
+    const valNew = (inputNew?.value || "").trim();
+    const valConfirm = (inputConfirm?.value || "").trim();
+
+    if (!/^\d{6}$/.test(valNew)) {
+      if (err) {
+        err.textContent = "El PIN debe tener exactamente 6 números.";
+        err.classList.remove("hidden");
+      }
+      return;
+    }
+    if (valNew !== valConfirm) {
+      if (err) {
+        err.textContent = "Los códigos PIN no coinciden.";
+        err.classList.remove("hidden");
+      }
+      return;
+    }
+
+    if (!AppState.merchant) AppState.merchant = {};
+    AppState.merchant.pin = valNew;
+    AppState.saveMerchant();
+    sessionStorage.setItem("tiendazap_pin_unlocked", "true");
+    this.closeSetupModal();
+    Toast.show("PIN de 6 dígitos configurado correctamente", "🔒");
+    this.syncPinSettingsCard();
+    ViewController.showStudio();
+  },
+
   init() {
+    // 1. Modal de Setup de PIN (6 dígitos obligatorio)
+    const setupForm = document.getElementById("pin-setup-form");
+    if (setupForm) {
+      setupForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.handleSetupSubmit();
+      });
+    }
+
+    // 2. Modal de Desbloqueo de PIN
     const submitBtn = document.getElementById("pin-lock-submit-btn");
     const cancelBtn = document.getElementById("pin-lock-cancel-btn");
     const input = document.getElementById("pin-lock-input");
@@ -7376,10 +7512,32 @@ const PinLockController = {
       input.addEventListener("input", () => {
         const err = document.getElementById("pin-lock-error");
         if (err) err.classList.add("hidden");
+        // Desbloqueo automático al completar los 6 dígitos
+        if (input.value.trim().length === 6) {
+          this.handleUnlock();
+        }
       });
     }
 
-    this.initSettingsCardEvents();
+    // 3. Ojitos SVG en campos de contraseña/PIN
+    document.querySelectorAll("#pin-setup-modal .btn-toggle-password, #account-pin-change-form .btn-toggle-password").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.getAttribute("data-target");
+        const targetInput = document.getElementById(targetId);
+        if (!targetInput) return;
+        const isPass = targetInput.type === "password";
+        targetInput.type = isPass ? "text" : "password";
+        const eyeShow = btn.querySelector(".eye-icon-show");
+        const eyeHide = btn.querySelector(".eye-icon-hide");
+        if (eyeShow && eyeHide) {
+          eyeShow.classList.toggle("hidden", isPass);
+          eyeHide.classList.toggle("hidden", !isPass);
+        }
+      });
+    });
+
+    // 4. Tarjeta de Seguridad en Pestaña 4 (Cuenta)
+    this.initAccountSecurityEvents();
     this.syncPinSettingsCard();
   },
 
@@ -7409,7 +7567,7 @@ const PinLockController = {
     const err = document.getElementById("pin-lock-error");
     const modal = document.getElementById("pin-lock-modal");
     const entered = (input?.value || "").trim();
-    const actualPin = (AppState.merchant && AppState.merchant.pin ? AppState.merchant.pin.trim() : "");
+    const actualPin = (AppState.merchant && AppState.merchant.pin ? String(AppState.merchant.pin).trim() : "");
 
     if (entered && entered === actualPin) {
       sessionStorage.setItem("tiendazap_pin_unlocked", "true");
@@ -7436,157 +7594,94 @@ const PinLockController = {
     }
   },
 
-  initSettingsCardEvents() {
-    const btnShowCreate = document.getElementById("btn-show-create-pin");
-    const formCreate = document.getElementById("pin-form-create");
-    const btnCancelCreate = document.getElementById("btn-cancel-create-pin");
-    const btnConfirmCreate = document.getElementById("btn-confirm-create-pin");
-    const inputNewPin = document.getElementById("input-new-pin");
-    const createError = document.getElementById("pin-create-error");
+  initAccountSecurityEvents() {
+    const btnChangePin = document.getElementById("btn-account-change-pin");
+    const formChange = document.getElementById("account-pin-change-form");
+    const btnCancelChange = document.getElementById("btn-cancel-account-change-pin");
+    const btnConfirmChange = document.getElementById("btn-confirm-account-change-pin");
+    const inputCurr = document.getElementById("account-input-current-pin");
+    const inputNew = document.getElementById("account-input-new-pin");
+    const inputConfirm = document.getElementById("account-input-confirm-pin");
+    const changeErr = document.getElementById("account-pin-change-error");
+    const btnLockNow = document.getElementById("btn-account-lock-now");
 
-    if (btnShowCreate) {
-      btnShowCreate.addEventListener("click", () => {
-        if (formCreate) formCreate.classList.remove("hidden");
-        if (inputNewPin) { inputNewPin.value = ""; inputNewPin.focus(); }
-        if (createError) createError.classList.add("hidden");
-      });
-    }
-    if (btnCancelCreate) {
-      btnCancelCreate.addEventListener("click", () => {
-        if (formCreate) formCreate.classList.add("hidden");
-      });
-    }
-    if (btnConfirmCreate) {
-      btnConfirmCreate.addEventListener("click", () => {
-        const val = (inputNewPin?.value || "").trim();
-        if (!/^\d{4,6}$/.test(val)) {
-          if (createError) {
-            createError.textContent = "El PIN debe tener entre 4 y 6 números.";
-            createError.classList.remove("hidden");
-          }
-          return;
+    if (btnChangePin && formChange) {
+      btnChangePin.addEventListener("click", () => {
+        formChange.classList.toggle("hidden");
+        if (!formChange.classList.contains("hidden")) {
+          if (inputCurr) { inputCurr.value = ""; inputCurr.focus(); }
+          if (inputNew) inputNew.value = "";
+          if (inputConfirm) inputConfirm.value = "";
+          if (changeErr) changeErr.classList.add("hidden");
         }
-        if (!AppState.merchant) AppState.merchant = {};
-        AppState.merchant.pin = val;
-        AppState.saveMerchant();
-        sessionStorage.setItem("tiendazap_pin_unlocked", "true");
-        this.syncPinSettingsCard();
-        Toast.show("PIN de seguridad activado con éxito", "🔒");
       });
     }
 
-    const btnShowChange = document.getElementById("btn-show-change-pin");
-    const formChange = document.getElementById("pin-form-change");
-    const btnCancelChange = document.getElementById("btn-cancel-change-pin");
-    const btnConfirmChange = document.getElementById("btn-confirm-change-pin");
-    const inputCurrentPin = document.getElementById("input-current-pin");
-    const inputChangeNewPin = document.getElementById("input-change-new-pin");
-    const changeError = document.getElementById("pin-change-error");
-
-    if (btnShowChange) {
-      btnShowChange.addEventListener("click", () => {
-        if (formChange) formChange.classList.remove("hidden");
-        if (inputCurrentPin) { inputCurrentPin.value = ""; inputCurrentPin.focus(); }
-        if (inputChangeNewPin) inputChangeNewPin.value = "";
-        if (changeError) changeError.classList.add("hidden");
-      });
-    }
-    if (btnCancelChange) {
+    if (btnCancelChange && formChange) {
       btnCancelChange.addEventListener("click", () => {
-        if (formChange) formChange.classList.add("hidden");
+        formChange.classList.add("hidden");
       });
     }
+
     if (btnConfirmChange) {
       btnConfirmChange.addEventListener("click", () => {
-        const curr = (inputCurrentPin?.value || "").trim();
-        const nw = (inputChangeNewPin?.value || "").trim();
-        const actual = (AppState.merchant && AppState.merchant.pin ? AppState.merchant.pin.trim() : "");
+        const curr = (inputCurr?.value || "").trim();
+        const nw = (inputNew?.value || "").trim();
+        const conf = (inputConfirm?.value || "").trim();
+        const actual = (AppState.merchant && AppState.merchant.pin ? String(AppState.merchant.pin).trim() : "");
 
         if (curr !== actual) {
-          if (changeError) {
-            changeError.textContent = "El PIN actual no coincide.";
-            changeError.classList.remove("hidden");
+          if (changeErr) {
+            changeErr.textContent = "El PIN actual es incorrecto.";
+            changeErr.classList.remove("hidden");
           }
           return;
         }
-        if (!/^\d{4,6}$/.test(nw)) {
-          if (changeError) {
-            changeError.textContent = "El nuevo PIN debe tener entre 4 y 6 números.";
-            changeError.classList.remove("hidden");
+        if (!/^\d{6}$/.test(nw)) {
+          if (changeErr) {
+            changeErr.textContent = "El nuevo PIN debe tener exactamente 6 números.";
+            changeErr.classList.remove("hidden");
           }
           return;
         }
+        if (nw !== conf) {
+          if (changeErr) {
+            changeErr.textContent = "El nuevo PIN y su repetición no coinciden.";
+            changeErr.classList.remove("hidden");
+          }
+          return;
+        }
+
         AppState.merchant.pin = nw;
         AppState.saveMerchant();
+        if (formChange) formChange.classList.add("hidden");
         this.syncPinSettingsCard();
-        Toast.show("PIN de seguridad actualizado", "✅");
+        Toast.show("PIN de 6 dígitos actualizado con éxito", "✅");
       });
     }
 
-    const btnShowRemove = document.getElementById("btn-show-remove-pin");
-    const formRemove = document.getElementById("pin-form-remove");
-    const btnCancelRemove = document.getElementById("btn-cancel-remove-pin");
-    const btnConfirmRemove = document.getElementById("btn-confirm-remove-pin");
-    const inputRemoveCurrentPin = document.getElementById("input-remove-current-pin");
-    const removeError = document.getElementById("pin-remove-error");
-
-    if (btnShowRemove) {
-      btnShowRemove.addEventListener("click", () => {
-        if (formRemove) formRemove.classList.remove("hidden");
-        if (inputRemoveCurrentPin) { inputRemoveCurrentPin.value = ""; inputRemoveCurrentPin.focus(); }
-        if (removeError) removeError.classList.add("hidden");
-      });
-    }
-    if (btnCancelRemove) {
-      btnCancelRemove.addEventListener("click", () => {
-        if (formRemove) formRemove.classList.add("hidden");
-      });
-    }
-    if (btnConfirmRemove) {
-      btnConfirmRemove.addEventListener("click", () => {
-        const curr = (inputRemoveCurrentPin?.value || "").trim();
-        const actual = (AppState.merchant && AppState.merchant.pin ? AppState.merchant.pin.trim() : "");
-        if (curr !== actual) {
-          if (removeError) {
-            removeError.textContent = "PIN incorrecto.";
-            removeError.classList.remove("hidden");
-          }
-          return;
-        }
-        AppState.merchant.pin = "";
-        AppState.saveMerchant();
+    if (btnLockNow) {
+      btnLockNow.addEventListener("click", () => {
         sessionStorage.removeItem("tiendazap_pin_unlocked");
-        this.syncPinSettingsCard();
-        Toast.show("PIN de seguridad desactivado", "🔓");
+        this.openUnlockModal();
       });
     }
   },
 
   syncPinSettingsCard() {
-    const hasPin = !!(AppState.merchant && AppState.merchant.pin && AppState.merchant.pin.length >= 4);
-    const pill = document.getElementById("pin-status-pill");
-    const label = document.getElementById("pin-status-label");
-    const viewDisabled = document.getElementById("pin-view-disabled");
-    const viewEnabled = document.getElementById("pin-view-enabled");
-    const formCreate = document.getElementById("pin-form-create");
-    const formChange = document.getElementById("pin-form-change");
-    const formRemove = document.getElementById("pin-form-remove");
-
-    if (formCreate) formCreate.classList.add("hidden");
-    if (formChange) formChange.classList.add("hidden");
-    if (formRemove) formRemove.classList.add("hidden");
+    const isConfigured = this.isPinConfigured();
+    const pill = document.getElementById("account-pin-status-pill");
+    const label = document.getElementById("account-pin-status-label");
 
     if (pill && label) {
-      if (hasPin) {
+      if (isConfigured) {
         pill.className = "apple-status-pill open";
-        label.textContent = "Activado";
+        label.textContent = "PIN de 6 dígitos: Activo";
       } else {
         pill.className = "apple-status-pill closed";
-        label.textContent = "Desactivado";
+        label.textContent = "Sin PIN";
       }
     }
-    if (viewDisabled) viewDisabled.classList.toggle("hidden", hasPin);
-    if (viewEnabled) viewEnabled.classList.toggle("hidden", !hasPin);
   }
 };
 window.PinLockController = PinLockController;
@@ -9042,12 +9137,108 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Botón Reiniciar app desde 0 en Dropdown
-  const dropdownResetAppBtn = document.getElementById("dropdown-reset-app-btn");
-  if (dropdownResetAppBtn) {
-    dropdownResetAppBtn.addEventListener("click", () => {
-      StudioController.closeStoreDropdown();
-      OnboardingWizard.resetFromScratch();
+  // Pestaña 4: Cuenta, Seguridad & Respaldos
+  const btnAccountSync = document.getElementById("btn-account-sync-now");
+  if (btnAccountSync) {
+    btnAccountSync.addEventListener("click", async () => {
+      if (typeof CloudSync !== "undefined") {
+        if (!CloudSync.isAuthenticated()) {
+          CloudSync.openAuthModal("login");
+          return;
+        }
+        Toast.show("Sincronizando todas tus tiendas...", "🔄");
+        const res = await CloudSync.syncAllLocalStores();
+        if (res.ok) {
+          Toast.show(`Sincronización completada (${res.syncedCount} tiendas respaldadas)`, "☁️");
+        } else {
+          Toast.show("Error al sincronizar: " + (res.msg || "Error"), "⚠️");
+        }
+      }
+    });
+  }
+
+  const btnAccountLogin = document.getElementById("btn-account-login");
+  if (btnAccountLogin) {
+    btnAccountLogin.addEventListener("click", () => {
+      if (typeof CloudSync !== "undefined") CloudSync.openAuthModal("login");
+    });
+  }
+
+  const btnAccountLogout = document.getElementById("btn-account-logout");
+  if (btnAccountLogout) {
+    btnAccountLogout.addEventListener("click", async () => {
+      if (typeof CloudSync !== "undefined") {
+        const ok = typeof UIInputModal !== "undefined"
+          ? await UIInputModal.confirm({
+              title: "Cerrar sesión en la nube",
+              subtitle: `Sesión activa como: ${CloudSync.currentUser?.email || "usuario"}\n\n¿Deseas cerrar tu sesión? Tus datos locales se conservarán intactos.`,
+              confirmText: "Cerrar sesión",
+              cancelText: "Mantener abierta",
+              danger: true
+            })
+          : true;
+        if (ok) {
+          await CloudSync.signOut();
+          StudioController.populateAccountTab();
+        }
+      }
+    });
+  }
+
+  const accountThemeLight = document.getElementById("account-theme-light-btn");
+  const accountThemeDark = document.getElementById("account-theme-dark-btn");
+  if (accountThemeLight && accountThemeDark) {
+    accountThemeLight.addEventListener("click", () => {
+      AppTheme.setTheme("light");
+      StudioController.populateAccountTab();
+    });
+    accountThemeDark.addEventListener("click", () => {
+      AppTheme.setTheme("dark");
+      StudioController.populateAccountTab();
+    });
+  }
+
+  const accountExportBtn = document.getElementById("account-export-json-btn");
+  const accountImportBtn = document.getElementById("account-import-json-btn");
+  if (accountExportBtn) {
+    accountExportBtn.addEventListener("click", () => {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(AppState.storesList || [], null, 2));
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `tiendazap-respaldo-${Date.now()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      Toast.show("Copia de respaldo JSON descargada", "💾");
+    });
+  }
+  if (accountImportBtn) {
+    accountImportBtn.addEventListener("click", () => {
+      const fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = ".json";
+      fileInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const imported = JSON.parse(event.target.result);
+            if (Array.isArray(imported) && imported.length > 0) {
+              AppState.storesList = imported;
+              AppState.saveStoresList();
+              AppState.switchStore(imported[0].id);
+              Toast.show("Copia JSON importada exitosamente", "✅");
+            } else {
+              Toast.show("El archivo JSON no tiene el formato correcto", "⚠️");
+            }
+          } catch (err) {
+            Toast.show("Error al leer el archivo JSON", "⚠️");
+          }
+        };
+        reader.readAsText(file);
+      };
+      fileInput.click();
     });
   }
 

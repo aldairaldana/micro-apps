@@ -531,7 +531,7 @@
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                   </svg>
-                  <span>+ Crear nueva tienda</span>
+                  <span>Crear nueva tienda</span>
                 </button>
                 <button type="button" id="dropdown-cloud-auth-btn" class="dropdown-btn-create" style="margin-top: 6px; background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.25);">
                   <span class="dropdown-item-icon">☁️</span>
@@ -540,14 +540,6 @@
                 <button type="button" id="dropdown-superadmin-btn" class="dropdown-btn-create hidden" style="margin-top: 6px; background: rgba(245, 158, 11, 0.12); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">
                   <span class="dropdown-item-icon">⚡</span>
                   <span>Panel Super-Admin</span>
-                </button>
-                <button type="button" id="dropdown-reset-app-btn" class="dropdown-btn-create dropdown-btn-danger" style="margin-top: 6px; background: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25);">
-                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="1 4 1 10 7 10"></polyline>
-                    <polyline points="23 20 23 14 17 14"></polyline>
-                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
-                  </svg>
-                  <span>Reiniciar app desde 0</span>
                 </button>
               </div>
             </div>
@@ -952,92 +944,7 @@
               style="margin-top: 14px;">Guardar cambios</button>
           </section>
 
-          <!-- Card de Seguridad (PIN de Acceso) -->
-          <section class="settings-section-card security-pin-card" id="security-pin-card" style="margin-top: 14px;">
-            <div class="section-card-header-row" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <div class="pin-card-icon-badge" style="width: 28px; height: 28px; border-radius: 8px; background: rgba(22, 163, 74, 0.12); color: #16a34a; display: flex; align-items: center; justify-content: center;">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                  </svg>
-                </div>
-                <div>
-                  <h3 class="section-card-title" style="margin-bottom: 0;">Seguridad (PIN de acceso)</h3>
-                </div>
-              </div>
-              <span id="pin-status-pill" class="apple-status-pill closed">
-                <span class="apple-status-dot"></span>
-                <span id="pin-status-label">Desactivado</span>
-              </span>
-            </div>
-            <p class="section-card-desc" style="margin-top: 4px;">Protege el panel de administración en este celular para evitar modificaciones no deseadas.</p>
 
-            <!-- Vista cuando no hay PIN -->
-            <div id="pin-view-disabled" class="pin-subview">
-              <button type="button" id="btn-show-create-pin" class="btn-secondary-compact" style="padding: 7px 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
-                <span>Crear PIN de seguridad</span>
-              </button>
-            </div>
-
-            <!-- Mini formulario Crear PIN -->
-            <div id="pin-form-create" class="pin-subview hidden" style="margin-top: 10px; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 12px;">
-              <label class="field-label-sm" for="input-new-pin">Ingresa un PIN numérico (4 a 6 dígitos):</label>
-              <div style="display: flex; gap: 8px; margin-top: 6px; align-items: center; flex-wrap: wrap;">
-                <input type="password" id="input-new-pin" class="input-modern" inputmode="numeric" maxlength="6" placeholder="••••" style="max-width: 140px; text-align: center; letter-spacing: 0.25em; font-weight: bold;">
-                <button type="button" id="btn-confirm-create-pin" class="btn-save-product" style="padding: 7px 16px; font-size: 0.82rem;">Guardar PIN</button>
-                <button type="button" id="btn-cancel-create-pin" class="btn-secondary-compact" style="padding: 7px 12px; font-size: 0.82rem;">Cancelar</button>
-              </div>
-              <span id="pin-create-error" class="pin-inline-error hidden" style="color: #ef4444; font-size: 0.78rem; display: block; margin-top: 4px;">Debe tener entre 4 y 6 números.</span>
-            </div>
-
-            <!-- Vista cuando el PIN está activo -->
-            <div id="pin-view-enabled" class="pin-subview hidden">
-              <p style="font-size: 0.82rem; color: #16a34a; font-weight: 500; margin: 4px 0 10px;">✓ Tu panel está protegido con PIN.</p>
-              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <button type="button" id="btn-show-change-pin" class="btn-secondary-compact" style="padding: 6px 12px; font-size: 0.8rem;">
-                  Cambiar PIN
-                </button>
-                <button type="button" id="btn-show-remove-pin" class="btn-secondary-compact" style="padding: 6px 12px; font-size: 0.8rem; color: #ef4444;">
-                  Quitar PIN
-                </button>
-              </div>
-            </div>
-
-            <!-- Mini formulario Cambiar PIN -->
-            <div id="pin-form-change" class="pin-subview hidden" style="margin-top: 10px; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 12px;">
-              <div class="form-grid-2">
-                <div class="editor-field-group">
-                  <label class="field-label-sm" for="input-current-pin">PIN Actual:</label>
-                  <input type="password" id="input-current-pin" class="input-modern" inputmode="numeric" maxlength="6" placeholder="••••" style="text-align: center; letter-spacing: 0.25em;">
-                </div>
-                <div class="editor-field-group">
-                  <label class="field-label-sm" for="input-change-new-pin">Nuevo PIN (4-6 dígitos):</label>
-                  <input type="password" id="input-change-new-pin" class="input-modern" inputmode="numeric" maxlength="6" placeholder="••••" style="text-align: center; letter-spacing: 0.25em;">
-                </div>
-              </div>
-              <div style="display: flex; gap: 8px; margin-top: 8px;">
-                <button type="button" id="btn-confirm-change-pin" class="btn-save-product" style="padding: 7px 16px; font-size: 0.82rem;">Actualizar PIN</button>
-                <button type="button" id="btn-cancel-change-pin" class="btn-secondary-compact" style="padding: 7px 12px; font-size: 0.82rem;">Cancelar</button>
-              </div>
-              <span id="pin-change-error" class="pin-inline-error hidden" style="color: #ef4444; font-size: 0.78rem; display: block; margin-top: 4px;"></span>
-            </div>
-
-            <!-- Mini formulario Quitar PIN -->
-            <div id="pin-form-remove" class="pin-subview hidden" style="margin-top: 10px; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 12px;">
-              <label class="field-label-sm" for="input-remove-current-pin">Ingresa tu PIN actual para desactivarlo:</label>
-              <div style="display: flex; gap: 8px; margin-top: 6px; align-items: center; flex-wrap: wrap;">
-                <input type="password" id="input-remove-current-pin" class="input-modern" inputmode="numeric" maxlength="6" placeholder="••••" style="max-width: 140px; text-align: center; letter-spacing: 0.25em;">
-                <button type="button" id="btn-confirm-remove-pin" class="btn-save-product" style="padding: 7px 16px; font-size: 0.82rem; background: #ef4444 !important;">Desactivar PIN</button>
-                <button type="button" id="btn-cancel-remove-pin" class="btn-secondary-compact" style="padding: 7px 12px; font-size: 0.82rem;">Cancelar</button>
-              </div>
-              <span id="pin-remove-error" class="pin-inline-error hidden" style="color: #ef4444; font-size: 0.78rem; display: block; margin-top: 4px;">PIN incorrecto.</span>
-            </div>
-          </section>
         </div>
 
         <!-- =============================================================
@@ -1437,18 +1344,162 @@
             Envíos</button>
         </div>
 
+        <!-- =============================================================
+             PESTAÑA 4: CUENTA, SEGURIDAD & RESPALDOS
+             ============================================================= -->
+        <div id="view-account" class="studio-tab-view hidden">
+          <!-- Tarjeta 1 — Cuenta en la Nube -->
+          <section class="settings-section-card account-card">
+            <div class="section-card-header-row" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="pin-card-icon-badge" style="width: 28px; height: 28px; border-radius: 8px; background: rgba(59, 130, 246, 0.12); color: #3b82f6; display: flex; align-items: center; justify-content: center;">
+                  <span style="font-size: 15px;">☁️</span>
+                </div>
+                <div>
+                  <h3 class="section-card-title" style="margin-bottom: 0;">Cuenta en la Nube</h3>
+                </div>
+              </div>
+              <span id="account-cloud-status-pill" class="apple-status-pill closed">
+                <span class="apple-status-dot"></span>
+                <span id="account-cloud-status-label">Modo local</span>
+              </span>
+            </div>
+            <p class="section-card-desc" id="account-cloud-desc" style="margin-top: 4px;">Sincroniza tus tiendas con Supabase para enlaces cortos reales y almacenamiento en la nube.</p>
+            <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" id="btn-account-sync-now" class="btn-save-product" style="padding: 7px 14px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                <span>Sincronizar ahora</span>
+              </button>
+              <button type="button" id="btn-account-login" class="btn-secondary-compact" style="padding: 7px 14px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
+                <span>Iniciar sesión / Crear cuenta</span>
+              </button>
+              <button type="button" id="btn-account-logout" class="btn-secondary-compact hidden" style="padding: 7px 14px; font-size: 0.82rem; color: #ef4444; border-color: rgba(239, 68, 68, 0.25);">
+                <span>Cerrar sesión</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- Tarjeta 2 — Seguridad (PIN obligatorio de 6 dígitos) -->
+          <section class="settings-section-card account-card" style="margin-top: 14px;">
+            <div class="section-card-header-row" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="pin-card-icon-badge" style="width: 28px; height: 28px; border-radius: 8px; background: rgba(22, 163, 74, 0.12); color: #16a34a; display: flex; align-items: center; justify-content: center;">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="section-card-title" style="margin-bottom: 0;">Seguridad del Panel</h3>
+                </div>
+              </div>
+              <span id="account-pin-status-pill" class="apple-status-pill open">
+                <span class="apple-status-dot"></span>
+                <span id="account-pin-status-label">PIN de 6 dígitos: Activo</span>
+              </span>
+            </div>
+            <p class="section-card-desc" style="margin-top: 4px;">Protege la edición y administración de tus tiendas en este dispositivo.</p>
+            
+            <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" id="btn-account-change-pin" class="btn-secondary-compact" style="padding: 7px 14px; font-size: 0.82rem; font-weight: 600;">
+                Cambiar PIN (6 dígitos)
+              </button>
+              <button type="button" id="btn-account-lock-now" class="btn-secondary-compact" style="padding: 7px 14px; font-size: 0.82rem; color: #f59e0b; border-color: rgba(245, 158, 11, 0.3);">
+                🔒 Bloquear panel ahora
+              </button>
+            </div>
+
+            <!-- Formulario desplegable Cambiar PIN -->
+            <div id="account-pin-change-form" class="pin-subview hidden" style="margin-top: 12px; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; padding: 12px;">
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="editor-field-group">
+                  <label class="field-label-sm" for="account-input-current-pin">PIN Actual (6 dígitos):</label>
+                  <div class="input-password-wrap">
+                    <input type="password" id="account-input-current-pin" class="input-modern" inputmode="numeric" maxlength="6" placeholder="••••••" style="text-align: center; letter-spacing: 0.25em; font-weight: bold;">
+                    <button type="button" class="btn-toggle-password" data-target="account-input-current-pin" aria-label="Mostrar PIN">
+                      <svg class="eye-icon-show" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                      <svg class="eye-icon-hide hidden" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="editor-field-group">
+                  <label class="field-label-sm" for="account-input-new-pin">Nuevo PIN (6 dígitos):</label>
+                  <div class="input-password-wrap">
+                    <input type="password" id="account-input-new-pin" class="input-modern" inputmode="numeric" maxlength="6" placeholder="••••••" style="text-align: center; letter-spacing: 0.25em; font-weight: bold;">
+                    <button type="button" class="btn-toggle-password" data-target="account-input-new-pin" aria-label="Mostrar PIN">
+                      <svg class="eye-icon-show" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                      <svg class="eye-icon-hide hidden" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="editor-field-group">
+                  <label class="field-label-sm" for="account-input-confirm-pin">Repetir Nuevo PIN (6 dígitos):</label>
+                  <div class="input-password-wrap">
+                    <input type="password" id="account-input-confirm-pin" class="input-modern" inputmode="numeric" maxlength="6" placeholder="••••••" style="text-align: center; letter-spacing: 0.25em; font-weight: bold;">
+                    <button type="button" class="btn-toggle-password" data-target="account-input-confirm-pin" aria-label="Mostrar PIN">
+                      <svg class="eye-icon-show" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                      <svg class="eye-icon-hide hidden" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <span id="account-pin-change-error" class="pin-inline-error hidden" style="color: #ef4444; font-size: 0.78rem; display: block; margin-top: 6px;"></span>
+              <div style="display: flex; gap: 8px; margin-top: 10px;">
+                <button type="button" id="btn-confirm-account-change-pin" class="btn-save-product" style="padding: 7px 16px; font-size: 0.82rem;">Guardar nuevo PIN</button>
+                <button type="button" id="btn-cancel-account-change-pin" class="btn-secondary-compact" style="padding: 7px 12px; font-size: 0.82rem;">Cancelar</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Tarjeta 3 — Preferencias y Respaldos -->
+          <section class="settings-section-card account-card" style="margin-top: 14px;">
+            <div class="section-card-header-row" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="pin-card-icon-badge" style="width: 28px; height: 28px; border-radius: 8px; background: rgba(168, 85, 247, 0.12); color: #a855f7; display: flex; align-items: center; justify-content: center;">
+                  <span style="font-size: 15px;">⚙️</span>
+                </div>
+                <div>
+                  <h3 class="section-card-title" style="margin-bottom: 0;">Preferencias y Respaldos</h3>
+                </div>
+              </div>
+            </div>
+            <p class="section-card-desc" style="margin-top: 4px;">Configura la apariencia del Studio y gestiona copias locales de tus catálogos.</p>
+
+            <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.06); border-radius: 10px;">
+                <span style="font-size: 0.85rem; font-weight: 500;">Tema del Studio:</span>
+                <div style="display: flex; gap: 4px;">
+                  <button type="button" id="account-theme-light-btn" class="btn-secondary-compact" style="padding: 5px 12px; font-size: 0.78rem;">☀️ Claro</button>
+                  <button type="button" id="account-theme-dark-btn" class="btn-secondary-compact" style="padding: 5px 12px; font-size: 0.78rem;">🌙 Oscuro</button>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" id="account-export-json-btn" class="btn-secondary-compact" style="padding: 7px 14px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  <span>Exportar copia JSON</span>
+                </button>
+                <button type="button" id="account-import-json-btn" class="btn-secondary-compact" style="padding: 7px 14px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  <span>Importar copia JSON</span>
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+
       </main>
-      <!-- Navegación Inferior Fija Tipo App Móvil (3 Pasos Lógicos: Mi Tienda | Productos | Cobros y Envíos) -->
+      <!-- Navegación Inferior Fija Tipo App Móvil (4 Pasos: Mi Tienda | Productos | Cobros | Cuenta) -->
       <nav class="studio-bottom-nav" aria-label="Navegación principal">
         <button type="button" class="studio-bottom-nav-btn active" data-tab="store" id="tab-nav-store">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
             <polyline points="9 22 9 12 15 12 15 22" />
           </svg>
           <span>Mi Tienda</span>
         </button>
         <button type="button" class="studio-bottom-nav-btn" data-tab="products" id="tab-nav-products">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
             <path
               d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
             <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
@@ -1457,11 +1508,18 @@
           <span>Productos</span>
         </button>
         <button type="button" class="studio-bottom-nav-btn" data-tab="payments" id="tab-nav-payments">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
             <line x1="1" y1="10" x2="23" y2="10" />
           </svg>
-          <span>Cobros y Envíos</span>
+          <span>Cobros</span>
+        </button>
+        <button type="button" class="studio-bottom-nav-btn" data-tab="account" id="tab-nav-account">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>Cuenta</span>
         </button>
       </nav>
 
@@ -2289,6 +2347,50 @@
       </div>
     </div>
 
+    <!-- 4.1 MODAL OBLIGATORIO DE CONFIGURACIÓN DE PIN DE 6 DÍGITOS -->
+    <div class="overlay pin-lock-modal-overlay hidden" id="pin-setup-modal" aria-modal="true" role="dialog">
+      <div class="pin-lock-card">
+        <div class="pin-lock-icon-wrap" style="background: rgba(22, 163, 74, 0.12); color: #16a34a;">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <h2 class="pin-lock-title">Protege tu panel con un PIN de 6 dígitos</h2>
+        <p class="pin-lock-subtitle">Este código bloqueará la edición de tus tiendas en este dispositivo.</p>
+        
+        <form id="pin-setup-form" onsubmit="return false;" style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-top: 12px;">
+          <div class="editor-field-group">
+            <label for="pin-setup-new" class="field-label-sm" style="text-align: left;">Nuevo PIN (6 dígitos numéricos) *</label>
+            <div class="input-password-wrap">
+              <input type="password" id="pin-setup-new" class="input-modern" inputmode="numeric" maxlength="6" placeholder="••••••" required style="text-align: center; letter-spacing: 0.25em; font-weight: bold; font-size: 1.1rem;">
+              <button type="button" class="btn-toggle-password" data-target="pin-setup-new" aria-label="Mostrar PIN">
+                <svg class="eye-icon-show" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <svg class="eye-icon-hide hidden" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="editor-field-group">
+            <label for="pin-setup-confirm" class="field-label-sm" style="text-align: left;">Repetir PIN (6 dígitos) *</label>
+            <div class="input-password-wrap">
+              <input type="password" id="pin-setup-confirm" class="input-modern" inputmode="numeric" maxlength="6" placeholder="••••••" required style="text-align: center; letter-spacing: 0.25em; font-weight: bold; font-size: 1.1rem;">
+              <button type="button" class="btn-toggle-password" data-target="pin-setup-confirm" aria-label="Mostrar PIN">
+                <svg class="eye-icon-show" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <svg class="eye-icon-hide hidden" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+              </button>
+            </div>
+          </div>
+
+          <p id="pin-setup-error" class="pin-lock-error-text hidden" style="margin: 0;"></p>
+
+          <div class="pin-lock-actions" style="margin-top: 6px;">
+            <button type="submit" id="pin-setup-submit-btn" class="btn-save-product pin-lock-btn-submit" style="width: 100%;">Guardar y Proteger Panel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- 5. MODAL DE DESBLOQUEO DE PIN NATIVO -->
     <div class="overlay pin-lock-modal-overlay hidden" id="pin-lock-modal" aria-modal="true" role="dialog">
       <div class="pin-lock-card">
@@ -2299,9 +2401,9 @@
           </svg>
         </div>
         <h2 class="pin-lock-title">Panel protegido</h2>
-        <p class="pin-lock-subtitle">Ingresa tu PIN de seguridad para acceder al panel de administración</p>
+        <p class="pin-lock-subtitle">Ingresa tu PIN de 6 dígitos para acceder al panel de administración</p>
         <div class="pin-lock-input-wrap">
-          <input type="password" id="pin-lock-input" class="pin-lock-input" inputmode="numeric" maxlength="6" placeholder="••••" autocomplete="off">
+          <input type="password" id="pin-lock-input" class="pin-lock-input" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="off">
         </div>
         <p id="pin-lock-error" class="pin-lock-error-text hidden">PIN incorrecto. Inténtalo de nuevo.</p>
         <div class="pin-lock-actions">
@@ -2389,31 +2491,59 @@
 
     <!-- 8. MODAL DEL PANEL SUPER-ADMIN (ETAPA 3) -->
     <div class="overlay modal-overlay app-input-modal-overlay hidden" id="superadmin-modal" aria-modal="true" role="dialog">
-      <div class="app-input-card superadmin-card" style="max-width: 500px; max-height: 85vh; overflow-y: auto;">
+      <div class="app-input-card superadmin-card" style="max-width: 680px; max-height: 90vh; overflow-y: auto;">
         <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">
           <div>
             <span class="badge-niche-pill" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; font-weight: 700; margin-bottom: 6px; display: inline-block;">SUPER-ADMIN</span>
             <h2 class="app-input-title">Panel de Control Global</h2>
-            <p class="app-input-subtitle">Todas las tiendas registradas en la base de datos de Supabase.</p>
+            <p class="app-input-subtitle">Métricas en vivo y gestión de todas las tiendas en Supabase.</p>
           </div>
           <button type="button" id="superadmin-close-btn" class="header-icon-btn" aria-label="Cerrar modal">✕</button>
         </div>
-        <div class="superadmin-stats-row" style="display: flex; gap: 12px; margin: 10px 0;">
-          <div style="flex: 1; padding: 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 12px; text-align: center;">
-            <span id="superadmin-total-stores" style="font-size: 1.3rem; font-weight: 700; display: block; color: var(--text-main);">0</span>
-            <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase;">Tiendas</span>
+
+        <!-- 4 Métricas en vivo -->
+        <div class="superadmin-stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0;">
+          <div class="superadmin-stat-card" style="padding: 10px 6px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 12px; text-align: center;">
+            <span id="superadmin-total-users" style="font-size: 1.2rem; font-weight: 700; display: block; color: var(--text-main);">0</span>
+            <span style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Usuarios</span>
           </div>
-          <div style="flex: 1; padding: 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 12px; text-align: center;">
-            <span id="superadmin-active-stores" style="font-size: 1.3rem; font-weight: 700; display: block; color: #10b981;">0</span>
-            <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase;">Activas</span>
+          <div class="superadmin-stat-card" style="padding: 10px 6px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 12px; text-align: center;">
+            <span id="superadmin-total-stores" style="font-size: 1.2rem; font-weight: 700; display: block; color: #3b82f6;">0</span>
+            <span style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Tiendas</span>
+          </div>
+          <div class="superadmin-stat-card" style="padding: 10px 6px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 12px; text-align: center;">
+            <span id="superadmin-active-stores" style="font-size: 1.2rem; font-weight: 700; display: block; color: #10b981;">0</span>
+            <span style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Activas</span>
+          </div>
+          <div class="superadmin-stat-card" style="padding: 10px 6px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 12px; text-align: center;">
+            <span id="superadmin-total-products" style="font-size: 1.2rem; font-weight: 700; display: block; color: #a855f7;">0</span>
+            <span style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Productos</span>
           </div>
         </div>
+
+        <!-- Buscador y Filtros -->
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <input type="text" id="superadmin-search-input" class="input-modern" placeholder="Buscar por nombre, /slug o dueño..." style="flex: 1; min-width: 150px; font-size: 0.82rem;">
+            <button type="button" id="superadmin-refresh-btn" class="btn-secondary-compact" style="padding: 7px 10px; font-size: 0.78rem; white-space: nowrap;">↻ Actualizar</button>
+            <button type="button" id="superadmin-upload-local-btn" class="btn-secondary-compact" style="padding: 7px 10px; font-size: 0.78rem; white-space: nowrap; color: #10b981; border-color: rgba(16, 185, 129, 0.3);">☁️ Subir locales</button>
+          </div>
+          <div class="superadmin-filters-bar" style="display: flex; gap: 6px;">
+            <button type="button" class="superadmin-filter-chip active" data-filter="all">Todas</button>
+            <button type="button" class="superadmin-filter-chip" data-filter="active">Activas</button>
+            <button type="button" class="superadmin-filter-chip" data-filter="paused">Pausadas</button>
+          </div>
+        </div>
+
+        <!-- Tabla de Tiendas -->
         <div class="superadmin-table-wrap" style="width: 100%; overflow-x: auto;">
-          <table class="superadmin-table" style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+          <table class="superadmin-table" style="width: 100%; border-collapse: collapse; font-size: 0.78rem;">
             <thead>
               <tr style="border-bottom: 1px solid var(--border-subtle); text-align: left; color: var(--text-muted);">
                 <th style="padding: 8px 4px;">Tienda</th>
+                <th style="padding: 8px 4px;">Dueño</th>
                 <th style="padding: 8px 4px;">Rubro</th>
+                <th style="padding: 8px 4px; text-align: center;">Prods</th>
                 <th style="padding: 8px 4px;">Estado</th>
                 <th style="padding: 8px 4px; text-align: right;">Acciones</th>
               </tr>

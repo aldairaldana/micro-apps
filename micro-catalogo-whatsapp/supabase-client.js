@@ -4,12 +4,47 @@
 // ============================================================================
 
 (function () {
+  function isValidUUID(str) {
+    if (typeof str !== "string") return false;
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str.trim());
+  }
+
+  function generateUUID() {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+      try {
+        return crypto.randomUUID();
+      } catch (e) {}
+    }
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+      const r = (Math.random() * 16) | 0;
+      const v = c === "x" ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  }
+
+  function escapeHtml(str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  window.isValidUUID = isValidUUID;
+  window.generateUUID = generateUUID;
+  window.escapeHtml = escapeHtml;
+
   const CloudSync = {
     client: null,
     isConfigured: false,
     currentUser: null,
     currentProfile: null,
     isSyncing: false,
+    isValidUUID,
+    generateUUID,
+    escapeHtml,
 
     // Inicialización del cliente Supabase
     init() {
@@ -71,6 +106,7 @@
           this.currentUser = session.user;
           await this.fetchProfile(session.user.id);
           this.renderCloudStatusInUI();
+          this.syncAllLocalStores();
         }
       } catch (e) {
         console.warn("Error al verificar sesión:", e);
@@ -165,6 +201,7 @@
           this.currentUser = signData.user;
           await this.fetchProfile(this.currentUser.id);
           this.renderCloudStatusInUI();
+          await this.syncAllLocalStores();
           return { ok: true, user: this.currentUser, isNew: true };
         }
 
@@ -201,6 +238,7 @@
           this.currentUser = loginData.user;
           await this.fetchProfile(this.currentUser.id);
           this.renderCloudStatusInUI();
+          await this.syncAllLocalStores();
           return { ok: true, user: this.currentUser, isNew: false };
         }
 
@@ -252,6 +290,7 @@
             this.currentUser = loginData.user;
             await this.fetchProfile(this.currentUser.id);
             this.renderCloudStatusInUI();
+            await this.syncAllLocalStores();
             return { ok: true, user: this.currentUser, isNew: false };
           }
 
@@ -262,6 +301,7 @@
           this.currentUser = signData.user;
           await this.fetchProfile(this.currentUser.id);
           this.renderCloudStatusInUI();
+          await this.syncAllLocalStores();
           return { ok: true, user: this.currentUser, isNew: true };
         }
 
@@ -395,8 +435,29 @@
 
     // 4. SINCRONIZACIÓN DE TIENDA, CATÁLOGOS Y PRODUCTOS
     async syncStoreToCloud(storeObj) {
-      if (!this.isReady() || !this.isAuthenticated() || !storeObj) {
+      if (!storeObj) {
         return { ok: false, localOnly: true };
+      }
+
+      // Validar y asegurar UUID válido para PostgreSQL antes de cualquier chequeo
+      if (!storeObj.id || !isValidUUID(storeObj.id)) {
+        const newUuid = generateUUID();
+        const oldId = storeObj.id;
+        storeObj.id = newUuid;
+        if (typeof AppState !== "undefined") {
+          if (AppState.currentStoreId === oldId) {
+            AppState.currentStoreId = newUuid;
+          }
+          if (Array.isArray(AppState.storesList)) {
+            const matched = AppState.storesList.find(s => s.id === oldId || s.slug === storeObj.slug);
+            if (matched) matched.id = newUuid;
+            AppState.saveStoresList();
+          }
+        }
+      }
+
+      if (!this.isReady() || !this.isAuthenticated()) {
+        return { ok: false, localOnly: true, storeId: storeObj.id };
       }
 
       this.isSyncing = true;
@@ -404,8 +465,8 @@
 
       try {
         const ownerId = this.currentUser.id;
-        const storeId = storeObj.id || crypto.randomUUID();
-        const slug = (storeObj.slug || storeObj.config?.slug || AppState.generateSlug(storeObj.name || "tienda")).toLowerCase();
+        const storeId = storeObj.id;
+        const slug = (storeObj.slug || storeObj.config?.slug || (typeof AppState !== "undefined" && AppState.generateSlug ? AppState.generateSlug(storeObj.name || "tienda") : "tienda")).toLowerCase();
 
         // A. Upsert de la Tienda
         const storeRow = {
@@ -442,7 +503,7 @@
           id: `${storeId}_${c.id}`,
           store_id: storeId,
           name: c.name || "Catálogo",
-          slug: (c.slug || AppState.generateSlug(c.name || "cat")).toLowerCase(),
+          slug: (c.slug || (typeof AppState !== "undefined" && AppState.generateSlug ? AppState.generateSlug(c.name || "cat") : "cat")).toLowerCase(),
           is_default: !!c.isDefault
         }));
 
@@ -486,6 +547,29 @@
         this.isSyncing = false;
         return { ok: false, error: err };
       }
+    },
+
+    // 4.1 SINCRONIZAR TODAS LAS TIENDAS LOCALES EXISTENTES A SUPABASE
+    async syncAllLocalStores() {
+      if (!this.isReady() || !this.isAuthenticated()) return { ok: false, msg: "No conectado" };
+      if (typeof AppState === "undefined") return { ok: false };
+
+      const stores = AppState.storesList || [];
+      if (stores.length === 0 && AppState.shopConfig) {
+        AppState.initStores();
+      }
+
+      const allStores = AppState.storesList || [];
+      let syncedCount = 0;
+      for (const s of allStores) {
+        try {
+          const res = await this.syncStoreToCloud(s);
+          if (res && res.ok) syncedCount++;
+        } catch (e) {
+          console.warn("Error sincronizando tienda local:", s.name, e);
+        }
+      }
+      return { ok: true, syncedCount, total: allStores.length };
     },
 
     // 5. CARGA DE TIENDAS DEL PROPIETARIO AUTENTICADO
@@ -656,23 +740,72 @@
       }
     },
 
-    // 7. SUPER-ADMIN: GESTIÓN GLOBAL DE TIENDAS
-    async fetchAllStoresForAdmin() {
+    // 7. SUPER-ADMIN: GESTIÓN GLOBAL DE TIENDAS Y MÉTRICAS EN VIVO
+    async fetchSuperAdminData() {
       if (!this.isSuperAdmin()) {
         return { ok: false, msg: "Acceso no autorizado" };
       }
 
       try {
-        const { data, error } = await this.client
+        // 1. Perfiles de usuarios
+        const { data: profiles, error: pErr } = await this.client
+          .from("profiles")
+          .select("id, email, full_name, role");
+
+        // 2. Tiendas
+        const { data: stores, error: sErr } = await this.client
           .from("stores")
           .select("id, name, slug, preset, is_active, created_at, owner_id")
           .order("created_at", { ascending: false });
 
-        if (error) return { ok: false, error };
-        return { ok: true, stores: data || [] };
+        if (sErr) return { ok: false, error: sErr };
+
+        // 3. Productos (para métrica global y conteo por tienda)
+        const { data: products, error: prErr } = await this.client
+          .from("products")
+          .select("id, store_id");
+
+        const profileMap = new Map();
+        (profiles || []).forEach(p => profileMap.set(p.id, p));
+
+        const productCountMap = new Map();
+        (products || []).forEach(pr => {
+          const current = productCountMap.get(pr.store_id) || 0;
+          productCountMap.set(pr.store_id, current + 1);
+        });
+
+        const enrichedStores = (stores || []).map(s => {
+          const owner = profileMap.get(s.owner_id);
+          return {
+            ...s,
+            owner_email: owner ? owner.email : "Desconocido",
+            owner_name: owner ? owner.full_name : "",
+            product_count: productCountMap.get(s.id) || 0
+          };
+        });
+
+        const totalUsers = profiles ? profiles.length : 0;
+        const totalStores = stores ? stores.length : 0;
+        const activeStores = stores ? stores.filter(s => s.is_active !== false).length : 0;
+        const totalProducts = products ? products.length : 0;
+
+        return {
+          ok: true,
+          metrics: {
+            totalUsers,
+            totalStores,
+            activeStores,
+            totalProducts
+          },
+          stores: enrichedStores
+        };
       } catch (err) {
         return { ok: false, error: err };
       }
+    },
+
+    async fetchAllStoresForAdmin() {
+      return await this.fetchSuperAdminData();
     },
 
     async toggleStoreStatus(storeId, isActive) {
@@ -692,6 +825,56 @@
         return { ok: true, store: data };
       } catch (err) {
         return { ok: false, error: err };
+      }
+    },
+
+    async deleteStore(storeId) {
+      if (!this.isSuperAdmin()) {
+        return { ok: false, msg: "Acceso no autorizado" };
+      }
+      try {
+        const { error } = await this.client
+          .from("stores")
+          .delete()
+          .eq("id", storeId);
+
+        if (error) return { ok: false, error };
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, error: err };
+      }
+    },
+
+    async handleDeleteStore(storeId, storeName) {
+      const confirmed = typeof UIInputModal !== "undefined"
+        ? await UIInputModal.confirm({
+            title: "Eliminar tienda definitivamente",
+            subtitle: `¿Deseas eliminar definitivamente la tienda "${storeName}"?\n\nEsta acción borrará la tienda, todos sus catálogos y productos en la base de datos de Supabase. Esta acción no se puede deshacer.`,
+            confirmText: "Eliminar Tienda",
+            cancelText: "Cancelar",
+            danger: true
+          })
+        : window.confirm(`¿Eliminar definitivamente "${storeName}"?`);
+
+      if (!confirmed) return;
+
+      const res = await this.deleteStore(storeId);
+      if (res.ok) {
+        if (typeof Toast !== "undefined") Toast.show("Tienda eliminada de Supabase", "🗑️");
+        this.openSuperAdminModal();
+      } else {
+        alert("Error al eliminar tienda: " + (res.error?.message || res.msg));
+      }
+    },
+
+    async uploadLocalStoresForAdmin() {
+      if (typeof Toast !== "undefined") Toast.show("Subiendo tiendas locales a Supabase...", "🔄");
+      const res = await this.syncAllLocalStores();
+      if (res.ok) {
+        if (typeof Toast !== "undefined") Toast.show(`Sincronización completada: ${res.syncedCount} tiendas procesadas`, "☁️");
+        this.openSuperAdminModal();
+      } else {
+        alert("Error al subir tiendas: " + (res.msg || "Desconocido"));
       }
     },
 
@@ -745,6 +928,36 @@
         } else {
           syncBadge.innerHTML = `<span class="sync-dot offline"></span> Desconectado`;
           syncBadge.title = "Supabase configurado pero sesión no iniciada";
+        }
+      }
+
+      // Tarjeta de cuenta en la 4ª pestaña (Cuenta)
+      const accountStatusLabel = document.getElementById("account-cloud-status-label");
+      const accountStatusPill = document.getElementById("account-cloud-status-pill");
+      const accountDesc = document.getElementById("account-cloud-desc");
+      const accountLoginBtn = document.getElementById("btn-account-login");
+      const accountLogoutBtn = document.getElementById("btn-account-logout");
+
+      if (accountStatusLabel && accountStatusPill) {
+        if (!this.isConfigured) {
+          accountStatusLabel.textContent = "Modo local";
+          accountStatusPill.className = "apple-status-pill closed";
+          if (accountDesc) accountDesc.textContent = "Modo local activo. Completa tus credenciales de Supabase para activar la nube.";
+          if (accountLoginBtn) accountLoginBtn.classList.remove("hidden");
+          if (accountLogoutBtn) accountLogoutBtn.classList.add("hidden");
+        } else if (this.isAuthenticated()) {
+          const emailDisplay = this.currentUser.email || "Usuario";
+          accountStatusLabel.textContent = "Conectado a la Nube";
+          accountStatusPill.className = "apple-status-pill open";
+          if (accountDesc) accountDesc.textContent = `Sesión activa como: ${emailDisplay}`;
+          if (accountLoginBtn) accountLoginBtn.classList.add("hidden");
+          if (accountLogoutBtn) accountLogoutBtn.classList.remove("hidden");
+        } else {
+          accountStatusLabel.textContent = "Desconectado";
+          accountStatusPill.className = "apple-status-pill closed";
+          if (accountDesc) accountDesc.textContent = "Supabase configurado. Inicia sesión para respaldar tus tiendas.";
+          if (accountLoginBtn) accountLoginBtn.classList.remove("hidden");
+          if (accountLogoutBtn) accountLogoutBtn.classList.add("hidden");
         }
       }
 
@@ -845,65 +1058,149 @@
       if (modal) modal.classList.add("hidden");
     },
 
+    _adminStores: [],
+    _adminFilter: "all",
+    _adminSearch: "",
+
     async openSuperAdminModal() {
       const modal = document.getElementById("superadmin-modal");
       if (!modal) return;
 
       const tbody = document.getElementById("superadmin-stores-tbody");
+      const usersEl = document.getElementById("superadmin-total-users");
       const totalEl = document.getElementById("superadmin-total-stores");
       const activeEl = document.getElementById("superadmin-active-stores");
+      const prodsEl = document.getElementById("superadmin-total-products");
+      const searchInput = document.getElementById("superadmin-search-input");
+      const refreshBtn = document.getElementById("superadmin-refresh-btn");
+      const uploadBtn = document.getElementById("superadmin-upload-local-btn");
+      const closeBtn = document.getElementById("superadmin-close-btn");
 
-      if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:24px;">Cargando tiendas...</td></tr>`;
+      if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px;">Cargando panel de control...</td></tr>`;
       modal.classList.remove("hidden");
 
-      const res = await this.fetchAllStoresForAdmin();
+      // Bind actions once
+      if (refreshBtn && !refreshBtn.dataset.bound) {
+        refreshBtn.dataset.bound = "true";
+        refreshBtn.addEventListener("click", () => this.openSuperAdminModal());
+      }
+      if (uploadBtn && !uploadBtn.dataset.bound) {
+        uploadBtn.dataset.bound = "true";
+        uploadBtn.addEventListener("click", () => this.uploadLocalStoresForAdmin());
+      }
+      if (closeBtn && !closeBtn.dataset.bound) {
+        closeBtn.dataset.bound = "true";
+        closeBtn.addEventListener("click", () => this.closeSuperAdminModal());
+      }
+      if (searchInput && !searchInput.dataset.bound) {
+        searchInput.dataset.bound = "true";
+        searchInput.addEventListener("input", (e) => {
+          this._adminSearch = (e.target.value || "").toLowerCase().trim();
+          this.renderSuperAdminTable();
+        });
+      }
+
+      document.querySelectorAll(".superadmin-filter-chip").forEach(chip => {
+        if (!chip.dataset.bound) {
+          chip.dataset.bound = "true";
+          chip.addEventListener("click", () => {
+            document.querySelectorAll(".superadmin-filter-chip").forEach(c => c.classList.remove("active"));
+            chip.classList.add("active");
+            this._adminFilter = chip.getAttribute("data-filter") || "all";
+            this.renderSuperAdminTable();
+          });
+        }
+      });
+
+      const res = await this.fetchSuperAdminData();
       if (!res.ok) {
-        if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:24px; color:#ef4444;">Error al cargar tiendas: ${res.error?.message || res.msg}</td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:#ef4444;">Error al cargar datos: ${res.error?.message || res.msg}</td></tr>`;
         return;
       }
 
-      const stores = res.stores || [];
-      if (totalEl) totalEl.textContent = stores.length;
-      if (activeEl) activeEl.textContent = stores.filter(s => s.is_active).length;
+      const m = res.metrics || {};
+      if (usersEl) usersEl.textContent = m.totalUsers || 0;
+      if (totalEl) totalEl.textContent = m.totalStores || 0;
+      if (activeEl) activeEl.textContent = m.activeStores || 0;
+      if (prodsEl) prodsEl.textContent = m.totalProducts || 0;
 
-      if (stores.length === 0) {
-        if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:24px; color:var(--text-muted);">No hay tiendas registradas aún en Supabase.</td></tr>`;
+      this._adminStores = res.stores || [];
+      this.renderSuperAdminTable();
+    },
+
+    renderSuperAdminTable() {
+      const tbody = document.getElementById("superadmin-stores-tbody");
+      if (!tbody) return;
+
+      let filtered = [...this._adminStores];
+
+      // Filtro por estado
+      if (this._adminFilter === "active") {
+        filtered = filtered.filter(s => s.is_active !== false);
+      } else if (this._adminFilter === "paused") {
+        filtered = filtered.filter(s => s.is_active === false);
+      }
+
+      // Filtro por buscador
+      if (this._adminSearch) {
+        filtered = filtered.filter(s => {
+          const name = (s.name || "").toLowerCase();
+          const slug = (s.slug || "").toLowerCase();
+          const email = (s.owner_email || "").toLowerCase();
+          return name.includes(this._adminSearch) || slug.includes(this._adminSearch) || email.includes(this._adminSearch);
+        });
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">No se encontraron tiendas registradas.</td></tr>`;
         return;
       }
 
-      if (tbody) {
-        tbody.innerHTML = stores.map(s => {
-          const isActive = s.is_active !== false;
-          const dateStr = s.created_at ? new Date(s.created_at).toLocaleDateString("es-ES", { day: "2-digit", month: "short" }) : "-";
-          const publicUrl = `?tienda=${encodeURIComponent(s.slug)}`;
+      tbody.innerHTML = filtered.map(s => {
+        const isActive = s.is_active !== false;
+        const publicUrl = `https://tiendazap.pages.dev/${encodeURIComponent(s.slug)}`;
+        const safeName = escapeHtml(s.name || "Sin nombre");
+        const safeSlug = escapeHtml(s.slug || "");
+        const safeEmail = escapeHtml(s.owner_email || "N/A");
+        const safePreset = escapeHtml(s.preset || "general");
+        const prodsCount = s.product_count || 0;
 
-          return `
-            <tr data-store-id="${s.id}">
-              <td>
-                <div style="font-weight:600; color:var(--text-main);">${escapeHtml(s.name)}</div>
-                <div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">/${escapeHtml(s.slug)}</div>
-              </td>
-              <td><span class="badge-niche-pill">${escapeHtml(s.preset || "general")}</span></td>
-              <td>
-                <span class="admin-status-badge ${isActive ? 'active' : 'suspended'}">
-                  ${isActive ? '● Activa' : '○ Pausada'}
-                </span>
-              </td>
-              <td>
-                <div style="display:flex; align-items:center; gap:6px;">
-                  <a href="${publicUrl}" target="_blank" class="admin-btn-action" title="Abrir vitrina">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                  </a>
-                  <button type="button" class="admin-btn-toggle ${isActive ? 'btn-suspend' : 'btn-activate'}" 
-                    onclick="CloudSync.handleToggleStore('${s.id}', ${!isActive})">
-                    ${isActive ? 'Pausar' : 'Activar'}
-                  </button>
-                </div>
-              </td>
-            </tr>
-          `;
-        }).join("");
-      }
+        return `
+          <tr data-store-id="${s.id}" style="border-bottom: 1px solid var(--border-subtle, rgba(255,255,255,0.06));">
+            <td style="padding: 8px 4px;">
+              <div style="font-weight:600; color:var(--text-main); font-size:0.82rem;">${safeName}</div>
+              <div style="font-size:0.72rem; color:var(--text-muted); font-family:monospace;">/${safeSlug}</div>
+            </td>
+            <td style="padding: 8px 4px; font-size:0.75rem; color:var(--text-muted); max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+              ${safeEmail}
+            </td>
+            <td style="padding: 8px 4px;">
+              <span class="badge-niche-pill" style="font-size:0.68rem; padding:2px 6px;">${safePreset}</span>
+            </td>
+            <td style="padding: 8px 4px; text-align:center; font-weight:600; font-size:0.8rem;">
+              ${prodsCount}
+            </td>
+            <td style="padding: 8px 4px;">
+              <span class="admin-status-badge ${isActive ? 'active' : 'suspended'}" style="font-size:0.7rem; padding:2px 6px;">
+                ${isActive ? '● Activa' : '○ Pausada'}
+              </span>
+            </td>
+            <td style="padding: 8px 4px; text-align:right;">
+              <div style="display:inline-flex; align-items:center; gap:4px;">
+                <a href="${publicUrl}" target="_blank" class="superadmin-btn-action" title="Abrir vitrina">
+                  <span>Ver</span>
+                </a>
+                <button type="button" class="superadmin-btn-action" onclick="CloudSync.handleToggleStore('${s.id}', ${!isActive})">
+                  ${isActive ? 'Pausar' : 'Activar'}
+                </button>
+                <button type="button" class="superadmin-btn-action superadmin-btn-delete" title="Eliminar definitivamente" onclick="CloudSync.handleDeleteStore('${s.id}', '${safeName}')">
+                  Eliminar
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
     },
 
     closeSuperAdminModal() {

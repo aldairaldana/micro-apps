@@ -6814,9 +6814,9 @@ body[data-app-theme="light"] .onboarding-back-btn {
   -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid rgba(255, 255, 255, 0.10);
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   z-index: 100;
-  padding: 4px 8px env(safe-area-inset-bottom, 4px);
+  padding: 4px 4px env(safe-area-inset-bottom, 4px);
   box-sizing: border-box;
 }
 
@@ -6825,16 +6825,17 @@ body[data-app-theme="light"] .onboarding-back-btn {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 2px;
   background: transparent;
   border: none;
   color: #94a3b8;
-  font-size: 0.72rem;
+  font-size: 0.69rem;
   font-weight: 600;
   cursor: pointer;
-  padding: 6px;
+  padding: 4px 2px;
   border-radius: 8px;
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .studio-bottom-nav-btn.active {
@@ -6842,8 +6843,8 @@ body[data-app-theme="light"] .onboarding-back-btn {
 }
 
 .studio-bottom-nav-btn svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   stroke: currentColor;
 }
 
@@ -10875,4 +10876,76 @@ body[data-app-theme="light"] .dropdown-btn-danger:hover {
 
 .btn-danger-confirm:hover {
   background: #dc2626 !important;
+}
+
+/* Super-Admin Filter Chips & Table Actions */
+.superadmin-filter-chip {
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.12));
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.superadmin-filter-chip.active {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+  color: #10b981;
+  font-weight: 600;
+}
+
+body[data-app-theme="light"] .superadmin-filter-chip {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+body[data-app-theme="light"] .superadmin-filter-chip.active {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+  color: #16a34a;
+}
+
+.superadmin-btn-action {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.12));
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main, #f8fafc);
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  text-decoration: none;
+}
+
+.superadmin-btn-action:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.superadmin-btn-delete {
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+.superadmin-btn-delete:hover {
+  background: rgba(239, 68, 68, 0.15) !important;
+}
+
+body[data-app-theme="light"] .superadmin-btn-action {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+body[data-app-theme="light"] .account-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
 }
